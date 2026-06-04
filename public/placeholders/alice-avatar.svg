@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc" shape-rendering="crispEdges">
+  <title id="title">Alice placeholder avatar</title>
+  <desc id="desc">Minimal pixel-style portrait placeholder for Alice.</desc>
+  <style>
+    .bg{fill:var(--ccad-avatar-bg,#263746)}.line{fill:var(--ccad-line,#111827)}
+    .skin{fill:var(--ccad-skin,#d3a281)}.skin-dark{fill:var(--ccad-skin-dark,#ab7b60)}
+    .hair{fill:var(--ccad-hair,#6e463b)}.shirt{fill:var(--ccad-accent,#668f87)}
+    .light{fill:var(--ccad-light,#d6dde6)}
+  </style>
+  <path class="bg" d="M0 0h128v128H0z"/>
+  <path class="line" d="M32 16h64v8h8v80H88v8H40v-8H24V24h8z"/>
+  <path class="hair" d="M32 16h64v8h8v64H88V40H40v48H24V24h8z"/>
+  <path class="skin" d="M40 40h48v48H40z"/>
+  <path class="skin-dark" d="M48 88h32v16H48z"/>
+  <path class="hair" d="M40 32h48v16H40zm-8 16h16v40H32zm48 0h16v40H80z"/>
+  <path class="line" d="M48 56h8v8h-8zm24 0h8v8h-8zM56 72h16v8H56z"/>
+  <path class="light" d="M48 56h4v4h-4zm24 0h4v4h-4z"/>
+  <path class="shirt" d="M24 104h80v24H24z"/>
+  <path class="line" d="M48 104h32v8H48z"/>
+</svg>

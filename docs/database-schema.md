@@ -1,0 +1,572 @@
+# Database Schema
+
+## 1. Principles
+
+- PostgreSQL in Supabase is the durable source of truth.
+- Every business record is scoped by `organization_id`.
+- Authentication identity and organization membership are separate concepts.
+- Important history is append-only where practical.
+- Archive business records instead of hard-deleting them.
+- Use constraints and transactional database functions for critical invariants.
+- Record every durable application-data mutation in append-only database change
+  history.
+- Use `timestamptz` and store timestamps in UTC.
+- Generate UUID primary keys.
+
+## 2. Shared Conventions
+
+Unless noted otherwise, durable tables include:
+
+- `id uuid primary key default gen_random_uuid()`
+- `organization_id uuid not null`
+- `created_at timestamptz not null default now()`
+- `updated_at timestamptz not null default now()`
+
+Money uses integer minor units, such as cents, to avoid floating-point errors.
+Currency uses an uppercase ISO 4217 code.
+
+## 3. Core Tables
+
+### `organizations`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `name` | text | `Cloud Centre of Art & Design` |
+| `slug` | text | Unique stable identifier |
+| `timezone` | text | IANA timezone |
+| `currency_code` | text | Default ledger currency |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Constraints:
+
+- Unique `slug`
+- Non-empty `name`
+- Three-character `currency_code`
+
+### `profiles`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key; references `auth.users.id` |
+| `display_name` | text | Staff-facing name |
+| `avatar_url` | text nullable | Optional avatar |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Profiles do not store XP or permission roles.
+
+### `organization_members`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | References `organizations.id` |
+| `user_id` | uuid | References `profiles.id` |
+| `role` | enum | `staff` or `admin` |
+| `is_active` | boolean | Defaults true |
+| `joined_at` | timestamptz | Membership start |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Constraints:
+
+- Unique pair: `organization_id`, `user_id`
+
+### `organization_invitations`
+
+Invite-only onboarding records paired with privileged Supabase Auth
+invitations.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | References `organizations.id` |
+| `email` | text | Lowercase invited email |
+| `role` | enum | `staff` or `admin` |
+| `status` | enum | `pending`, `accepted`, `revoked`, or `expired` |
+| `invited_by_member_id` | uuid nullable | Admin attribution |
+| `expires_at` | timestamptz nullable | Optional expiry |
+| `accepted_at` | timestamptz nullable | Acceptance time |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Constraints:
+
+- At most one pending invitation per organization and email
+- Only admins can read or manage invitations
+- A new Auth user with a matching valid pending invitation receives an active
+  membership and the invitation is marked accepted
+
+### `tasks`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `title` | text | Required |
+| `description` | text nullable | Optional detail |
+| `work_category_id` | uuid | References `work_categories.id` |
+| `work_category_name` | text | Historical category-name snapshot |
+| `status` | enum | `backlog`, `planned`, `in_progress`, `blocked`, `done` |
+| `priority` | enum | `low`, `normal`, `high`, `urgent` |
+| `assignee_member_id` | uuid nullable | References `organization_members.id` |
+| `due_at` | timestamptz nullable | Optional due time |
+| `completed_at` | timestamptz nullable | Set while the task is currently done |
+| `first_completed_at` | timestamptz nullable | Immutable first completion time |
+| `created_by_member_id` | uuid | Creator attribution |
+| `archived_at` | timestamptz nullable | Soft archive |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Constraints:
+
+- Non-empty `title`
+- Work category belongs to the same organization
+- Assignee and creator must belong to the same organization
+- `completed_at` is required when `status = 'done'`
+- `first_completed_at` is retained when a task is reopened
+
+Recommended indexes:
+
+- `(organization_id, status, archived_at)`
+- `(organization_id, assignee_member_id, status)`
+- `(organization_id, work_category_id, status)`
+- `(organization_id, due_at)` where not archived
+
+### `focus_sessions`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `member_id` | uuid | Session owner |
+| `work_name` | text nullable | Required for focus work; null for breaks |
+| `work_description` | text nullable | Required for focus work; null for breaks |
+| `work_category_id` | uuid nullable | Required for focus work; null for breaks |
+| `work_category_name` | text nullable | Historical category-name snapshot |
+| `linked_task_id` | uuid nullable | Optional source task reference |
+| `continued_from_session_id` | uuid nullable | Optional prior focus session |
+| `mode` | enum | `pomodoro` or `freeform` |
+| `kind` | enum | `focus`, `short_break`, `long_break` |
+| `state` | enum | `running`, `paused`, `completed`, `cancelled` |
+| `planned_duration_seconds` | integer nullable | Required for Pomodoro; null for freeform |
+| `started_at` | timestamptz | First start |
+| `resumed_at` | timestamptz nullable | Current freeform running interval start |
+| `ends_at` | timestamptz nullable | Expected end while running |
+| `paused_at` | timestamptz nullable | Current pause start |
+| `remaining_seconds_at_pause` | integer nullable | Resume source |
+| `elapsed_seconds_at_pause` | integer nullable | Freeform resume source |
+| `recorded_duration_seconds` | integer nullable | Final elapsed focus time |
+| `completed_at` | timestamptz nullable | Completion time |
+| `cancelled_at` | timestamptz nullable | Cancellation time |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Constraints:
+
+- Durations, remaining seconds, and elapsed seconds are non-negative.
+- Focus sessions require non-empty `work_name`, non-empty `work_description`,
+  and a same-organization work category.
+- Linked tasks and prior sessions must belong to the same organization.
+- Work name, description, and category are historical snapshots and do not
+  change when a linked task or category is later edited.
+- Break sessions do not require work metadata.
+- Pomodoro sessions require a planned duration; freeform sessions do not.
+- Freeform sessions use the `focus` kind.
+- Break sessions use Pomodoro mode.
+- State-specific timestamps are internally consistent.
+- At most one active session of any kind per member, enforced by a partial
+  unique index for `running` and `paused` states.
+
+Recommended indexes:
+
+- `(organization_id, member_id, created_at desc)`
+- `(organization_id, state)` for active-session queries
+- `(organization_id, work_category_id, created_at desc)`
+- `(organization_id, linked_task_id, created_at desc)`
+
+### `work_categories`
+
+Shared categories for tasks and recorded focus work.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `name` | text | Required category name |
+| `created_by_member_id` | uuid | Creator attribution |
+| `archived_at` | timestamptz nullable | Soft archive |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Constraints:
+
+- Unique active category name per organization
+- Non-empty `name`
+- Historical tasks and sessions retain their category reference after category
+  archival
+
+### `xp_events`
+
+Append-only ledger of Studio XP awards and corrections.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization receiving XP |
+| `event_type` | enum | Approved XP source or `correction` |
+| `points` | integer | Positive award or signed admin correction |
+| `source_type` | text | For example `task` or `focus_session` |
+| `source_id` | uuid nullable | Durable source record |
+| `idempotency_key` | text | Unique award identity |
+| `actor_member_id` | uuid nullable | Attribution |
+| `description` | text | Human-readable activity text |
+| `metadata` | jsonb | Small versioned context only |
+| `created_at` | timestamptz | Award time |
+
+Constraints:
+
+- Unique pair: `organization_id`, `idempotency_key`
+- Non-zero `points`
+- Only admin-created `correction` events may be negative
+- No update or delete for normal application roles
+
+Recommended indexes:
+
+- `(organization_id, created_at desc)`
+- `(organization_id, event_type, created_at desc)`
+- `(organization_id, source_type, source_id)`
+
+Current total XP is `sum(points)` for the organization. A cached summary may be
+added only if measurements show the ledger query is insufficient.
+
+### `finance_categories`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `name` | text | Display name |
+| `entry_type` | enum | `income` or `expense` |
+| `is_active` | boolean | Available for new entries |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Constraints:
+
+- Unique active category name per organization and entry type
+
+### `finance_entries`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `entry_type` | enum | `income` or `expense` |
+| `amount_minor` | bigint | Positive amount in minor units |
+| `currency_code` | text | ISO currency |
+| `entry_date` | date | Ledger date |
+| `category_id` | uuid | References `finance_categories.id` |
+| `category_name` | text | Historical category-name snapshot |
+| `description` | text | Required summary |
+| `note` | text nullable | Optional detail |
+| `created_by_member_id` | uuid | Creator attribution |
+| `archived_at` | timestamptz nullable | Soft archive |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Constraints:
+
+- `amount_minor > 0`
+- Category entry type and organization match the entry
+- Creator belongs to the organization
+- Category name is retained when category configuration later changes
+
+Recommended indexes:
+
+- `(organization_id, entry_date desc)` where not archived
+- `(organization_id, entry_type, entry_date)` where not archived
+- `(organization_id, category_id, entry_date)` where not archived
+
+### `change_history`
+
+Append-only database history for every insert, update, and delete on durable
+application tables, including inserts into append-only ledgers. The table is an
+internal operational record and does not require an MVP user interface.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid nullable | Organization scope when applicable |
+| `table_name` | text | Changed application table |
+| `record_id` | uuid nullable | Changed record |
+| `operation` | enum | `insert`, `update`, or `delete` |
+| `actor_user_id` | uuid nullable | Auth user when available |
+| `actor_member_id` | uuid nullable | Organization member when available |
+| `source` | text | For example `app`, `admin`, `migration`, or `system` |
+| `changed_fields` | text[] | Fields changed by an update |
+| `old_data` | jsonb nullable | Record state before change |
+| `new_data` | jsonb nullable | Record state after change |
+| `occurred_at` | timestamptz | Change time |
+
+Requirements:
+
+- Populate through database triggers, not only application code.
+- Cover every durable application table, including append-only tables.
+- Exclude secrets and redact fields explicitly classified as sensitive.
+- Full finance-entry history may include notes and is readable only by admins.
+- Do not create history records for `change_history` itself.
+- Normal application roles cannot update or delete history.
+- Retain history unless an explicit future retention policy is approved.
+
+### `audit_events`
+
+Use for security-significant or administrative events that are not adequately
+represented as a row change, such as an access denial or admin correction
+reason. This complements, rather than replaces, `change_history`.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `actor_member_id` | uuid nullable | Acting member |
+| `action` | text | Stable action identifier |
+| `entity_type` | text | Affected entity type |
+| `entity_id` | uuid nullable | Affected entity |
+| `details` | jsonb | Sanitized change context |
+| `created_at` | timestamptz | Event time |
+
+Audit events are append-only. Do not put secrets or unnecessary finance note
+content into `details`. All changes to durable records, including finance
+entries, are also captured in `change_history`.
+
+### `application_incidents`
+
+Lightweight references for authenticated browser failures. Full messages and
+stack traces remain in deployment runtime logs.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `member_id` | uuid | Member experiencing the failure |
+| `incident_key` | uuid | Idempotent incident reference |
+| `source` | text | Approved browser incident source |
+| `route` | text | Route where the failure occurred |
+| `digest` | text nullable | Next.js server-error digest when available |
+| `deployment_id` | text nullable | Deployment correlation reference |
+| `created_at` | timestamptz | Incident time |
+
+Only admins can read incident references. Authenticated inserts use a
+membership-checking database function. Incident records exclude messages,
+stacks, request data, form values, and authentication material.
+
+## 4. Realtime Data
+
+Realtime presence is not stored as a durable table. It uses Supabase Realtime
+Presence channels and a small ephemeral payload described in
+`realtime-presence.md`.
+
+The Phase 8 migration contains organization-member policies for the managed
+`realtime.messages` authorization surface. Supabase must first initialize that
+managed surface by enabling private-only channels in Realtime settings. The
+project currently has no `realtime.messages` relation, so the Phase 8 policy
+migration remains unapplied. Do not manually create Supabase-managed Realtime
+tables.
+
+Task or finance Postgres-change subscriptions may be added later if a concrete
+workflow needs them. They are not required for initial CRUD behavior.
+
+## 5. Transactional Functions
+
+Critical multi-record operations should use narrowly scoped database functions:
+
+### Complete focus session
+
+- Authorize the member.
+- Transition an eligible focus session to `completed`.
+- Insert one XP event using a deterministic idempotency key only for an eligible
+  completed Pomodoro focus interval.
+- Return the completed session and award result.
+
+### Complete freeform focus session
+
+- Authorize the member.
+- Validate the session against current server state.
+- Record the elapsed duration derived from timestamps.
+- Transition the session to `completed`.
+- Do not insert an XP event in MVP.
+
+### Complete task
+
+- Authorize the member.
+- Transition the task to `done`.
+- Preserve the first `completed_at`.
+- Insert one XP event using a deterministic idempotency key.
+- Return the task and award result.
+
+### Correct XP
+
+- Require admin role.
+- Insert a signed `correction` event.
+- Insert an audit event.
+- Never edit historical XP events.
+
+## 6. Row Level Security
+
+Enable RLS on every public table.
+
+Baseline policy intent:
+
+- Active members can read records for their organization.
+- Active members can read organization tasks and use guarded task RPCs to
+  create, update, transition, and archive them; direct task writes are revoked.
+- Active members can create, rename, and archive shared work categories.
+- Active members can create finance entries and update or archive entries they
+  created; admins can update or archive any organization finance entry.
+- Only admins can manage organization membership, categories, or XP corrections.
+- Only admins can read full finance change history.
+- No normal role can update or delete XP or audit events.
+- No normal role can update or delete change-history records.
+- Cross-organization access is denied even when a record ID is known.
+
+Reusable membership checks should be implemented carefully to avoid recursive
+RLS policies and unnecessary per-row work.
+
+## 7. Data Retention
+
+- Presence: ephemeral, no attendance history.
+- Tasks: archive rather than delete.
+- Finance: archive rather than delete; preserve auditability.
+- Focus sessions: retain completed and cancelled sessions indefinitely for MVP.
+- XP events and audit events: append-only and retained.
+- Application incidents: append-only and retained until a formal monitoring
+  retention policy is approved.
+- Change history: append-only and retained.
+
+## 8. Confirmed Schema Defaults
+
+- Organization timezone: `America/Vancouver`
+- Currency: `CAD`
+- Initial income categories: tuition and miscellaneous
+- Initial expense categories: supplies, rent, payroll, software, marketing,
+  utilities, and miscellaneous
+- Focus-session history is retained indefinitely for MVP.
+- Deactivated members remain available for historical attribution.
+
+## 9. Phase 2 Applied Schema
+
+The dedicated Supabase project currently contains:
+
+- `organizations`, `profiles`, `organization_members`,
+  `organization_invitations`, `work_categories`, `change_history`, and
+  `audit_events`
+- RLS enabled on every public table
+- Admin/member policies scoped through private security-definer helpers
+- Updated-at triggers on mutable foundation tables
+- Change-history triggers on every durable foundation table except
+  `change_history` itself
+- An Auth-user trigger that creates a profile and accepts matching invitations
+- A seeded `ccad` organization using `America/Vancouver` and `CAD`
+
+Later feature migrations add the detailed workflows following the contracts
+above.
+
+## 10. Phase 3 Applied Schema
+
+Phase 3 adds:
+
+- `tasks`, `xp_events`, `finance_categories`, and `finance_entries`
+- Composite foreign keys that enforce same-organization task, member, and
+  finance-category references
+- RLS policies for member task access, append-only XP reads, admin-managed
+  finance categories, and owner/admin finance updates
+- Updated-at and change-history triggers for every new mutable or durable table
+- Covering indexes for query paths and composite foreign keys
+- Nine seeded finance categories
+- Pending admin invitations for `alice.wen112@gmail.com` and
+  `williamyfsun@gmail.com`
+
+The Auth-user trigger now rejects emails without a valid pending organization
+invitation, then creates the profile and membership and marks matching
+invitations accepted.
+
+## 11. Phase 4 Applied Schema
+
+Phase 4 adds:
+
+- `focus_sessions` with same-organization references to members, categories,
+  tasks, and prior sessions
+- Fixed Pomodoro focus, short-break, and long-break durations plus freeform
+  elapsed-time recording
+- A partial unique index enforcing one running or paused session per member
+- Member-readable RLS with owner-authorizing database RPCs for every timer
+  transition
+- Atomic, idempotent full-Pomodoro completion and Studio XP insertion
+- Updated-at and append-only change-history triggers for focus sessions
+- The six approved initial shared work categories
+
+The authenticated focus RPCs are intentionally `security definer` functions.
+Each function performs explicit active-member and session-owner authorization
+before mutating data, while direct focus-session table mutations remain
+revoked.
+
+## 12. Phase 5 Applied Schema
+
+Phase 5 adds:
+
+- `application_incidents` with admin-only reads, authenticated idempotent
+  recording, and append-only change history
+- A reusable database Studio-level function matching the approved quadratic
+  progression formula
+- An admin-only Studio XP correction RPC that requires a reason, prevents
+  totals below zero, is idempotent across retries, and appends rather than edits
+  ledger events
+- Previous/new Studio-level results from full-Pomodoro completion
+- Serialized Studio XP mutations so concurrent changes produce reliable shared
+  totals and level transitions
+
+The authenticated incident and XP RPCs are intentionally `security definer`
+functions with explicit membership, ownership, or admin authorization and empty
+`search_path` settings.
+
+## 13. Phase 6 Applied Schema
+
+Phase 6 adds:
+
+- Required task category-name snapshots and immutable first-completion times
+- Guarded create, detail-update, status-transition, and archive task RPCs
+- Revoked direct task writes while retaining organization-member reads
+- Atomic first-completion task XP with a deterministic one-award key
+- Reopen and recompletion behavior that preserves first completion and earned XP
+
+The authenticated task RPCs are intentionally `security definer` functions.
+Each verifies active organization membership and same-organization category and
+assignee references, uses an empty `search_path`, and preserves append-only
+change history.
+
+## 14. Phase 7 Applied Schema
+
+Phase 7 adds:
+
+- Required historical category-name snapshots on finance entries
+- Guarded create, update, and archive finance-entry RPCs
+- Revoked direct finance-entry writes while retaining member reads
+- Organization-derived currency and active matching category enforcement
+- Creator-or-admin authorization for edits and archive operations
+
+The authenticated Finance RPCs are intentionally `security definer` functions.
+Each verifies active organization membership and ownership or admin permission,
+uses an empty `search_path`, and preserves append-only change history.
+
+## 15. Phase 8 Pending Realtime Authorization
+
+Phase 8 adds no durable presence table or presence history. Its pending
+migration adds read and insert policies to Supabase's managed
+`realtime.messages` table so only active organization members can receive or
+track presence on `org:{organization_id}:presence`.
+
+The policies can be applied after private-only channels are enabled and
+Supabase initializes the managed Realtime authorization schema.

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc" shape-rendering="crispEdges">
+  <title id="title">Empty finance chart placeholder</title>
+  <desc id="desc">A minimal dark-mode-friendly empty chart with neutral axes and placeholder bars.</desc>
+  <style>
+    .bg{fill:var(--ccad-bg,#111827)}.surface{fill:var(--ccad-surface,#1f2937)}
+    .line{fill:var(--ccad-line,#475569)}.muted{fill:var(--ccad-muted,#64748b)}
+    .accent{fill:var(--ccad-accent,#7aa2a8)}.light{fill:var(--ccad-light,#d6dde6)}
+  </style>
+  <path class="bg" d="M0 0h640v360H0z"/>
+  <path class="surface" d="M24 24h592v312H24z"/>
+  <path class="line" d="M72 72h8v216h488v8H72z"/>
+  <path class="line" opacity=".45" d="M80 112h488v4H80zm0 56h488v4H80zm0 56h488v4H80z"/>
+  <path class="muted" opacity=".35" d="M112 240h48v48h-48zm80-72h48v120h-48zm80 32h48v88h-48zm80-96h48v184h-48zm80 48h48v136h-48zm80 32h48v104h-48z"/>
+  <path class="accent" d="M112 272h48v16h-48zm80 272h48v16h-48zm80 272h48v16h-48zm80 272h48v16h-48zm80 272h48v16h-48zm80 272h48v16h-48z"/>
+  <path class="light" opacity=".6" d="M96 312h80v8H96zm160 0h80v8h-80zm160 0h80v8h-80z"/>
+</svg>

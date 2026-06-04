@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-labelledby="title desc" shape-rendering="crispEdges">
+  <title id="title">Focus Room banner placeholder</title>
+  <desc id="desc">A calm studio banner with a central focus timer and two workstations.</desc>
+  <style>
+    .bg{fill:var(--ccad-bg,#111827)}.surface{fill:var(--ccad-surface,#1f2937)}
+    .surface2{fill:var(--ccad-surface-2,#263345)}.line{fill:var(--ccad-line,#475569)}
+    .muted{fill:var(--ccad-muted,#64748b)}.accent{fill:var(--ccad-accent,#7aa2a8)}
+    .light{fill:var(--ccad-light,#d6dde6)}.wood{fill:var(--ccad-wood,#9a7655)}
+  </style>
+  <path class="bg" d="M0 0h960v280H0z"/>
+  <path class="surface" d="M24 24h912v232H24z"/>
+  <path class="surface2" d="M48 176h864v56H48z"/>
+  <path class="line" d="M48 168h864v8H48z"/>
+  <path class="wood" d="M96 144h216v16H96zm552 0h216v16H648z"/>
+  <path class="line" d="M112 160h16v64h-16zm168 0h16v64h-16zm384 0h16v64h-16zm168 0h16v64h-16zM152 88h104v56H152zm552 0h104v56H704z"/>
+  <path class="accent" d="M160 96h88v40h-88zm552 0h88v40h-88z"/>
+  <path class="line" d="M416 56h128v128H416z"/>
+  <path class="surface2" d="M424 64h112v112H424z"/>
+  <path class="accent" d="M472 72h16v16h-16zm40 24h16v48h-16zm-40 40h16v32h-16z"/>
+  <path class="light" d="M472 96h16v40h-16zm16 32h24v16h-24z"/>
+  <path class="muted" d="M184 160h40v16h-40zm552 0h40v16h-40z"/>
+  <path class="accent" opacity=".3" d="M352 104h32v8h-32zm192 0h32v8h-32zm-208 32h48v8h-48zm208 0h48v8h-48z"/>
+</svg>

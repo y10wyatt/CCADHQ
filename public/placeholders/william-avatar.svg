@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc" shape-rendering="crispEdges">
+  <title id="title">William placeholder avatar</title>
+  <desc id="desc">Minimal pixel-style portrait placeholder for William.</desc>
+  <style>
+    .bg{fill:var(--ccad-avatar-bg,#243246)}.line{fill:var(--ccad-line,#111827)}
+    .skin{fill:var(--ccad-skin,#c99b78)}.skin-dark{fill:var(--ccad-skin-dark,#9f7358)}
+    .hair{fill:var(--ccad-hair,#3d342f)}.shirt{fill:var(--ccad-accent,#708ca8)}
+    .light{fill:var(--ccad-light,#d6dde6)}
+  </style>
+  <path class="bg" d="M0 0h128v128H0z"/>
+  <path class="line" d="M32 24h64v8h8v56h-8v16H32V88h-8V32h8z"/>
+  <path class="skin" d="M32 40h64v48H32z"/>
+  <path class="skin-dark" d="M40 88h48v16H40z"/>
+  <path class="hair" d="M32 24h64v16H32zm-8 8h16v32H24zm64 0h16v32H88zM40 40h16v8H40zm32 0h16v8H72z"/>
+  <path class="line" d="M40 56h16v16H40zm32 0h16v16H72zM56 64h16v8H56zM48 80h32v8H48z"/>
+  <path class="light" d="M40 56h8v8h-8zm32 0h8v8h-8z"/>
+  <path class="shirt" d="M24 104h80v24H24z"/>
+  <path class="line" d="M48 104h32v8H48z"/>
+</svg>

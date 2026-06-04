@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-labelledby="title desc" shape-rendering="crispEdges">
+  <title id="title">Studio desk placeholder</title>
+  <desc id="desc">A minimal pixel-style studio desk with monitor, lamp, notebook, and plant.</desc>
+  <style>
+    .bg{fill:var(--ccad-bg,#111827)}.surface{fill:var(--ccad-surface,#1f2937)}
+    .line{fill:var(--ccad-line,#475569)}.muted{fill:var(--ccad-muted,#64748b)}
+    .wood{fill:var(--ccad-wood,#9a7655)}.wood-dark{fill:var(--ccad-wood-dark,#6f543f)}
+    .accent{fill:var(--ccad-accent,#7aa2a8)}.light{fill:var(--ccad-light,#d6dde6)}
+    .plant{fill:var(--ccad-plant,#6f9279)}
+  </style>
+  <path class="bg" d="M0 0h320v240H0z"/>
+  <path class="surface" d="M16 16h288v208H16z"/>
+  <path class="line" d="M16 216h288v8H16z"/>
+  <path class="wood" d="M40 144h240v24H40z"/>
+  <path class="wood-dark" d="M56 168h16v48H56zm192 0h16v48h-16z"/>
+  <path class="line" d="M104 64h112v72H104z"/>
+  <path class="accent" d="M112 72h96v56h-96z"/>
+  <path class="muted" opacity=".45" d="M120 80h48v8h-48zm0 16h72v8h-72zm0 16h56v8h-56z"/>
+  <path class="line" d="M152 136h16v8h-16zM144 144h32v8h-32z"/>
+  <path class="light" d="M224 112h40v8h-40zm32-48h8v48h-8zm-24-8h32v8h-32z"/>
+  <path class="muted" d="M80 128h48v16H80z"/>
+  <path class="plant" d="M48 104h8v32h-8zm16-16h8v48h-8zm-8 8h8v40h-8zm16 16h8v24h-8z"/>
+  <path class="line" d="M48 136h32v8H48z"/>
+</svg>

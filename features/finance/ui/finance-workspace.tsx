@@ -1,0 +1,617 @@
+"use client";
+
+import {
+  Archive,
+  Check,
+  Pencil,
+  Plus,
+  X,
+} from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+
+import {
+  archiveFinanceEntry,
+  createFinanceEntry,
+  updateFinanceEntry,
+  type FinanceActionResult,
+} from "@/features/finance/application/actions";
+import {
+  formatCurrency,
+  formatEntryDate,
+  formatMonthLabel,
+  parseAmountToMinor,
+  summarizeFinance,
+  type FinanceEntryView,
+  type FinanceViewModel,
+} from "@/features/finance/domain/finance";
+import type { FinanceEntryType } from "@/shared/database/database.types";
+import { Button } from "@/shared/ui/button";
+import { Card } from "@/shared/ui/card";
+import { StatusPill } from "@/shared/ui/status-pill";
+
+const fieldClass =
+  "min-h-11 rounded-md border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground";
+
+export function FinanceWorkspace({ finance }: { finance: FinanceViewModel }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<FinanceEntryView | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [monthFilter, setMonthFilter] = useState(finance.currentMonth);
+  const [typeFilter, setTypeFilter] = useState<FinanceEntryType | "all">("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
+  const months = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          finance.currentMonth,
+          ...finance.entries.map((entry) => entry.entryDate.slice(0, 7)),
+        ]),
+      ).sort((a, b) => b.localeCompare(a)),
+    [finance.currentMonth, finance.entries],
+  );
+  const monthEntries = useMemo(
+    () =>
+      finance.entries.filter((entry) => entry.entryDate.startsWith(monthFilter)),
+    [finance.entries, monthFilter],
+  );
+  const filteredEntries = useMemo(
+    () =>
+      monthEntries.filter(
+        (entry) =>
+          (typeFilter === "all" || entry.entryType === typeFilter) &&
+          (categoryFilter === "all" || entry.categoryId === categoryFilter),
+      ),
+    [categoryFilter, monthEntries, typeFilter],
+  );
+  const summary = summarizeFinance(monthEntries);
+  const monthLabel = formatMonthLabel(monthFilter, finance.timezone);
+
+  function runAction(
+    action: () => Promise<FinanceActionResult>,
+    successMessage: string,
+    onSuccess?: () => void,
+  ) {
+    startTransition(async () => {
+      setMessage(null);
+      const result = await action();
+      if (!result.ok) {
+        setMessage(result.error ?? "Unable to update Finance.");
+        return;
+      }
+      setMessage(successMessage);
+      onSuccess?.();
+      router.refresh();
+    });
+  }
+
+  function beginCreate() {
+    setEditingEntry(null);
+    setFormOpen(true);
+  }
+
+  function beginEdit(entry: FinanceEntryView) {
+    setEditingEntry(entry);
+    setFormOpen(true);
+  }
+
+  return (
+    <div className="grid gap-5">
+      {message && (
+        <p
+          aria-live="polite"
+          className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent"
+        >
+          {message}
+        </p>
+      )}
+
+      <section className="grid gap-4 sm:grid-cols-3">
+        <SummaryCard
+          label="Income"
+          value={formatCurrency(summary.incomeMinor, finance.currencyCode)}
+          month={monthLabel}
+          tone="success"
+        />
+        <SummaryCard
+          label="Expenses"
+          value={formatCurrency(summary.expenseMinor, finance.currencyCode)}
+          month={monthLabel}
+          tone="warning"
+        />
+        <SummaryCard
+          label="Net"
+          value={formatCurrency(summary.netMinor, finance.currencyCode)}
+          month={monthLabel}
+          tone={
+            summary.netMinor > 0
+              ? "success"
+              : summary.netMinor < 0
+                ? "warning"
+                : "neutral"
+          }
+        />
+      </section>
+
+      <Card>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold">Ledger controls</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Monthly totals use every active entry in the selected month.
+            </p>
+          </div>
+          <Button onClick={beginCreate}>
+            <Plus aria-hidden="true" />
+            Add entry
+          </Button>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <FilterSelect
+            label="Month"
+            value={monthFilter}
+            onChange={setMonthFilter}
+            options={months.map((month) => ({
+              value: month,
+              label: formatMonthLabel(month, finance.timezone),
+            }))}
+          />
+          <FilterSelect
+            label="Type"
+            value={typeFilter}
+            onChange={(value) => setTypeFilter(value as FinanceEntryType | "all")}
+            options={[
+              { value: "all", label: "All types" },
+              { value: "income", label: "Income" },
+              { value: "expense", label: "Expense" },
+            ]}
+          />
+          <FilterSelect
+            label="Category"
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            options={[
+              { value: "all", label: "All categories" },
+              ...finance.categories.map((category) => ({
+                value: category.id,
+                label: `${category.name} (${capitalize(category.entryType)})`,
+              })),
+            ]}
+          />
+        </div>
+      </Card>
+
+      {formOpen && (
+        <FinanceEntryForm
+          key={editingEntry?.id ?? "new-entry"}
+          entry={editingEntry}
+          finance={finance}
+          disabled={isPending}
+          onClose={() => setFormOpen(false)}
+          onSubmit={(input) =>
+            runAction(
+              () =>
+                editingEntry
+                  ? updateFinanceEntry({ entryId: editingEntry.id, ...input })
+                  : createFinanceEntry(input),
+              editingEntry ? "Finance entry updated." : "Finance entry created.",
+              () => setFormOpen(false),
+            )
+          }
+        />
+      )}
+
+      <MonthlyComparison
+        incomeMinor={summary.incomeMinor}
+        expenseMinor={summary.expenseMinor}
+        currencyCode={finance.currencyCode}
+        monthLabel={monthLabel}
+      />
+
+      <LedgerTable
+        entries={filteredEntries}
+        timezone={finance.timezone}
+        disabled={isPending}
+        onEdit={beginEdit}
+        onArchive={(entry) => {
+          if (window.confirm(`Archive "${entry.description}"?`)) {
+            runAction(
+              () => archiveFinanceEntry(entry.id),
+              "Finance entry archived.",
+            );
+          }
+        }}
+      />
+    </div>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  month,
+  tone,
+}: {
+  label: string;
+  value: string;
+  month: string;
+  tone: "neutral" | "success" | "warning";
+}) {
+  return (
+    <Card>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <StatusPill tone={tone}>{month}</StatusPill>
+      </div>
+      <p className="mt-4 font-mono text-3xl font-semibold">{value}</p>
+    </Card>
+  );
+}
+
+function MonthlyComparison({
+  incomeMinor,
+  expenseMinor,
+  currencyCode,
+  monthLabel,
+}: {
+  incomeMinor: number;
+  expenseMinor: number;
+  currencyCode: string;
+  monthLabel: string;
+}) {
+  const maximum = Math.max(incomeMinor, expenseMinor, 1);
+  return (
+    <Card>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">Income and expenses</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            A lightweight comparison for {monthLabel}.
+          </p>
+        </div>
+        <StatusPill tone="neutral">Internal visibility</StatusPill>
+      </div>
+      <div className="mt-6 grid gap-5">
+        <ComparisonBar
+          label="Income"
+          value={formatCurrency(incomeMinor, currencyCode)}
+          width={(incomeMinor / maximum) * 100}
+          tone="bg-success"
+        />
+        <ComparisonBar
+          label="Expenses"
+          value={formatCurrency(expenseMinor, currencyCode)}
+          width={(expenseMinor / maximum) * 100}
+          tone="bg-warning"
+        />
+      </div>
+    </Card>
+  );
+}
+
+function ComparisonBar({
+  label,
+  value,
+  width,
+  tone,
+}: {
+  label: string;
+  value: string;
+  width: number;
+  tone: string;
+}) {
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+        <span className="font-medium">{label}</span>
+        <span className="font-mono text-muted-foreground">{value}</span>
+      </div>
+      <div className="h-3 overflow-hidden rounded-full bg-muted">
+        <div className={`h-full rounded-full ${tone}`} style={{ width: `${width}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function LedgerTable({
+  entries,
+  timezone,
+  disabled,
+  onEdit,
+  onArchive,
+}: {
+  entries: FinanceEntryView[];
+  timezone: string;
+  disabled: boolean;
+  onEdit: (entry: FinanceEntryView) => void;
+  onArchive: (entry: FinanceEntryView) => void;
+}) {
+  return (
+    <Card className="overflow-x-auto p-0">
+      <div className="border-b border-border px-6 py-5">
+        <h2 className="font-semibold">Ledger entries</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {entries.length} matching {entries.length === 1 ? "entry" : "entries"}
+        </p>
+      </div>
+      <table className="w-full min-w-[900px] text-left text-sm">
+        <thead className="border-b border-border bg-muted/30 text-xs text-muted-foreground">
+          <tr>
+            <th className="px-5 py-4 font-medium">Date</th>
+            <th className="px-5 py-4 font-medium">Description</th>
+            <th className="px-5 py-4 font-medium">Category</th>
+            <th className="px-5 py-4 font-medium">Recorded by</th>
+            <th className="px-5 py-4 text-right font-medium">Amount</th>
+            <th className="px-5 py-4 font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {entries.map((entry) => (
+            <tr key={entry.id}>
+              <td className="whitespace-nowrap px-5 py-4">
+                {formatEntryDate(entry.entryDate, timezone)}
+              </td>
+              <td className="max-w-sm px-5 py-4">
+                <p className="font-medium">{entry.description}</p>
+                {entry.note && (
+                  <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {entry.note}
+                  </p>
+                )}
+              </td>
+              <td className="px-5 py-4">{entry.categoryName}</td>
+              <td className="px-5 py-4">{entry.creatorName}</td>
+              <td
+                className={`whitespace-nowrap px-5 py-4 text-right font-mono font-semibold ${
+                  entry.entryType === "income" ? "text-success" : "text-warning"
+                }`}
+              >
+                {entry.entryType === "income" ? "+" : "-"}
+                {formatCurrency(entry.amountMinor, entry.currencyCode)}
+              </td>
+              <td className="px-5 py-4">
+                {entry.canManage ? (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={disabled}
+                      onClick={() => onEdit(entry)}
+                    >
+                      <Pencil aria-hidden="true" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={disabled}
+                      onClick={() => onArchive(entry)}
+                    >
+                      <Archive aria-hidden="true" />
+                      Archive
+                    </Button>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">View only</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {entries.length === 0 && (
+        <p className="p-6 text-sm text-muted-foreground">
+          No finance entries match these filters.
+        </p>
+      )}
+    </Card>
+  );
+}
+
+function FinanceEntryForm({
+  entry,
+  finance,
+  disabled,
+  onClose,
+  onSubmit,
+}: {
+  entry: FinanceEntryView | null;
+  finance: FinanceViewModel;
+  disabled: boolean;
+  onClose: () => void;
+  onSubmit: (input: {
+    entryType: FinanceEntryType;
+    amountMinor: number;
+    entryDate: string;
+    categoryId: string;
+    description: string;
+    note: string | null;
+  }) => void;
+}) {
+  const initialType = entry?.entryType ?? "expense";
+  const initialCategories = finance.categories.filter(
+    (category) => category.entryType === initialType,
+  );
+  const [entryType, setEntryType] = useState<FinanceEntryType>(initialType);
+  const [amount, setAmount] = useState(
+    entry ? (entry.amountMinor / 100).toFixed(2) : "",
+  );
+  const [entryDate, setEntryDate] = useState(
+    entry?.entryDate ?? finance.currentDate,
+  );
+  const [categoryId, setCategoryId] = useState(
+    initialCategories.some((category) => category.id === entry?.categoryId)
+      ? (entry?.categoryId ?? "")
+      : (initialCategories[0]?.id ?? ""),
+  );
+  const [description, setDescription] = useState(entry?.description ?? "");
+  const [note, setNote] = useState(entry?.note ?? "");
+  const [amountError, setAmountError] = useState<string | null>(null);
+  const categories = finance.categories.filter(
+    (category) => category.entryType === entryType,
+  );
+
+  function changeType(type: FinanceEntryType) {
+    setEntryType(type);
+    setCategoryId(
+      finance.categories.find((category) => category.entryType === type)?.id ?? "",
+    );
+  }
+
+  return (
+    <Card>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">
+            {entry ? "Edit finance entry" : "Add finance entry"}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Finance entries are internal records and do not award Studio XP.
+          </p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <X aria-hidden="true" />
+          Close
+        </Button>
+      </div>
+      <form
+        className="mt-5 grid gap-4 lg:grid-cols-2"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const amountMinor = parseAmountToMinor(amount);
+          if (!amountMinor) {
+            setAmountError("Enter a positive amount with no more than two decimals.");
+            return;
+          }
+          setAmountError(null);
+          onSubmit({
+            entryType,
+            amountMinor,
+            entryDate,
+            categoryId,
+            description,
+            note: note.trim() || null,
+          });
+        }}
+      >
+        <label className="grid gap-2 text-sm font-medium">
+          Entry type
+          <select
+            className={fieldClass}
+            value={entryType}
+            onChange={(event) => changeType(event.target.value as FinanceEntryType)}
+          >
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Amount ({finance.currencyCode})
+          <input
+            className={fieldClass}
+            inputMode="decimal"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            placeholder="0.00"
+            aria-describedby={amountError ? "finance-amount-error" : undefined}
+          />
+          {amountError && (
+            <span id="finance-amount-error" className="text-xs text-danger">
+              {amountError}
+            </span>
+          )}
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Date
+          <input
+            className={fieldClass}
+            type="date"
+            value={entryDate}
+            onChange={(event) => setEntryDate(event.target.value)}
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Category
+          <select
+            className={fieldClass}
+            value={categoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+          >
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-medium lg:col-span-2">
+          Description
+          <input
+            className={fieldClass}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-medium lg:col-span-2">
+          Note (optional)
+          <textarea
+            className={`${fieldClass} min-h-24 py-3`}
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+          />
+        </label>
+        <div className="flex items-end lg:col-span-2">
+          <Button
+            type="submit"
+            disabled={
+              disabled ||
+              !description.trim() ||
+              !amount.trim() ||
+              !entryDate ||
+              !categoryId
+            }
+          >
+            {entry ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}
+            {entry ? "Save entry" : "Create entry"}
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+}
+
+function FilterSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: Array<{ value: string; label: string }>;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="grid gap-2 text-xs font-medium text-muted-foreground">
+      {label}
+      <select
+        className={fieldClass}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function capitalize(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}

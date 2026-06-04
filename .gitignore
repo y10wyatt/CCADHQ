@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# testing
+/coverage/
+
+# local environment files
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# local tooling
+/.tools/
+/.npm-cache/
+
+# operating system
+.DS_Store
+Thumbs.db
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

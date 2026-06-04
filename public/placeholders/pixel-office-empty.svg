@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc" shape-rendering="crispEdges">
+  <title id="title">Empty pixel office placeholder</title>
+  <desc id="desc">A calm, empty studio office with two desks and a plant.</desc>
+  <style>
+    .bg{fill:var(--ccad-bg,#111827)}.wall{fill:var(--ccad-surface,#1f2937)}
+    .floor{fill:var(--ccad-surface-2,#263345)}.line{fill:var(--ccad-line,#475569)}
+    .muted{fill:var(--ccad-muted,#64748b)}.wood{fill:var(--ccad-wood,#9a7655)}
+    .wood-dark{fill:var(--ccad-wood-dark,#6f543f)}.accent{fill:var(--ccad-accent,#7aa2a8)}
+    .light{fill:var(--ccad-light,#d6dde6)}.plant{fill:var(--ccad-plant,#6f9279)}
+  </style>
+  <path class="bg" d="M0 0h960v540H0z"/>
+  <path class="wall" d="M32 32h896v268H32z"/>
+  <path class="floor" d="M32 300h896v208H32z"/>
+  <path class="line" d="M32 292h896v8H32zM32 508h896v8H32zM24 32h8v484h-8zM928 32h8v484h-8z"/>
+  <path class="muted" opacity=".22" d="M64 332h64v8H64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zM96 404h64v8H96zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zM64 476h64v8H64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64zm128 0h64v8h-64z"/>
+  <path class="line" d="M96 80h184v112H96zM680 80h184v112H680z"/>
+  <path class="accent" d="M104 88h168v96H104zM688 88h168v96H688z"/>
+  <path class="light" opacity=".55" d="M112 96h72v80h-72zm80 0h72v80h-72zm504 0h72v80h-72zm80 0h72v80h-72z"/>
+  <path class="line" d="M280 96h8v112h-8zm392 0h8v112h-8z"/>
+  <path class="wood" d="M144 276h248v24H144zm424 0h248v24H568z"/>
+  <path class="wood-dark" d="M160 300h16v112h-16zm200 0h16v112h-16zm224 0h16v112h-16zm200 0h16v112h-16z"/>
+  <path class="line" d="M224 220h88v56h-88zm424 0h88v56h-88z"/>
+  <path class="accent" d="M232 228h72v40h-72zm424 0h72v40h-72z"/>
+  <path class="muted" d="M260 276h16v16h-16zm424 0h16v16h-16zM216 340h104v16H216zm424 0h104v16H640z"/>
+  <path class="line" d="M232 356h16v64h-16zm56 0h16v64h-16zm368 0h16v64h-16zm56 0h16v64h-16z"/>
+  <path class="wood-dark" d="M448 368h64v64h-64z"/>
+  <path class="plant" d="M456 328h16v40h-16zm32-24h16v64h-16zm-16 16h16v48h-16zm-32-8h16v32h-16zm64 8h16v32h-16z"/>
+  <path class="line" d="M440 360h80v8h-80z"/>
+</svg>
