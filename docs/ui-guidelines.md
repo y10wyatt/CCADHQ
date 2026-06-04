@@ -201,6 +201,16 @@ reduce visual movement.
 - Do not hide core actions inside the visualization.
 - Keep sprites and layout assets isolated from operational UI components.
 
+### Studio Access
+
+- Keep Studio Access outside primary MVP navigation and visible only to admins.
+- Explain that creating an invitation does not send an email; the invited
+  person must request a magic link.
+- Show active/inactive and staff/admin states with text, not color alone.
+- Confirm deactivation and invitation revocation.
+- Do not offer self-deactivation and explain last-admin protection.
+- Keep access administration separate from employee performance or attendance.
+
 ## 9. Accessibility
 
 Target WCAG 2.2 AA:

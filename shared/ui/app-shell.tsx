@@ -9,6 +9,7 @@ import {
   Home,
   LogOut,
   Timer,
+  UserCog,
 } from "lucide-react";
 
 import { signOut } from "@/features/auth/application/actions";
@@ -78,9 +79,21 @@ export function AppShell({
         <header className="sticky top-0 z-20 border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <Brand compact />
-            <p className="text-xs font-medium text-muted-foreground">
-              {member.displayName}
-            </p>
+            <div className="flex items-center gap-2">
+              {member.role === "admin" && (
+                <Link
+                  href="/studio-access"
+                  title="Studio Access"
+                  className="grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <UserCog className="size-4" aria-hidden="true" />
+                  <span className="sr-only">Studio Access</span>
+                </Link>
+              )}
+              <p className="text-xs font-medium text-muted-foreground">
+                {member.displayName}
+              </p>
+            </div>
           </div>
         </header>
 
@@ -110,28 +123,39 @@ export function AppShell({
 
 function MemberSummary({ member }: { member: CurrentMember }) {
   return (
-    <div className="mt-6 rounded-xl border border-border bg-card p-3">
-      <div className="flex items-center gap-3">
-        <div className="grid size-9 place-items-center rounded-md bg-muted text-sm font-semibold text-accent">
-          {member.displayName.slice(0, 1).toUpperCase()}
+    <div className="mt-6 grid gap-2">
+      <div className="rounded-xl border border-border bg-card p-3">
+        <div className="flex items-center gap-3">
+          <div className="grid size-9 place-items-center rounded-md bg-muted text-sm font-semibold text-accent">
+            {member.displayName.slice(0, 1).toUpperCase()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold">{member.displayName}</p>
+            <p className="text-xs capitalize text-muted-foreground">
+              {member.role}
+            </p>
+          </div>
+          <form action={signOut}>
+            <button
+              type="submit"
+              title="Sign out"
+              className="grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+              <span className="sr-only">Sign out</span>
+            </button>
+          </form>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold">{member.displayName}</p>
-          <p className="text-xs capitalize text-muted-foreground">
-            {member.role}
-          </p>
-        </div>
-        <form action={signOut}>
-          <button
-            type="submit"
-            title="Sign out"
-            className="grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <LogOut className="size-4" aria-hidden="true" />
-            <span className="sr-only">Sign out</span>
-          </button>
-        </form>
       </div>
+      {member.role === "admin" && (
+        <Link
+          href="/studio-access"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <UserCog className="size-4" aria-hidden="true" />
+          <span>Studio Access</span>
+        </Link>
+      )}
     </div>
   );
 }

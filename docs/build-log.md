@@ -23,6 +23,68 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-04 - Complete Phase 10 Studio Access
+
+### Scope
+
+- Added an admin-only Studio Access route for staff invitations, roles, and
+  active/inactive account access.
+- Added guarded database functions, audit events, direct-write revocation, and
+  historical profile visibility for inactive members.
+
+### Decisions
+
+- Keep Studio Access outside primary MVP navigation and separate from CRM or
+  employee-performance concepts.
+- Give invitations a 14-day access window without adding email delivery.
+- Serialize role changes and preserve at least one active admin.
+
+### Verification
+
+- Full-project ESLint, TypeScript, 44 tests, and the production build passed.
+- Live migrations applied successfully.
+- Rollback-only live testing passed admin invite/revoke, non-admin denial,
+  direct-write denial, audit history, change history, self-deactivation denial,
+  and last-admin denial.
+- Anonymous execute privileges on the new guarded functions were removed and
+  verified.
+
+### Follow-ups
+
+- Publish Phase 9 and Phase 10.
+- Apply and live-test Phase 8 after Supabase repairs its managed Realtime
+  schema.
+
+## 2026-06-04 - Complete Phase 9 optional Pixel Office
+
+### Scope
+
+- Added a Home view toggle between the default accessible coworking status list
+  and a lightweight Pixel Office visualization.
+- Added isolated status-to-zone mapping, deterministic member placement, empty
+  states, and text equivalents.
+
+### Decisions
+
+- Keep Pixel Office out of primary navigation and core workflows.
+- Consume normalized `PresenceMember` records through the existing provider;
+  do not add subscriptions, durable state, or attendance history.
+- Keep the accessible status list as the default Home view.
+
+### Verification
+
+- Full-project ESLint, TypeScript, 41 tests, and the production build passed.
+- Supabase private mode remains blocked by the missing managed `realtime`
+  schema; Pixel Office degrades safely when presence is unavailable.
+- Visual browser review could not run because the in-app browser connection was
+  unavailable in the Windows sandbox.
+
+### Follow-ups
+
+- Complete visual browser review when a local or hosted preview is available.
+- Apply and live-test Phase 8 authorization after Supabase repairs the managed
+  Realtime schema.
+
 ## 2026-06-04 - Implement Phase 8 realtime presence client
 
 ### Scope

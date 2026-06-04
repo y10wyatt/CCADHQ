@@ -172,9 +172,34 @@ Implemented:
 
 Pending infrastructure activation:
 
-- In Supabase Realtime settings, disable `Allow public access` so the project
-  uses private-only channels and initializes the managed authorization schema.
+- Supabase private mode is enabled, but the managed `realtime.messages` and
+  `realtime.subscription` relations are missing and Realtime logs report
+  `Database supervisor not found for tenant`.
+- Supabase support must repair or rerun the managed Realtime migrations.
 - Apply `20260604122400_phase_8_realtime_presence.sql` after
   `realtime.messages` exists.
 - Live-test join, leave, multiple-tab, focus, break, reconnect, and unauthorized
   access with two active signed-in users.
+
+Manual repair check:
+
+```sql
+select
+  to_regnamespace('realtime') as realtime_schema,
+  to_regclass('realtime.messages') as messages_table,
+  to_regclass('realtime.subscription') as subscription_table;
+```
+
+All three results must be non-null before applying the Phase 8 authorization
+migration. Do not manually create or modify the managed Realtime schema.
+
+## 13. Phase 9 Pixel Office Integration
+
+- Home provides a toggle between the default accessible presence list and Pixel
+  Office.
+- Pixel Office maps normalized members into workstation, break-area,
+  open-studio, and quiet-corner zones.
+- Room coordinates and visual treatment remain inside `features/pixel-office/`.
+- Pixel Office does not subscribe directly, persist state, or affect presence
+  authorization.
+- Every visible occupant retains a text name, status, and location equivalent.

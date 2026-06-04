@@ -422,3 +422,42 @@ The client is configured for private channels. Final activation is pending
 private-only Realtime project configuration and application of the
 organization-member policies in the Phase 8 migration after Supabase
 initializes its managed `realtime.messages` authorization surface.
+
+## 24. Phase 9 Pixel Office Implementation
+
+Phase 9 adds an optional visualization boundary over normalized presence:
+
+- `features/pixel-office/domain/` owns status-to-zone mapping and deterministic
+  room placement.
+- `features/pixel-office/ui/` owns the room background, occupant rendering,
+  empty states, and text equivalents.
+- `features/presence/ui/presence-workspace.tsx` owns the Home-only view toggle
+  between the default accessible status list and Pixel Office.
+- Pixel Office receives `PresenceMember` view models through the existing
+  provider and never creates a Supabase client or subscription.
+- No Pixel Office state is durable, audited, or used for attendance.
+- The feature can be removed or redesigned without changing presence, Focus,
+  Tasks, Finance, XP, or navigation contracts.
+
+Live room occupants remain blocked by Supabase's missing managed `realtime`
+schema. The visualization degrades to a quiet unavailable state without
+affecting Home or other workflows.
+
+## 25. Phase 10 Studio Access Implementation
+
+Phase 10 adds a small admin-only access-management boundary:
+
+- `features/studio-access/domain/` owns access view models and effective
+  invitation-status presentation.
+- `features/studio-access/application/` owns admin authorization,
+  organization-scoped loading, validation, and guarded RPC calls.
+- `features/studio-access/ui/` owns replaceable invitation, member, and history
+  sections.
+- `/studio-access` is linked from the admin account area, never primary MVP
+  navigation.
+- Database RPCs own invitation, role, and activation writes; direct
+  authenticated writes are revoked.
+- Member access changes serialize last-admin checks, reject self-deactivation,
+  append audit events, and retain change history.
+- Active organization members may still read inactive member profiles so
+  historical attribution remains useful.

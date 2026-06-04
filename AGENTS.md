@@ -12,13 +12,15 @@ leaderboards.
 
 ## Current Phase
 
-The project is in implementation. Phases 1 through 7 are complete. Phase 8
-realtime-presence application code is implemented, while final Supabase
-Realtime Authorization activation and its organization policy remain pending.
+The project is in implementation. Phases 1 through 7, Phase 9 Pixel Office, and
+Phase 10 Studio Access are complete. Phase 8 realtime-presence application code
+is implemented, while final Supabase Realtime Authorization activation and its
+organization policy remain blocked by the missing managed `realtime` schema.
 The foundation includes the responsive app shell, invite-only authentication,
-durable Home summaries, persisted Focus Room, shared Studio XP, detailed Tasks
-and Finance, crash monitoring, RLS, and database change history. Continue to
-treat the documentation in `docs/` as the implementation source of truth.
+admin-managed staff access, durable Home summaries, persisted Focus Room,
+shared Studio XP, detailed Tasks and Finance, crash monitoring, RLS, and
+database change history. Continue to treat the documentation in `docs/` as the
+implementation source of truth.
 
 ## Scope
 

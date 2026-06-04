@@ -570,3 +570,23 @@ track presence on `org:{organization_id}:presence`.
 
 The policies can be applied after private-only channels are enabled and
 Supabase initializes the managed Realtime authorization schema.
+
+## 16. Phase 10 Applied Studio Access Schema
+
+Phase 10 adds no new durable tables. It adds guarded access-management
+functions:
+
+- `create_organization_invitation` creates or refreshes a pending invitation
+  for 14 days and rejects existing member emails.
+- `revoke_organization_invitation` idempotently revokes pending invitations.
+- `update_organization_member_access` changes role and activation while
+  rejecting self-deactivation and preserving at least one active admin.
+
+Direct authenticated inserts and updates on `organization_members` and
+`organization_invitations` are revoked. The guarded functions require an active
+organization admin, use an empty `search_path`, and are not executable by
+anonymous users. Access actions append explicit `audit_events` and the existing
+change-history triggers preserve the full row changes.
+
+The shared-profile helper now permits active organization members to read
+inactive coworkers' profiles for approved historical attribution.

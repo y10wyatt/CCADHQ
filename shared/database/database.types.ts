@@ -527,6 +527,26 @@ export interface Database {
         Args: { target_entry_id: string };
         Returns: undefined;
       };
+      create_organization_invitation: {
+        Args: {
+          target_organization_id: string;
+          invitation_email: string;
+          invitation_role: MemberRole;
+        };
+        Returns: string;
+      };
+      revoke_organization_invitation: {
+        Args: { target_invitation_id: string };
+        Returns: undefined;
+      };
+      update_organization_member_access: {
+        Args: {
+          target_member_id: string;
+          target_role: MemberRole;
+          target_is_active: boolean;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       member_role: MemberRole;

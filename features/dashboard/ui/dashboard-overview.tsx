@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight, Clock3, UsersRound } from "lucide-react";
 
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
-import { PresencePanel } from "@/features/presence/ui/presence-panel";
+import { PresenceWorkspace } from "@/features/presence/ui/presence-workspace";
 import { Card } from "@/shared/ui/card";
 import { StatusPill } from "@/shared/ui/status-pill";
 
@@ -94,7 +94,7 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
             <UsersRound className="size-5 text-accent" aria-hidden="true" />
           </div>
           <div className="mt-6">
-            <PresencePanel compact />
+            <PresenceWorkspace />
           </div>
           <Link
             href="/focus-room"

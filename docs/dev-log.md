@@ -15,6 +15,46 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-04 12:08 PDT - Complete Phase 10 Studio Access
+
+- Goal: Give CCAD admins a guarded way to invite future staff and manage account
+  access without expanding into CRM functionality.
+- Files changed: `app/(app)/studio-access/**`, `features/studio-access/**`,
+  `shared/ui/app-shell.tsx`, `shared/database/database.types.ts`,
+  `supabase/migrations/**`, `AGENTS.md`, `README.md`,
+  `docs/product-spec.md`, `docs/system-architecture.md`,
+  `docs/database-schema.md`, `docs/ui-guidelines.md`, `docs/build-log.md`,
+  `docs/dev-log.md`.
+- What works: Admin-only staff invitations, invitation revocation, role changes,
+  activation/deactivation, inactive-member historical names, direct-write
+  revocation, audit events, self-deactivation denial, and last-admin
+  protection; live migrations, rollback-only security testing, lint,
+  TypeScript, 44 tests, and production build passed.
+- Known issues: Visual browser QA remains unavailable; Supabase Realtime
+  remains blocked by its missing managed schema.
+- Next recommended step: Publish Phase 9 and Phase 10, then complete Phase 8
+  when Supabase repairs Realtime.
+
+## 2026-06-04 11:49 PDT - Complete Phase 9 optional Pixel Office
+
+- Goal: Add a lightweight, accessible Pixel Office without coupling it to
+  Realtime infrastructure or core workflows.
+- Files changed: `features/pixel-office/**`,
+  `features/presence/ui/presence-workspace.tsx`,
+  `features/dashboard/ui/dashboard-overview.tsx`, `AGENTS.md`, `README.md`,
+  `docs/product-spec.md`, `docs/system-architecture.md`,
+  `docs/realtime-presence.md`, `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Home defaults to the accessible coworking list and can switch to
+  Pixel Office; normalized statuses map deterministically to room zones with
+  visible status labels, text equivalents, and graceful empty/unavailable
+  states; full-project lint, TypeScript, 41 tests, and production build passed.
+- Known issues: Live occupants cannot be verified until Supabase repairs the
+  missing managed `realtime.messages` and `realtime.subscription` relations;
+  visual browser QA could not run because the in-app browser connection was
+  unavailable.
+- Next recommended step: Apply and live-test Phase 8 authorization after
+  Supabase repairs Realtime, and complete visual QA from a working preview.
+
 ## 2026-06-04 05:24 PDT - Implement Phase 8 realtime presence client
 
 - Goal: Add ephemeral coworking presence to Home and Focus Room without

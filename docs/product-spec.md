@@ -242,6 +242,22 @@ Constraints:
 - It must be possible to remove or redesign it without changing presence,
   focus, task, finance, or XP logic.
 
+### 6.8 Studio Access
+
+Studio Access is a small admin-only operational screen outside the primary MVP
+navigation.
+
+Required capabilities:
+
+- Invite future staff by email as staff or admin.
+- Keep invitations time-limited and revocable.
+- Change member roles and activate or deactivate access.
+- Prevent admins from deactivating themselves.
+- Require at least one active admin at all times.
+- Preserve access changes in append-only history and audit events.
+
+Studio Access is account administration, not a CRM or staff-performance tool.
+
 ## 7. Cross-Cutting Requirements
 
 ### Security
@@ -300,6 +316,7 @@ These are product signals, not employee performance metrics.
 | M5 | Finance | Manual ledger and monthly summary |
 | M6 | Realtime presence | Online and focus states with graceful degradation |
 | M7 | Pixel office | Optional accessible visual layer over presence |
+| M8 | Studio Access | Guarded admin invitations and member access |
 
 ## 10. Open Product Decisions
 
@@ -340,3 +357,33 @@ These are product signals, not employee performance metrics.
   marketing, utilities, and miscellaneous
 - Database history: append-only records for every durable application-data
   change
+
+## 12. Phase 9 Pixel Office Implementation Status
+
+Implemented:
+
+- Home keeps the accessible coworking status list as the default view and
+  offers Pixel Office as an optional alternate view.
+- Pixel Office consumes normalized `PresenceMember` records and never
+  subscribes to Supabase directly.
+- Online, focusing, break, and away states map to separate visual room zones.
+- Member placement is deterministic and owned entirely by the pixel-office
+  feature.
+- Names and text status equivalents remain available without relying on color
+  or room position.
+- Empty and unavailable states preserve Home and all core workflows.
+
+Live occupants remain dependent on Supabase repairing the managed Realtime
+schema and the Phase 8 authorization migration being applied.
+
+## 13. Phase 10 Studio Access Implementation Status
+
+Implemented:
+
+- Admin-only Studio Access route linked outside primary navigation.
+- Fourteen-day staff/admin invitations with refresh and revoke behavior.
+- Guarded role and activation changes with self-deactivation and last-admin
+  protection.
+- Direct authenticated writes to member and invitation tables are revoked.
+- Access actions append both normal change history and explicit audit events.
+- Inactive member profiles remain readable for historical attribution.

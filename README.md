@@ -11,12 +11,14 @@ The core product idea is simple:
 
 ## Status
 
-Phases 1 through 7 are complete. Phase 8 realtime-presence application code is
-implemented; final private-channel activation in Supabase is pending. The
-responsive app shell, four MVP tabs, invite-only authentication, durable Home
-summaries, persisted Focus Room, shared Studio XP, detailed Tasks and Finance,
-crash monitoring, RLS policies, database change history, and automated project
-checks are in place.
+Phases 1 through 7, Phase 9 Pixel Office, and Phase 10 Studio Access are
+complete. Phase 8 realtime-presence application code is implemented; final
+private-channel activation is blocked until Supabase repairs the project's
+missing managed `realtime` schema. The responsive app shell, four MVP tabs,
+invite-only authentication, admin-managed staff access, durable Home summaries,
+persisted Focus Room, shared Studio XP, detailed Tasks and Finance, optional
+Pixel Office, crash monitoring, RLS policies, database change history, and
+automated project checks are in place.
 
 ## Primary Users
 
@@ -35,8 +37,8 @@ The first release has four primary tabs:
 - **Tasks:** Kanban-first shared task planning with alternate views
 - **Finance:** basic manual income and expense tracking
 
-Pixel office is a later visualization layer, not a dependency of the core
-workflows.
+Pixel Office is an optional Home view over normalized presence and is not a
+dependency of the core workflows.
 
 ## Build Order
 
@@ -64,7 +66,8 @@ workflows.
 - Supabase project reference: `nhxwyybrfeflekliookp`
 - Supabase region: `ca-central-1`
 - Vercel project: `ccadhq`
-- Vercel URL: `https://ccadhq.vercel.app` (source publication pending)
+- Vercel URL: `https://ccadhq.vercel.app`
+- GitHub repository: `https://github.com/y10wyatt/CCADHQ`
 
 ## Local Development
 
@@ -94,6 +97,7 @@ The application routes are:
 - `/studio-xp` - Detailed shared Studio XP progress and activity
 - `/tasks` - Detailed shared Kanban and list task management
 - `/finance` - Detailed monthly income and expense ledger
+- `/studio-access` - Admin-only staff invitations and account access
 - `/login` - Invite-only magic-link sign-in
 - `/access-pending` - Authenticated user without active membership
 
@@ -104,17 +108,25 @@ emails without a valid pending invitation. William and Alice are allowlisted as
 pending admins and will receive active admin memberships when they request
 their first sign-in links.
 
+Admins can manage future staff from Studio Access outside the primary MVP
+navigation. Invitations permit the email address to request a magic link for
+14 days. Role and activation changes use guarded database functions, preserve
+append-only history, prevent self-deactivation, and retain at least one active
+admin.
+
 Before hosted sign-in testing or deployment, allow the app URL and
 `/auth/confirm` callback in Supabase Auth redirect settings.
 
 Home reads live task counts, Studio XP progress and activity, and current-month
 finance totals through a typed Supabase adapter. Home and Focus Room now consume
 a shared ephemeral presence provider with live, stale, connecting, unavailable,
-focus, break, online, and away states.
+focus, break, online, and away states. Home can switch between the default
+accessible status list and an isolated Pixel Office visualization.
 
-Before presence can go live, enable private-only channels in the Supabase
-Realtime settings so Supabase initializes `realtime.messages`, then apply
-`20260604122400_phase_8_realtime_presence.sql`.
+Private-only channels are enabled, but the project is missing Supabase's managed
+`realtime.messages` and `realtime.subscription` relations. Supabase must repair
+the managed schema before `20260604122400_phase_8_realtime_presence.sql` can
+apply and live presence can be tested.
 
 The Focus Room supports persisted fixed Pomodoros, freeform time recording,
 pause/resume, early completion, active detail editing, optional task links,
