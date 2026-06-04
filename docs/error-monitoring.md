@@ -35,7 +35,8 @@ only through an authenticated, membership-checking database function.
 ## Runtime Log Rules
 
 - Use structured JSON with an incident ID.
-- Never log authentication tokens, cookies, magic links, finance notes, task
+- Never log passwords, authentication tokens, cookies, confirmation or recovery
+  links, finance notes, task
   descriptions, focus descriptions, or request bodies.
 - Error messages and stack traces may be written to server runtime logs only.
 - Use the incident ID or Next.js digest to connect a user-visible failure to

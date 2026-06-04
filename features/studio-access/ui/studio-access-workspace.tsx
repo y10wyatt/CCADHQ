@@ -72,8 +72,8 @@ export function StudioAccessWorkspace({
             <div>
               <h2 className="text-lg font-semibold">Invite staff</h2>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Invitations allow the email address to request a CCAD magic
-                link for 14 days.
+                Invitations allow the email address to create a CCAD HQ
+                password account for 14 days.
               </p>
             </div>
             <UserPlus className="size-5 text-accent" aria-hidden="true" />
@@ -84,7 +84,7 @@ export function StudioAccessWorkspace({
               event.preventDefault();
               runAction(
                 () => createStudioInvitation({ email, role }),
-                "Invitation ready. Ask the staff member to request a magic link.",
+                "Invitation ready. Ask the staff member to create their account.",
                 () => setEmail(""),
               );
             }}

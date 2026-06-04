@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import type { Database } from "@/shared/database/database.types";
 
-const publicPaths = ["/login", "/auth", "/access-pending"];
+const publicPaths = ["/login", "/auth", "/access-pending", "/reset-password"];
 
 export async function updateSupabaseSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -33,8 +33,10 @@ export async function updateSupabaseSession(request: NextRequest) {
   );
 
   const { data } = await supabase.auth.getClaims();
-  const isPublicPath = publicPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
+  const isPublicPath = publicPaths.some(
+    (path) =>
+      request.nextUrl.pathname === path ||
+      request.nextUrl.pathname.startsWith(`${path}/`),
   );
 
   if (!data?.claims && !isPublicPath) {

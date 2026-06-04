@@ -98,19 +98,20 @@ The application routes are:
 - `/tasks` - Detailed shared Kanban and list task management
 - `/finance` - Detailed monthly income and expense ledger
 - `/studio-access` - Admin-only staff invitations and account access
-- `/login` - Invite-only magic-link sign-in
+- `/login` - Invite-only email/password sign-in and account setup
+- `/reset-password` - Password recovery completion
 - `/access-pending` - Authenticated user without active membership
 
 Workspace routes require an authenticated user with an active CCAD membership.
 New staff must have a pending `organization_invitations` record before
-requesting their first magic link. The database rejects Auth-user creation for
+creating their password account. The database rejects Auth-user creation for
 emails without a valid pending invitation. William and Alice are allowlisted as
-pending admins and will receive active admin memberships when they request
-their first sign-in links.
+admins. Existing accounts created through the earlier magic-link flow must use
+Forgot password once to establish a password.
 
 Admins can manage future staff from Studio Access outside the primary MVP
-navigation. Invitations permit the email address to request a magic link for
-14 days. Role and activation changes use guarded database functions, preserve
+navigation. Invitations permit the email address to create an account for 14
+days. Role and activation changes use guarded database functions, preserve
 append-only history, prevent self-deactivation, and retain at least one active
 admin.
 

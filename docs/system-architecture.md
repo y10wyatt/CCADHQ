@@ -136,7 +136,8 @@ Admin operations must validate authorization server-side.
 
 - Supabase Auth identifies a user.
 - `organization_members` maps the auth user to CCAD and its role.
-- Accounts are invite-only and use email magic links.
+- Accounts are invite-only and use email/password credentials.
+- Account confirmation and password recovery use time-limited email links.
 - William and Alice are the initial organization admins.
 - Authenticated users without an active membership are denied product access.
 - Deactivated members remain available as inactive historical attribution.
@@ -281,7 +282,7 @@ Phase 2 connects the app shell to the dedicated Supabase project:
 
 - `shared/database/supabase/` owns browser, server, and proxy client creation.
 - `features/auth/` owns current-member contracts, protected membership lookup,
-  magic-link requests, and sign-out.
+  password sign-in, invited account creation, recovery, and sign-out.
 - `proxy.ts` refreshes Supabase sessions and redirects unauthenticated workspace
   requests to `/login`.
 - The protected app layout requires an active organization membership before
@@ -312,10 +313,11 @@ Phase 3 replaces Home mock data with durable organization-scoped summaries:
 - Tasks, XP events, finance categories, and finance entries now exist as
   RLS-protected durable foundations for later detailed workflows.
 
-Initial admin onboarding uses database invitations as the allowlist. Magic-link
-requests may create an Auth user, but the Auth trigger rejects any email without
-a valid pending organization invitation. This keeps first sign-in self-service
-without enabling public signup.
+Initial admin onboarding uses database invitations as the allowlist. Invited
+account creation may create an Auth user, but the Auth trigger rejects any email
+without a valid pending organization invitation. Password recovery is available
+for existing accounts without weakening the invitation gate. This keeps first
+sign-in self-service without enabling unrestricted public signup.
 
 ## 18. Phase 4 Implementation
 

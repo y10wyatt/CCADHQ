@@ -15,6 +15,21 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-04 13:00 PDT - Add invite-only password authentication
+
+- Goal: Replace magic-link-only sign-in with account email and password.
+- Files changed: `app/login/page.tsx`, `app/reset-password/page.tsx`,
+  `app/auth/**`, `features/auth/**`, `features/studio-access/**`,
+  `shared/database/supabase/proxy.ts`, `README.md`, and relevant `docs/**`.
+- What works: Invited account creation, password sign-in, password recovery,
+  password update, safe post-auth redirects, and invitation-gated Auth-user
+  creation; lint, TypeScript, 47 tests, and production build pass.
+- Known issues: Existing magic-link-created accounts must use Forgot password
+  once. Production confirmation and recovery require the deployed callback URL
+  in the Supabase Auth redirect allowlist.
+- Next recommended step: Push and deploy, then test account recovery and invited
+  account creation against production email delivery.
+
 ## 2026-06-04 12:45 PDT - Pin Vercel framework preset
 
 - Goal: Correct the production deployment configuration returning Vercel

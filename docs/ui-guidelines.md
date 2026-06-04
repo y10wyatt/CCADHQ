@@ -205,7 +205,9 @@ reduce visual movement.
 
 - Keep Studio Access outside primary MVP navigation and visible only to admins.
 - Explain that creating an invitation does not send an email; the invited
-  person must request a magic link.
+  person must create their account from the login screen.
+- Keep password sign-in, invited account creation, and password recovery
+  distinct while using the same calm authentication surface.
 - Show active/inactive and staff/admin states with text, not color alone.
 - Confirm deactivation and invitation revocation.
 - Do not offer self-deactivation and explain last-admin protection.

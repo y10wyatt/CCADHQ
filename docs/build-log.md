@@ -23,6 +23,33 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-04 - Replace magic-link login with invited password accounts
+
+### Scope
+
+- Replaced magic-link-only sign-in with email/password sign-in, invited account
+  creation, password recovery, and password update routes.
+
+### Decisions
+
+- Keep account creation invite-only by relying on the existing database Auth
+  trigger to reject emails without a valid pending invitation.
+- Keep confirmation and recovery links time-limited while using passwords for
+  ordinary sign-in.
+- Give existing magic-link-created accounts a one-time transition through
+  Forgot password rather than creating duplicate accounts.
+
+### Verification
+
+- Lint and TypeScript passed.
+- All 47 tests passed, including local-only redirect protection.
+- Production build passed and includes `/login` and `/reset-password`.
+
+### Follow-ups
+
+- Confirm the production Supabase Auth redirect allowlist includes
+  `https://ccadhq.vercel.app/auth/confirm`.
+
 ## 2026-06-04 - Explicit Vercel framework preset
 
 ### Scope

@@ -1,12 +1,14 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { normalizeAuthNextPath } from "@/features/auth/domain/auth";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 export async function GET(request: NextRequest) {
   const tokenHash = request.nextUrl.searchParams.get("token_hash");
   const type = request.nextUrl.searchParams.get("type") as EmailOtpType | null;
   const code = request.nextUrl.searchParams.get("code");
+  const next = normalizeAuthNextPath(request.nextUrl.searchParams.get("next"));
   const supabase = await createServerSupabaseClient();
 
   const result =
@@ -17,7 +19,7 @@ export async function GET(request: NextRequest) {
         : { error: new Error("Missing authentication token") };
 
   const redirectUrl = request.nextUrl.clone();
-  redirectUrl.pathname = result.error ? "/auth/error" : "/";
+  redirectUrl.pathname = result.error ? "/auth/error" : next;
   redirectUrl.search = "";
 
   return NextResponse.redirect(redirectUrl);

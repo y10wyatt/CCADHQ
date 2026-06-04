@@ -8,10 +8,12 @@ export default function AuthErrorPage() {
     <main className="grid min-h-screen place-items-center px-4 py-10">
       <Card className="w-full max-w-md text-center">
         <CircleAlert className="mx-auto size-8 text-danger" aria-hidden="true" />
-        <h1 className="mt-5 text-2xl font-semibold">Sign-in link unavailable</h1>
+        <h1 className="mt-5 text-2xl font-semibold">
+          Authentication link unavailable
+        </h1>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          The link may have expired or already been used. Request a new link to
-          continue.
+          The confirmation or recovery link may have expired or already been
+          used. Return to sign in and request a new one.
         </p>
         <Link
           href="/login"

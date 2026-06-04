@@ -52,9 +52,11 @@ All authorized product users belong to the single CCAD organization in MVP.
 The data model should remain organization-scoped so another organization could
 be supported later without redesigning core tables.
 
-Accounts are invite-only with no public signup. Users sign in by email magic
-link. An authenticated user without an active organization membership cannot
-access product data or authenticated product routes.
+Accounts are invite-only with no unrestricted public signup. Invited users
+create an email/password account and then sign in with those credentials.
+Password recovery uses a time-limited email link. An authenticated user without
+an active organization membership cannot access product data or authenticated
+product routes.
 
 ## 5. Navigation
 
@@ -328,7 +330,7 @@ These are product signals, not employee performance metrics.
 
 - Organization timezone: `America/Vancouver`
 - Ledger currency: `CAD`
-- Accounts: invite-only email magic-link login
+- Accounts: invite-only email/password login with password recovery
 - Initial admins: William and Alice
 - Pomodoro interval lengths: fixed at 25, 5, and 15 minutes
 - Freeform focus sessions: record elapsed time without awarding XP
