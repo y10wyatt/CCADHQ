@@ -23,6 +23,28 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-04 - Explicit Vercel framework preset
+
+### Scope
+
+- Added a root `vercel.json` that selects Vercel's Next.js framework preset.
+
+### Decisions
+
+- Keep the deployment framework contract in version control because Vercel
+  project metadata reported no framework preset despite detecting Next.js
+  during builds.
+
+### Verification
+
+- Confirmed local Next.js build output contains all expected application routes.
+- Confirmed the current Vercel deployment builds successfully but is not served
+  before application routing.
+
+### Follow-ups
+
+- Push the configuration, redeploy production, and verify the production domain.
+
 ## 2026-06-04 - Complete Phase 10 Studio Access
 
 ### Scope

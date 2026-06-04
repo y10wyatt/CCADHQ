@@ -15,6 +15,20 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-04 12:45 PDT - Pin Vercel framework preset
+
+- Goal: Correct the production deployment configuration returning Vercel
+  `404 NOT_FOUND` before application routing.
+- Files changed: `vercel.json`, `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Vercel deployments now explicitly select the Next.js framework
+  preset instead of relying on the project's missing preset; lint, TypeScript,
+  and all 44 tests pass.
+- Known issues: The configuration must be committed and redeployed before the
+  production domain can be rechecked. Local production build verification is
+  blocked by the desktop sandbox denying Turbopack child-process creation; the
+  same application build passed on Vercel.
+- Next recommended step: Push the configuration and redeploy production.
+
 ## 2026-06-04 12:08 PDT - Complete Phase 10 Studio Access
 
 - Goal: Give CCAD admins a guarded way to invite future staff and manage account
