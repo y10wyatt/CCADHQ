@@ -6,9 +6,31 @@ Art & Design.
 ## Product Principle
 
 The organization is the character. CCAD earns XP and levels up through the
-combined work of its staff. Individual activity may be recorded for
-accountability, but the product must not create individual scores, levels, or
-leaderboards.
+combined work of its staff. Office XP and Office Level are the primary
+progression systems.
+
+Individual activity may be recorded for accountability and lightweight
+Character XP, but character progression must remain secondary, non-punitive,
+and non-ranking. The product must not create leaderboards, personal productivity
+scores, winner/loser language, or rankings by staff worth.
+
+## Office Psychology Principles
+
+CCAD HQ should create visibility, momentum, and shared accountability without
+feeling like surveillance.
+
+Design rules:
+
+- Show current work state, not personal judgment.
+- Avoid shame mechanics, productivity scores, and punitive streak loss.
+- Use light competition through character levels, streaks, and contribution
+  summaries.
+- Keep Office Level as the primary progression system.
+- Make invisible operational work visible and valuable.
+- Represent different work types as different forms of contribution.
+- Use quests to create shared direction.
+- Use blocked states and handoffs to reduce ambiguity.
+- Never rank staff by worth, productivity, or importance.
 
 ## Current Phase
 
@@ -19,6 +41,10 @@ durable Home summaries, persisted Focus Room, shared Studio XP, detailed Tasks
 and Finance, private presence policies, Pixel Office, crash monitoring, RLS,
 and database change history. Continue to treat the documentation in `docs/` as
 the implementation source of truth.
+
+The next documentation direction extends shared Studio XP into Office XP and
+adds lightweight Character XP. Treat these updates as product and architecture
+guidance until application code and migrations explicitly implement them.
 
 ## Scope
 
@@ -33,11 +59,12 @@ Build order:
 
 1. Home dashboard
 2. Focus Room timer
-3. Studio XP system
-4. Tasks
-5. Finance
-6. Realtime presence
-7. Pixel office
+3. Office XP / Studio XP system
+4. Character XP
+5. Tasks
+6. Finance
+7. Realtime presence
+8. Pixel office
 
 Explicitly out of scope:
 
@@ -65,8 +92,8 @@ Explicitly out of scope:
   each data feature.
 - Preserve an append-only database history of every durable application-data
   change through database-level auditing.
-- Keep user attribution for auditability while awarding progression only to the
-  organization.
+- Keep user attribution for auditability. Award primary progression to the
+  organization, with only lightweight non-ranking Character XP for individuals.
 
 ## UI Expectations
 

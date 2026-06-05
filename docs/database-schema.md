@@ -10,6 +10,9 @@
 - Use constraints and transactional database functions for critical invariants.
 - Record every durable application-data mutation in append-only database change
   history.
+- Keep Office XP as the primary progression ledger, with Character XP in a
+  separate lightweight individual ledger.
+- Store office stat impact as contribution metadata, not staff ratings.
 - Use `timestamptz` and store timestamps in UTC.
 - Generate UUID primary keys.
 
@@ -47,6 +50,10 @@ Constraints:
 
 ### `profiles`
 
+Application profile records are the app-facing companion to Supabase Auth
+users. Supabase Auth remains the identity provider; the public schema should not
+duplicate password, session, or credential fields.
+
 | Column | Type | Notes |
 | --- | --- | --- |
 | `id` | uuid | Primary key; references `auth.users.id` |
@@ -56,6 +63,9 @@ Constraints:
 | `updated_at` | timestamptz | Last update |
 
 Profiles do not store XP or permission roles.
+
+User cards may show Character Level, but that level should be derived from
+`character_xp_events` rather than stored as mutable profile state.
 
 ### `organization_members`
 
@@ -112,10 +122,15 @@ Constraints:
 | `status` | enum | `backlog`, `planned`, `in_progress`, `blocked`, `done` |
 | `priority` | enum | `low`, `normal`, `high`, `urgent` |
 | `assignee_member_id` | uuid nullable | References `organization_members.id` |
+| `xp_value` | integer nullable | Future Office XP value override |
+| `office_stat_impact` | jsonb | Optional Stability/Reputation/Creativity/Community impact |
+| `blocked_reason` | text nullable | Required product context when blocked |
+| `handoff_target_member_id` | uuid nullable | Optional intended handoff recipient |
 | `due_at` | timestamptz nullable | Optional due time |
 | `completed_at` | timestamptz nullable | Set while the task is currently done |
 | `first_completed_at` | timestamptz nullable | Immutable first completion time |
 | `created_by_member_id` | uuid | Creator attribution |
+| `completed_by_member_id` | uuid nullable | Member who completed the task |
 | `archived_at` | timestamptz nullable | Soft archive |
 | `created_at` | timestamptz | Creation time |
 | `updated_at` | timestamptz | Last update |
@@ -127,6 +142,10 @@ Constraints:
 - Assignee and creator must belong to the same organization
 - `completed_at` is required when `status = 'done'`
 - `first_completed_at` is retained when a task is reopened
+- Product-facing future statuses are Backlog, Today, This Week, Blocked,
+  Waiting, and Completed. Keep any migration from current enum values explicit.
+- Office stat impact must only contain approved stat keys and non-negative
+  contribution values.
 
 Recommended indexes:
 
@@ -210,7 +229,9 @@ Constraints:
 
 ### `xp_events`
 
-Append-only ledger of Studio XP awards and corrections.
+Append-only ledger of shared Office XP awards and corrections. The current
+implementation names this table `xp_events` and presents the shared progression
+as Studio XP.
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -241,6 +262,117 @@ Recommended indexes:
 
 Current total XP is `sum(points)` for the organization. A cached summary may be
 added only if measurements show the ledger query is insufficient.
+
+### `office_xp_events`
+
+Suggested future name for the organization-level XP ledger. This may be a
+rename or compatibility view over `xp_events`; do not create a competing ledger
+without a migration plan.
+
+Recommended columns match `xp_events` with these naming clarifications:
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization receiving XP |
+| `event_type` | enum | Approved Office XP source or `correction` |
+| `points` | integer | Positive award or signed admin correction |
+| `source_type` | text | For example `task`, `focus_session`, `handoff`, or `weekly_quest` |
+| `source_id` | uuid nullable | Durable source record |
+| `idempotency_key` | text | Unique award identity |
+| `actor_member_id` | uuid nullable | Attribution |
+| `office_stat_impact` | jsonb | Optional Stability/Reputation/Creativity/Community impact |
+| `description` | text | Human-readable activity text |
+| `metadata` | jsonb | Small versioned context only |
+| `created_at` | timestamptz | Award time |
+
+### `character_xp_events`
+
+Append-only ledger of lightweight individual Character XP.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `member_id` | uuid | Member receiving Character XP |
+| `event_type` | enum | `focus_session`, `task`, `handoff`, `streak`, `maintenance`, or `correction` |
+| `points` | integer | Positive award or signed admin correction |
+| `source_type` | text | Durable source type |
+| `source_id` | uuid nullable | Durable source record |
+| `idempotency_key` | text | Unique award identity per member |
+| `actor_member_id` | uuid nullable | Acting or correcting member |
+| `description` | text | Human-readable activity text |
+| `metadata` | jsonb | Small versioned context only |
+| `created_at` | timestamptz | Award time |
+
+Constraints:
+
+- Unique triple: `organization_id`, `member_id`, `idempotency_key`
+- Positive points for normal events
+- Negative points only for admin corrections with an audit reason
+- No update or delete for normal application roles
+- Do not use this table to build leaderboards or rankings
+
+### `office_stats`
+
+Suggested configuration and summary table for the four contribution categories.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `stat_key` | enum | `stability`, `reputation`, `creativity`, or `community` |
+| `display_name` | text | Staff-facing label |
+| `description` | text | What the stat represents |
+| `sort_order` | integer | Stable display order |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Stat totals can be calculated from task, quest, and XP metadata unless measured
+performance requires a cached summary.
+
+### `weekly_quests`
+
+Shared weekly goals that create direction without ranking staff.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `title` | text | Required |
+| `description` | text nullable | Context and outcome |
+| `status` | enum | `planned`, `active`, `completed`, or `archived` |
+| `xp_value` | integer | Office XP award value |
+| `office_stat_impact` | jsonb | Optional stat contribution |
+| `owner_member_id` | uuid nullable | Optional owner; quests may be shared |
+| `starts_at` | timestamptz | Start time |
+| `due_at` | timestamptz | Due time |
+| `completed_at` | timestamptz nullable | Completion time |
+| `completed_by_member_id` | uuid nullable | Completion attribution |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+### `handoffs`
+
+Lightweight ownership-transfer records.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `title` | text | Required |
+| `context` | text | What the receiver needs to know |
+| `assigned_member_id` | uuid | Receiver |
+| `created_by_member_id` | uuid | Sender |
+| `linked_task_id` | uuid nullable | Optional related task |
+| `status` | enum | `open`, `accepted`, `completed`, `cancelled`, or `archived` |
+| `due_at` | timestamptz nullable | Optional due time |
+| `completed_at` | timestamptz nullable | Completion time |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Handoffs exist to reduce ambiguity. They must not become a blame ledger.
 
 ### `finance_categories`
 
@@ -368,6 +500,36 @@ stacks, request data, form values, and authentication material.
 Realtime presence is not stored as a durable table. It uses Supabase Realtime
 Presence channels and a small ephemeral payload described in
 `realtime-presence.md`.
+
+### `presence_state`
+
+Suggested future current-state cache only if product needs server-rendered
+presence cards or cross-session recovery. The current implementation does not
+store presence in Postgres.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `member_id` | uuid | Member represented |
+| `status` | enum | `online`, `focusing`, `paused`, `idle`, `break`, `away`, or `offline` |
+| `current_task_id` | uuid nullable | Optional current task reference |
+| `focus_session_id` | uuid nullable | Optional active focus session |
+| `focus_category` | text nullable | Ambient category label |
+| `focus_started_at` | timestamptz nullable | Elapsed-time display support |
+| `focus_ends_at` | timestamptz nullable | Remaining-time display support |
+| `last_seen_at` | timestamptz | Current-state freshness |
+| `updated_at` | timestamptz | Last update |
+
+Rules:
+
+- Treat this table as replaceable current state, not durable history.
+- Exclude it from append-only application-data history unless a future decision
+  explicitly approves current-state auditing.
+- Do not use it to calculate attendance, hours worked, individual focus totals,
+  or productivity scores.
+- Prefer Supabase Realtime Presence when a durable current-state cache is not
+  required.
 
 The Phase 8 migration contains organization-member policies for the managed
 `realtime.messages` authorization surface. Private-only channels are enabled,

@@ -2,12 +2,14 @@
 
 CCAD HQ is an internal command center for Cloud Centre of Art & Design. It
 brings daily studio operations into one calm workspace: a Home dashboard,
-Pomodoro Focus Room, task management, basic finance tracking, shared Studio XP,
-realtime coworking presence, and a lightweight pixel-office visualization.
+Pomodoro Focus Room, task management, basic finance tracking, shared Office XP
+/ Studio XP, lightweight Character XP direction, realtime coworking presence,
+and a lightweight pixel-office visualization.
 
 The core product idea is simple:
 
-> The organization is the character. CCAD levels up, not individual users.
+> The organization is the character. Office Level is primary; Character Level is
+> lightweight, non-ranking context for individual work rhythm.
 
 ## Status
 
@@ -150,7 +152,7 @@ structured runtime logs.
 - [System architecture](docs/system-architecture.md)
 - [Database schema](docs/database-schema.md)
 - [Realtime presence](docs/realtime-presence.md)
-- [Studio XP system](docs/xp-system.md)
+- [Office and Character XP system](docs/xp-system.md)
 - [UI guidelines](docs/ui-guidelines.md)
 - [Asset guidelines](docs/assets.md)
 - [Error monitoring](docs/error-monitoring.md)

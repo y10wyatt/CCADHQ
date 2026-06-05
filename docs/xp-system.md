@@ -1,17 +1,29 @@
-# Studio XP System
+# Office And Character XP System
 
 ## 1. Principle
 
 The organization is the character. CCAD earns XP and levels up through the
-combined work of its staff.
+combined work of its staff. Office XP and Office Level are the primary
+progression systems.
 
-The system must make progress satisfying without creating employee rankings or
-turning operational activity into surveillance.
+Character XP is allowed only as lightweight individual progression for work
+rhythm, consistency, and contribution visibility. It must never become a staff
+ranking, productivity score, or shame mechanic.
 
-## 2. MVP Progression Model
+The system must make progress satisfying without turning operational activity
+into surveillance.
 
-Studio XP is a single organization-wide total calculated from the append-only
-`xp_events` ledger.
+## 2. Progression Models
+
+### Office XP / Office Level
+
+Office XP represents CCAD's collective progress, studio health, finance
+stability, creative output, reputation, and community growth.
+
+The current implementation calls this shared system Studio XP and stores it in
+the append-only `xp_events` ledger. Future schema and UI language may introduce
+`office_xp_events`, but the source of truth should remain an append-only
+organization-level ledger.
 
 Recommended level formula:
 
@@ -33,7 +45,41 @@ Examples:
 This provides quick early progress and gradually longer levels without needing
 a manually maintained level table. Revisit the curve after real usage.
 
-## 3. MVP Award Rules
+### Character XP / Character Level
+
+Character XP represents an individual user's work rhythm, consistency, focus
+sessions, completed tasks, completed handoffs, and studio maintenance.
+
+Rules:
+
+- Character Level can be visible on user cards and presence cards.
+- Character progression must remain secondary to Office Level.
+- Character XP can only increase or remain unchanged; inactivity should not
+  create penalties.
+- Streaks can grant bonuses, but missed days do not subtract XP or display
+  shame language.
+- Do not expose hard rankings, leaderboards, top-performer language,
+  loser/winner language, or comparative productivity views.
+
+Use the same quadratic formula initially unless later testing shows character
+levels need a slower curve.
+
+## 3. Office XP Award Rules
+
+Candidate Office XP sources:
+
+| Event | XP | Notes |
+| --- | ---: | --- |
+| Any completed focus session | 10 | Current implementation awards only full Pomodoro focus intervals |
+| Completed CCAD task | 25 | Current implementation awards 20 for first completion |
+| Finance update | 50 | Only meaningful ledger maintenance, not artificial activity |
+| Weekly quest completed | 250 | Shared direction and momentum |
+| New enrollment milestone | 500 | Internal milestone record only; do not build a student portal |
+| Marketing/public-facing task | Task value | May affect Reputation |
+| Parent followup | Task value | Internal followup task only; do not build a parent portal |
+| Studio maintenance | Task value | Makes invisible operational work visible |
+
+Current implemented MVP rules:
 
 | Event | XP | Conditions |
 | --- | ---: | --- |
@@ -43,14 +89,44 @@ a manually maintained level table. Revisit the curve after real usage.
 
 Freeform focus sessions, break intervals, cancelled focus sessions, Pomodoros
 finished early, task creation, task reopening, and finance entries do not award
-XP.
+XP in the current implementation.
 
-Keep MVP awards deliberately simple. Task-size multipliers, streaks, bonuses,
-and achievements can be considered only after observing actual behavior.
+Keep implemented awards deliberately simple until the new Office XP direction
+has matching migrations and tests.
 
-## 4. Award Invariants
+## 4. Character XP Award Rules
 
-- XP belongs to the organization, never the acting member.
+Initial candidate rules:
+
+| Event | Character XP | Notes |
+| --- | ---: | --- |
+| Complete focus session | 10 | Pomodoro or approved freeform focus session |
+| Complete task | 15 | Completing user receives credit |
+| Complete handoff | 15 | Award when ownership transfer is completed clearly |
+| 3-day focus streak | 25 | Positive bonus only; no penalty for missed days |
+| Studio maintenance work | 10-25 | Based on task or quest configuration |
+
+Character XP events should preserve source records and idempotency just like
+Office XP. A source event can award both Office XP and Character XP, but the UI
+must keep Office XP as the primary progression.
+
+## 5. Office Stats
+
+Tasks and quests may optionally contribute to one or more office stats:
+
+| Stat | Contribution areas |
+| --- | --- |
+| Stability | Finance, scheduling, systems, operations, and payments |
+| Reputation | Parent trust, student outcomes, testimonials, acceptances, and public-facing quality |
+| Creativity | Student projects, critique, portfolio development, class material, and experimental work |
+| Community | Events, referrals, alumni/student relationships, and workshops |
+
+Stats describe the type of contribution. They must not become staff ratings.
+
+## 6. Award Invariants
+
+- Office XP belongs to the organization.
+- Character XP belongs to the acting member but is secondary and non-ranking.
 - Every award has actor attribution when available.
 - Every award has a human-readable description.
 - An eligible source awards XP at most once.
@@ -59,40 +135,45 @@ and achievements can be considered only after observing actual behavior.
 - Corrections are new signed ledger entries created by an admin.
 - A negative correction cannot reduce the effective total below zero.
 
-## 5. Idempotency
+## 7. Idempotency
 
 Use deterministic idempotency keys:
 
 ```text
 focus_session_completed:{focus_session_id}
 task_completed:{task_id}
+handoff_completed:{handoff_id}
+weekly_quest_completed:{weekly_quest_id}
 correction:{generated_correction_id}
 ```
 
-The database enforces one `idempotency_key` per organization. Client retries,
-refreshes, duplicate clicks, and concurrent requests must all return the
-original award result rather than insert another award.
+The database enforces one `idempotency_key` per organization for Office XP and
+one per member/source for Character XP. Client retries, refreshes, duplicate
+clicks, and concurrent requests must all return the original award result
+rather than insert another award.
 
-## 6. Display Rules
+## 8. Display Rules
 
 Show:
 
-- Current CCAD level
-- Total Studio XP
+- Current Office Level / CCAD Level
+- Total Office XP
 - Progress toward the next level
-- Recent activity such as "Alice completed a focus session: +10 Studio XP"
+- Recent activity such as "Alice completed a focus session: +10 Office XP"
 - Brief shared celebration when CCAD reaches a new level
+- Character Level on user cards and presence cards
+- Personal character progress only in lightweight, self-oriented contexts
 
 Do not show:
 
-- XP totals by person
-- Individual levels
 - Leaderboards
 - Rankings
 - Comparative focus statistics
 - Language implying employee value or performance
+- Productivity scores
+- Shame language around missed streaks or inactivity
 
-## 7. Level-Up Behavior
+## 9. Level-Up Behavior
 
 A level-up occurs when an accepted XP event moves total XP across one or more
 level thresholds.
@@ -106,7 +187,7 @@ Behavior:
 
 If one correction crosses several thresholds, report the final new level.
 
-## 8. Ownership And Integration
+## 10. Ownership And Integration
 
 The XP feature owns:
 
@@ -116,6 +197,8 @@ The XP feature owns:
 - Total and level calculations
 - Progress view models
 - Activity descriptions
+- Office stat contribution mapping
+- Character XP level calculations
 
 Other features own the action that may trigger an award. They request an award
 through an XP application interface but must not insert ledger rows directly.
@@ -127,10 +210,10 @@ Complete task use case
   -> validate task transition
   -> transaction completes task
   -> XP award service inserts idempotent event
-  -> return task and Studio XP result
+  -> return task and Office XP result
 ```
 
-## 9. Abuse And Correction Handling
+## 11. Abuse And Correction Handling
 
 The MVP is a trusted internal tool, but basic safeguards still matter:
 
@@ -139,8 +222,9 @@ The MVP is a trusted internal tool, but basic safeguards still matter:
 - Changing a completed focus session is restricted.
 - Corrections require admin permission and a reason.
 - Correction activity is visible in the shared XP feed and audit log.
+- Character XP has no negative streak penalty or punitive decay.
 
-## 10. Testing
+## 12. Testing
 
 Required cases:
 
@@ -152,9 +236,21 @@ Required cases:
 - Cancelling focus and completing breaks award no XP.
 - Reopening and recompleting a task awards no additional XP.
 - Admin correction changes total while preserving history.
-- UI never exposes a per-member XP total.
+- Character XP awards are idempotent per source.
+- Character Level appears without leaderboards or rank ordering.
+- Office stat impact is stored as contribution metadata, not staff scoring.
 
-## 11. Future Possibilities
+## 13. Handoffs And Weekly Quests
+
+Handoffs and weekly quests are future product direction until implemented.
+
+Handoffs should award XP only when they reduce ambiguity and transfer ownership
+with useful context. Weekly quests should create shared direction for a small
+creative studio and may contribute to Office XP, Character XP, and office stats.
+
+Both features must avoid blame language, staff ranking, and hidden surveillance.
+
+## 14. Future Possibilities
 
 Only consider after MVP validation:
 
@@ -163,10 +259,10 @@ Only consider after MVP validation:
 - Shared seasonal goals
 - XP awards for other clearly valuable operational actions
 
-Any new reward must reinforce shared studio health and resist gaming. Avoid
-individual streak pressure and competitive mechanics.
+Any new reward must reinforce shared studio health and resist gaming. Keep
+individual progression light, optically secondary, and free of shame mechanics.
 
-## 12. Phase 5 Implementation
+## 15. Phase 5 Implementation
 
 - `/studio-xp` shows current CCAD level, total XP, next-level progress, approved
   awards, and an attributed shared activity feed.
@@ -179,7 +275,7 @@ individual streak pressure and competitive mechanics.
 - Task-completion XP is implemented in Phase 6 and is awarded atomically with
   the first transition to done.
 
-## 13. Phase 6 Task XP Implementation
+## 16. Phase 6 Task XP Implementation
 
 - The first transition of a task to done awards 20 Studio XP.
 - Task transition and XP insertion are serialized and atomic.

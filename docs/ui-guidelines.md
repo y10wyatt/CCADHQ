@@ -6,6 +6,10 @@ CCAD HQ should feel like a calm, capable studio workspace with a small amount of
 playfulness. Operational clarity comes first; the pixel-office layer and XP
 celebrations add character without making core work feel like a game interface.
 
+Office Level is the primary progression signal. Character Level can add a light
+personal touch on user cards and presence cards, but must stay secondary and
+must never create a leaderboard, productivity score, or shame mechanic.
+
 The interface should answer:
 
 - Where am I?
@@ -13,6 +17,10 @@ The interface should answer:
 - What needs attention?
 - What can I do next?
 - Did my action succeed?
+
+CCAD HQ should create visibility, momentum, and shared accountability without
+feeling like surveillance. Show current work state, blocked states, handoffs,
+and contribution types; avoid personal judgment.
 
 ## 2. Revision-Friendly UI Architecture
 
@@ -43,7 +51,9 @@ Guidelines:
 
 - Keep navigation labels and destinations in one centralized definition.
 - Clearly show the current tab.
-- Keep Studio XP visible in the shell without creating another MVP tab.
+- Keep Office XP / Studio XP visible in the shell without creating another MVP
+  tab.
+- Show Character Level only as lightweight user-card context.
 - Place account, settings, and sign-out actions outside primary navigation.
 - Do not add Pixel Office to primary navigation until it has a validated use.
 
@@ -128,8 +138,8 @@ reduce visual movement.
 
 ### Home
 
-- Keep Home at-a-glance: outstanding tasks, Studio XP, and finance summary are
-  the primary content.
+- Keep Home at-a-glance: outstanding tasks, Office XP / Studio XP, and finance
+  summary are the primary content.
 - Use compact summaries rather than duplicating detailed feature screens.
 - Summary cards link to their detailed tabs.
 - Clearly label stale presence or delayed summaries.
@@ -157,16 +167,28 @@ reduce visual movement.
 ### Tasks
 
 - Use Kanban as the default primary view.
+- Support Backlog, Today, This Week, Blocked, Waiting, and Completed as the
+  product-facing status language.
 - Provide a visible switch between Kanban and list/table views and preserve
   filters between them where practical.
 - Default view should emphasize active and priority work.
 - Filters remain understandable and easy to clear.
 - Completion interaction is satisfying but restrained.
 - Blocked and overdue states use text or icons in addition to color.
+- Waiting and handoff states should make ownership and next action obvious
+  without assigning blame.
 - Provide labeled status controls so every transition works without drag and
   drop.
 - Explain that XP remains earned when a completed task is reopened or
   recompleted.
+
+### Handoffs
+
+- Keep handoffs lightweight and contextual.
+- Show title, assigned person, due date, linked task, and status.
+- Make the next owner clear without using accusatory language.
+- Treat completed handoffs as contribution recognition, not performance
+  evidence.
 
 ### Finance
 
@@ -177,14 +199,26 @@ reduce visual movement.
 - Keep monthly totals independent from narrower type and category table filters.
 - Show view-only state when a staff member cannot edit another creator's entry.
 
-### Studio XP
+### Office XP And Character XP
 
-- Always label it as Studio XP or CCAD progress.
-- Shared activity may name the actor but never summarize XP by person.
+- Always label shared progression as Office XP, Office Level, Studio XP, or CCAD
+  progress, depending on the implemented surface.
+- Keep Office Level visually primary.
+- Character Level may appear on user cards and presence cards, but should not
+  dominate the screen.
+- Shared activity may name the actor but never summarize Office XP by person.
 - Level-up visuals celebrate CCAD.
 - Keep Studio XP as a drill-down from Home and the app shell, not a primary MVP
   navigation tab.
 - Show admin corrections as append-only shared activity with their reason.
+- Never sort staff by Character Level or show hard rankings.
+
+### Office Stats And Quests
+
+- Use Stability, Reputation, Creativity, and Community as contribution lenses.
+- Display stat impact as task or quest context, not as staff evaluation.
+- Weekly quests should feel like shared direction and momentum.
+- Quest completion can create a restrained shared celebration.
 
 ### Presence
 
@@ -192,6 +226,9 @@ reduce visual movement.
 - Show connecting, live, stale, unavailable, empty, and populated states.
 - Label status and location with text; never rely on color alone.
 - Describe coworking status as approximate and never as attendance.
+- Presence cards may show Character Level, current task, focus state, elapsed or
+  remaining time, and category when available.
+- Do not use presence as a supervisory dashboard.
 - Keep realtime errors quiet so they do not interrupt core workflows.
 
 ### Pixel Office
@@ -200,6 +237,8 @@ reduce visual movement.
 - Provide an equivalent accessible text list.
 - Do not hide core actions inside the visualization.
 - Keep sprites and layout assets isolated from operational UI components.
+- Pixel Office may visualize who is present, who is focusing, office activity
+  level, Office Level, quest completion, and calm office states.
 
 ### Studio Access
 
@@ -232,8 +271,11 @@ Timer announcements should be useful but not speak every countdown tick.
 
 - Use clear, friendly, direct language.
 - Prefer verbs for actions: `Start focus`, `Complete task`, `Add entry`.
-- Use `CCAD` or `Studio XP` for shared progression.
-- Avoid competitive language such as `top performer`, `rank`, or `beat`.
+- Use `CCAD`, `Office XP`, `Office Level`, or `Studio XP` for shared
+  progression.
+- Avoid competitive language such as `top performer`, `rank`, `beat`, `winner`,
+  or `loser`.
+- Avoid productivity shaming and punitive streak-loss language.
 - Explain errors in plain language and offer a next action.
 
 ## 11. UI Review Checklist
@@ -245,4 +287,6 @@ Timer announcements should be useful but not speak every countdown tick.
 - Does it work with keyboard and reduced motion?
 - Is status understandable without color?
 - Does any wording accidentally score individual staff?
+- Does Character Level stay secondary to Office Level?
+- Are blocked, waiting, and handoff states clear without blame?
 - Does Pixel Office remain optional?

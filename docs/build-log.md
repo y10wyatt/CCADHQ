@@ -23,6 +23,92 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-04 - Add Office and Character XP direction
+
+### Scope
+
+- Updated product, architecture, XP, presence, UI, schema, agent, and overview
+  documentation for the next product direction.
+- Added lightweight Character XP, Office XP / Office Level language, office
+  stats, weekly quests, handoffs, richer presence cards, and suggested future
+  schema tables.
+- Kept the current Studio XP implementation documented as the existing
+  organization-level progression foundation.
+
+### Decisions
+
+- Office Level remains the primary progression system.
+- Character Level can be shown on user and presence cards but must stay
+  secondary, non-punitive, and non-ranking.
+- Stability, Reputation, Creativity, and Community describe contribution types,
+  not staff performance.
+- Handoffs exist to reduce ownership ambiguity; they are not chat, CRM, or a
+  blame ledger.
+- Student milestones and parent followups may be represented only as internal
+  operational tasks or quests; student and parent portals remain out of scope.
+
+### Verification
+
+- Reviewed `AGENTS.md`, `README.md`, and the existing documentation set before
+  editing.
+- Updated documentation only; no application code or migrations were added.
+
+### Follow-ups
+
+- Choose a migration path from Studio XP naming to Office XP naming.
+- Define the first implementation slice: Character XP, handoffs, weekly quests,
+  or task status migration.
+
+## 2026-06-04 - Widen private presence write authorization
+
+### Scope
+
+- Replaced the Realtime insert policy so active organization members can pass
+  private channel authorization for `broadcast` and `presence` extensions.
+- Kept access restricted to the existing organization-scoped presence topic.
+
+### Decisions
+
+- Preserve private Realtime channels instead of enabling public access.
+- Match Supabase's combined Broadcast and Presence authorization pattern for
+  private channels while keeping the app's visible behavior presence-only.
+
+### Verification
+
+- Applied the policy change to Supabase.
+- Pending hard refresh and Realtime log check from the hosted app.
+
+### Follow-ups
+
+- Reload the hosted app with a fresh session and confirm Realtime logs stop
+  reporting unauthorized reads for the organization presence topic.
+
+## 2026-06-04 - Widen private presence read authorization
+
+### Scope
+
+- Replaced the Realtime select policy so active organization members can read
+  private channel authorization for `broadcast` and `presence` extensions.
+- Kept the Realtime insert policy scoped to `presence` only.
+
+### Decisions
+
+- Preserve private channel access and organization membership checks.
+- Allow broadcast read authorization because Supabase's private-channel join
+  path can require read permission at the channel level even when the app only
+  consumes Presence.
+
+### Verification
+
+- Applied the migration to Supabase.
+- Confirmed `organization_members_receive_presence` now includes both
+  `broadcast` and `presence` extensions.
+
+### Follow-ups
+
+- Hard refresh the hosted app and confirm Realtime logs no longer report
+  unauthorized reads for the organization presence topic.
+
 ## 2026-06-04 - Pass server session token to private presence
 
 ### Scope

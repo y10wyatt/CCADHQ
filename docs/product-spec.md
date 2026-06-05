@@ -4,11 +4,13 @@
 
 CCAD HQ is an authenticated internal operations app for Cloud Centre of Art &
 Design. It gives staff a shared view of current work, focus activity, simple
-financial movement, and the studio's collective progress.
+financial movement, coworking presence, and the studio's collective progress.
 
-The organization is the character. Work performed by staff contributes to one
-shared Studio XP total and one CCAD level. The product must encourage
-collaboration rather than individual competition.
+The organization is the character. Work performed by staff primarily
+contributes to Office XP and Office Level, representing CCAD's collective
+business progress and studio health. Individual users may also have lightweight
+Character XP for work rhythm and contribution visibility, but it must remain
+secondary, non-punitive, and non-ranking.
 
 ## 2. Goals
 
@@ -16,6 +18,8 @@ collaboration rather than individual competition.
 - Help staff work alongside each other, whether colocated or remote.
 - Keep tasks and basic financial activity visible without adding heavy process.
 - Turn consistent operational work into visible organizational progress.
+- Recognize invisible operational work without turning it into surveillance.
+- Reduce ambiguity through blocked states, handoffs, and shared quests.
 - Provide a foundation that future staff can understand quickly.
 
 ## 3. Non-Goals
@@ -28,7 +32,8 @@ collaboration rather than individual competition.
 - Chat, direct messages, or video calls
 - Calendar integrations
 - Payroll, accounting, invoicing, or tax reporting
-- Individual XP, levels, rankings, or performance scoring
+- Hard rankings, leaderboards, personal productivity scores, or performance
+  scoring
 
 ## 4. Users And Permissions
 
@@ -67,9 +72,11 @@ Primary navigation contains exactly four MVP tabs:
 3. Tasks
 4. Finance
 
-Studio XP is visible across the product but does not require its own MVP tab.
-Realtime presence appears where useful, primarily on Home and in Focus Room.
-Pixel office is a later alternative visualization, not a primary tab.
+Office XP, currently implemented as Studio XP, is visible across the product but
+does not require its own MVP tab. Character Level may appear on user cards and
+presence cards without becoming a primary navigation destination. Realtime
+presence appears where useful, primarily on Home and in Focus Room. Pixel
+office is a later alternative visualization, not a primary tab.
 
 ## 6. Functional Requirements
 
@@ -80,7 +87,8 @@ Home answers: "What is happening, what matters next, and how is CCAD doing?"
 Required sections:
 
 - Outstanding and priority task summary
-- Studio XP level and progress to next level
+- Office XP / Studio XP level and progress to next level
+- Office stat and weekly quest highlights when implemented
 - Current-month income, expenses, and net summary
 - Compact current focus and presence summary
 - Recent activity summary
@@ -126,12 +134,12 @@ Required behavior:
 - Timer state survives page refresh and temporary disconnection.
 - A timer continues locally during temporary disconnection and submits its final
   state after reconnection. Server state wins if another device changed it.
-- Reaching zero automatically completes a Pomodoro and awards Studio XP once,
-  but does not start the next timer.
+- Reaching zero automatically completes a Pomodoro and awards Office XP once,
+  currently implemented as Studio XP, but does not start the next timer.
 - Finishing a Pomodoro early records its actual elapsed time without awarding
-  Studio XP.
+  Office XP.
 - Completing a freeform focus session records its elapsed time but does not
-  award Studio XP in MVP.
+  award Office XP in the current implementation.
 - Presence shows who is online and who is currently focusing.
 - The timer remains usable if realtime presence is unavailable.
 
@@ -145,9 +153,12 @@ Acceptance criteria:
 - Browser completion notifications and sounds are available but disabled until
   the user enables them and grants any required browser permission.
 
-### 6.3 Studio XP
+### 6.3 Office XP And Studio XP
 
-Studio XP makes operational progress visible without scoring individuals.
+Office XP makes collective operational progress visible without scoring
+individuals. The current implementation names this shared ledger Studio XP;
+future product language should converge on Office XP / Office Level while
+preserving the same primary organization-level behavior.
 
 Required behavior:
 
@@ -159,11 +170,49 @@ Required behavior:
 - Provide a detailed Studio XP drill-down from Home and the app shell without
   adding Studio XP as a primary MVP tab.
 - Allow admins to append signed corrections with a required reason.
-- Never show personal XP totals, levels, or leaderboards.
+- Never show leaderboards, rankings, personal productivity scores, or language
+  that implies staff worth.
+- Treat completed CCAD tasks, focus sessions, finance updates, weekly quests,
+  student progress milestones, marketing/public-facing tasks, parent followups,
+  and studio maintenance as candidate Office XP sources when they are captured
+  as internal operations records.
+- Allow tasks and quests to optionally contribute to office stats.
 
 Detailed rules are defined in `xp-system.md`.
 
-### 6.4 Tasks
+### 6.4 Character XP
+
+Character XP is a lightweight individual progression system for work rhythm,
+consistency, focus sessions, completed tasks, handoffs, and studio maintenance.
+
+Required behavior:
+
+- Show Character Level on user and presence cards where useful.
+- Keep Character Level visually secondary to Office Level.
+- Award only positive or neutral recognition; do not subtract XP for inactivity
+  or broken streaks.
+- Avoid hard rankings, top-performer language, winner/loser language,
+  productivity shaming, and individual leaderboards.
+- Preserve user attribution for auditability without making Character XP the
+  main purpose of the app.
+
+Detailed rules are defined in `xp-system.md`.
+
+### 6.5 Office Stats
+
+Office stats summarize the different ways work strengthens CCAD:
+
+| Stat | Represents |
+| --- | --- |
+| Stability | Finance, scheduling, systems, operations, and payments |
+| Reputation | Parent trust, student outcomes, testimonials, acceptances, and public-facing quality |
+| Creativity | Student projects, critique, portfolio development, class material, and experimental work |
+| Community | Events, referrals, alumni/student relationships, and workshops |
+
+Tasks and weekly quests can optionally contribute to one or more stats. Stats
+are contribution categories, not employee-performance measures.
+
+### 6.6 Tasks
 
 Tasks provide lightweight shared work management.
 
@@ -172,10 +221,16 @@ Required fields:
 - Title
 - Optional description
 - Work category
-- Status: backlog, planned, in progress, blocked, or done
+- Status: Backlog, Today, This Week, Blocked, Waiting, or Completed
 - Priority: low, normal, high, or urgent
 - Optional assignee
+- XP value
+- Optional office stat impact
+- Optional blocked state context
+- Optional handoff target
 - Optional due date
+- Created by
+- Completed by
 - Current completion timestamp
 - First completion timestamp retained across reopen and recompletion
 
@@ -186,11 +241,33 @@ Required behavior:
 - Use a Kanban board as the primary view and provide a list/table alternate
   view.
 - Staff can edit and archive tasks created by other staff.
-- Completing a task awards Studio XP once.
+- Completing a task awards Office XP once and may award Character XP to the
+  completing user.
 - Reopening a task does not remove earned XP; completing it again does not award
   XP unless an admin explicitly creates a corrective event.
 
-### 6.5 Finance
+### 6.7 Handoffs
+
+Handoffs let one user pass work to another with enough context that ownership is
+clear.
+
+Required fields:
+
+- Title
+- Context
+- Assigned person
+- Due date
+- Optional linked task
+- Status
+
+Required behavior:
+
+- Handoffs reduce ambiguity and prevent "I thought you were doing it" problems.
+- Completed handoffs may award Character XP and Office XP according to
+  `xp-system.md`.
+- Handoff activity must not become a blame or surveillance surface.
+
+### 6.8 Finance
 
 Finance is a simple internal ledger, not an accounting system.
 
@@ -213,10 +290,11 @@ Required behavior:
 - Require confirmation before archiving an entry.
 - Preserve the recorded category name when category configuration later changes.
 
-Finance entries do not award XP in MVP. This avoids encouraging artificial
-financial activity and keeps progression tied to completed work.
+Finance entries do not award XP in the current implementation. Future Office XP
+rules may award XP for meaningful finance updates, but should avoid encouraging
+artificial financial activity.
 
-### 6.6 Realtime Presence
+### 6.9 Realtime Presence
 
 Realtime presence communicates availability and focus state, not productivity
 measurement.
@@ -227,11 +305,25 @@ Required statuses:
 - Focusing
 - On break
 - Away
+- Paused, idle, and offline as optional display refinements
 
 Presence is ephemeral and must not become a historical attendance log. Details
 are defined in `realtime-presence.md`.
 
-### 6.7 Pixel Office
+### 6.10 Weekly Quests
+
+Weekly quests create shared direction for the studio.
+
+Required behavior:
+
+- Define a clear weekly outcome, owner or shared ownership, due date, XP value,
+  and optional office stat impact.
+- Keep quests collaborative and motivating rather than punitive.
+- Show quest completion in Home, Office XP activity, and optional Pixel Office
+  visualization.
+- Do not use quests to rank staff.
+
+### 6.11 Pixel Office
 
 Pixel office is a lightweight visual representation of active staff and their
 current status.
@@ -243,8 +335,11 @@ Constraints:
 - It must not block or replace accessible status lists.
 - It must be possible to remove or redesign it without changing presence,
   focus, task, finance, or XP logic.
+- It may visualize who is present, who is focusing, office activity level,
+  Office Level, quest completion, and calm office states.
+- It must not contain core actions that are unavailable elsewhere.
 
-### 6.8 Studio Access
+### 6.12 Studio Access
 
 Studio Access is a small admin-only operational screen outside the primary MVP
 navigation.
@@ -303,7 +398,8 @@ During MVP validation, CCAD should assess:
 - Focus sessions are completed without timer reliability complaints.
 - Priority tasks remain current and are completed through the app.
 - Monthly finance totals match the manually entered ledger.
-- Studio XP feels motivating without feeling like employee surveillance.
+- Office XP and Character XP feel motivating without feeling like employee
+  surveillance.
 
 These are product signals, not employee performance metrics.
 
@@ -313,12 +409,14 @@ These are product signals, not employee performance metrics.
 | --- | --- | --- |
 | M1 | Home dashboard | Useful dashboard with mocked or seeded data contracts |
 | M2 | Focus timer | Reliable personal timer and persisted focus sessions |
-| M3 | Studio XP | Idempotent shared XP ledger and level display |
-| M4 | Tasks | Shared task lifecycle and completion XP |
-| M5 | Finance | Manual ledger and monthly summary |
-| M6 | Realtime presence | Online and focus states with graceful degradation |
-| M7 | Pixel office | Optional accessible visual layer over presence |
-| M8 | Studio Access | Guarded admin invitations and member access |
+| M3 | Office XP | Idempotent shared XP ledger and level display |
+| M4 | Character XP | Lightweight non-ranking character progression |
+| M5 | Tasks | Shared task lifecycle, blocked states, and completion XP |
+| M6 | Handoffs | Clear ownership transfer for shared work |
+| M7 | Finance | Manual ledger and monthly summary |
+| M8 | Realtime presence | Online and focus states with graceful degradation |
+| M9 | Pixel office | Optional accessible visual layer over presence |
+| M10 | Studio Access | Guarded admin invitations and member access |
 
 ## 10. Open Product Decisions
 

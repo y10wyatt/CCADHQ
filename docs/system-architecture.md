@@ -44,7 +44,11 @@ features/
   dashboard/
   focus/
   xp/
+  character-xp/
+  office-stats/
   tasks/
+  handoffs/
+  weekly-quests/
   finance/
   presence/
   pixel-office/
@@ -88,6 +92,12 @@ Examples:
 
 - Focus completion requests an XP award through an `XpAwarder` interface.
 - Tasks request XP through the same interface without knowing XP ledger storage.
+- Character XP awards use the same application boundary but write to a separate
+  non-ranking individual ledger.
+- Tasks and weekly quests request office-stat contribution mapping through an
+  office-progress contract, not through presentation components.
+- Handoffs own ownership-transfer rules and may request XP after a completed
+  handoff.
 - Focus and Tasks consume a shared work-category contract without importing each
   other's private implementation.
 - Pixel office reads a `PresenceMember` view model and does not subscribe to
@@ -253,6 +263,12 @@ Initial decisions:
 - Feature-based modular architecture
 - Organization-scoped data model from day one
 - Shared append-only XP ledger
+- Office XP / Office Level remain the primary progression surface.
+- Character XP is a separate lightweight progression feature and must not
+  produce rankings or productivity scores.
+- Office stats classify contribution types without becoming staff ratings.
+- Handoffs reduce ownership ambiguity and stay separate from chat or CRM.
+- Weekly quests create shared direction without ranking staff.
 - Realtime presence is ephemeral and non-critical
 - Pixel office is an isolated consumer of presence
 - Finance is a manual operational ledger, not accounting software
@@ -264,7 +280,29 @@ Initial decisions:
 
 Record material changes and rationale in `build-log.md`.
 
-## 15. Phase 1 Implementation
+## 15. Office Progression Direction
+
+Future Office XP work should treat the current Studio XP feature as the
+implemented foundation for organization-level progression. The architecture
+should migrate naming and contracts deliberately rather than duplicating two
+competing shared XP systems.
+
+Recommended boundaries:
+
+- `features/xp/` continues to own shared ledger math, idempotency, corrections,
+  and level calculations until renamed or split.
+- `features/character-xp/` owns individual character events, level calculation,
+  and user-card display models.
+- `features/office-stats/` owns Stability, Reputation, Creativity, and
+  Community contribution rules.
+- `features/weekly-quests/` owns quest lifecycle and completion rules.
+- `features/handoffs/` owns lightweight ownership-transfer state.
+
+React components should receive already-computed Office Level, Character Level,
+quest, handoff, and office-stat view models. They should not decide award
+eligibility or calculate progression.
+
+## 16. Phase 1 Implementation
 
 The initial implementation follows the documented feature boundaries:
 
@@ -280,7 +318,7 @@ The Home dashboard depends on `DashboardQuery`, not its mock implementation.
 Later Supabase-backed data access should implement that application interface
 without rewriting the dashboard UI contract.
 
-## 16. Phase 2 Implementation
+## 17. Phase 2 Implementation
 
 Phase 2 connects the app shell to the dedicated Supabase project:
 
@@ -301,7 +339,7 @@ The app uses only the public Supabase URL and publishable key. New-user
 creation is restricted by the pending-invitation check inside the Auth-user
 database trigger; no service key is exposed to client code.
 
-## 17. Phase 3 Implementation
+## 18. Phase 3 Implementation
 
 Phase 3 replaces Home mock data with durable organization-scoped summaries:
 
@@ -323,7 +361,7 @@ without a valid pending organization invitation. Password recovery is available
 for existing accounts without weakening the invitation gate. This keeps first
 sign-in self-service without enabling unrestricted public signup.
 
-## 18. Phase 4 Implementation
+## 19. Phase 4 Implementation
 
 Phase 4 adds a persisted Focus Room behind a focused feature boundary:
 
@@ -347,7 +385,7 @@ RPCs because they are exposed through the API. This exposure is intentional:
 each RPC verifies active membership and session ownership, uses an empty
 `search_path`, and exists to keep protected multi-record transitions atomic.
 
-## 19. Error-Monitoring Implementation
+## 20. Error-Monitoring Implementation
 
 - Root and workspace error boundaries provide recovery actions and report
   authenticated browser incidents.
@@ -361,7 +399,7 @@ each RPC verifies active membership and session ownership, uses an empty
 
 Redaction and retention rules are defined in `error-monitoring.md`.
 
-## 20. Phase 5 Implementation
+## 21. Phase 5 Implementation
 
 Phase 5 adds a detailed shared Studio XP workflow:
 
@@ -375,7 +413,7 @@ Phase 5 adds a detailed shared Studio XP workflow:
 - Admin corrections and Pomodoro awards return previous/new shared levels.
 - The app shell reads live Studio XP instead of showing a hard-coded level.
 
-## 21. Phase 6 Implementation
+## 22. Phase 6 Implementation
 
 Phase 6 adds detailed shared Tasks behind a modular feature boundary:
 
@@ -391,7 +429,7 @@ Phase 6 adds detailed shared Tasks behind a modular feature boundary:
 - Category names are snapshotted so later shared-category renames do not rewrite
   task history.
 
-## 22. Phase 7 Implementation
+## 23. Phase 7 Implementation
 
 Phase 7 adds the detailed internal Finance ledger:
 
@@ -407,7 +445,7 @@ Phase 7 adds the detailed internal Finance ledger:
   organization entry.
 - Finance category names are snapshotted and Finance activity never awards XP.
 
-## 23. Phase 8 Realtime Presence Implementation
+## 24. Phase 8 Realtime Presence Implementation
 
 Phase 8 adds an ephemeral coworking-presence feature boundary:
 
@@ -428,7 +466,7 @@ The client is configured for private channels. Private-only Realtime is enabled
 and the organization-member policies from the Phase 8 migration are applied to
 Supabase's managed `realtime.messages` authorization surface.
 
-## 24. Phase 9 Pixel Office Implementation
+## 25. Phase 9 Pixel Office Implementation
 
 Phase 9 adds an optional visualization boundary over normalized presence:
 
@@ -448,7 +486,7 @@ Live room occupants now depend on the private presence provider and should be
 verified with two signed-in staff accounts. The visualization still degrades to
 a quiet unavailable state if Realtime disconnects or authorization fails.
 
-## 25. Phase 10 Studio Access Implementation
+## 26. Phase 10 Studio Access Implementation
 
 Phase 10 adds a small admin-only access-management boundary:
 

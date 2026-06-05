@@ -15,6 +15,55 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-04 19:43 PDT - Document Office and Character XP direction
+
+- Goal: Update project documentation for Office XP, lightweight Character XP,
+  office stats, handoffs, quests, richer presence cards, and MVP-friendly schema
+  direction before writing application code.
+- Files changed: `AGENTS.md`, `README.md`, `docs/product-spec.md`,
+  `docs/system-architecture.md`, `docs/xp-system.md`,
+  `docs/realtime-presence.md`, `docs/ui-guidelines.md`,
+  `docs/database-schema.md`, `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Documentation now keeps Office Level as primary progression while
+  allowing secondary non-ranking Character Level, defines Stability,
+  Reputation, Creativity, and Community stats, adds handoff and weekly quest
+  direction, and documents suggested schema tables.
+- Known issues: No application code, migrations, tests, or UI have been updated
+  for the new progression model yet; current implementation still uses Studio
+  XP naming and existing task statuses.
+- Next recommended step: Decide whether to migrate Studio XP naming to Office
+  XP first or implement handoffs/Character XP behind compatibility contracts.
+
+## 2026-06-04 19:39 PDT - Widen private presence write authorization
+
+- Goal: Resolve remaining private Realtime presence join rejection after read
+  authorization was widened.
+- Files changed:
+  `supabase/migrations/20260605034000_realtime_presence_write_authorization.sql`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: The live `realtime.messages` insert policy now permits active
+  organization members to pass private channel authorization for both
+  `broadcast` and `presence`; channel access remains private and org-scoped.
+- Known issues: Hosted browser presence still needs a fresh reload and log
+  check after the policy change.
+- Next recommended step: Hard refresh the app, sign out/in if needed, and
+  re-check Realtime logs for unauthorized topic reads.
+
+## 2026-06-04 19:34 PDT - Widen private presence read authorization
+
+- Goal: Stop private Realtime presence joins from being rejected during channel
+  read authorization.
+- Files changed:
+  `supabase/migrations/20260605032000_realtime_presence_read_authorization.sql`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: The live `realtime.messages` select policy now permits active
+  organization members to read private channel authorization for both
+  `broadcast` and `presence`, while the insert policy remains presence-only.
+- Known issues: Hosted browser presence still needs a fresh reload and log
+  check after the policy change.
+- Next recommended step: Hard refresh the app and re-check Realtime logs for
+  unauthorized topic reads.
+
 ## 2026-06-04 19:03 PDT - Pass server session token to presence
 
 - Goal: Fix private Realtime presence still becoming unavailable after channel
