@@ -23,6 +23,31 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-04 - Fix private presence channel join
+
+### Scope
+
+- Updated the browser presence provider to set the Supabase session token on
+  Realtime before joining the private organization channel.
+- Added a migration that changes the presence authorization helper to use
+  Supabase's documented `realtime.topic()` helper.
+
+### Decisions
+
+- Keep public channel access disabled.
+- Continue using private organization-scoped presence instead of relaxing
+  Realtime authorization.
+
+### Verification
+
+- Applied the database helper correction to Supabase.
+- Confirmed the live helper definition now uses `realtime.topic()`.
+- ESLint, TypeScript, 50 tests, and production build passed.
+
+### Follow-ups
+
+- Deploy the browser client fix and verify presence with two signed-in users.
+
 ## 2026-06-04 - Activate private Realtime presence authorization
 
 ### Scope

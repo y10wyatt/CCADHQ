@@ -15,6 +15,22 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-04 18:51 PDT - Fix private presence join
+
+- Goal: Resolve unavailable private Realtime presence after policies were
+  enabled.
+- Files changed: `features/presence/ui/presence-provider.tsx`,
+  `supabase/migrations/20260605013900_realtime_presence_topic_helper.sql`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Browser presence now sets the authenticated session token before
+  joining the private channel, and the Realtime policy helper uses Supabase's
+  documented `realtime.topic()` helper. ESLint, TypeScript, 50 tests, and
+  production build pass.
+- Known issues: The browser client change must be committed, pushed, and
+  redeployed before hosted presence can be re-tested.
+- Next recommended step: Deploy this fix, reload two signed-in sessions, and
+  verify live presence changes from online to focusing or break.
+
 ## 2026-06-04 18:37 PDT - Activate private Realtime presence policies
 
 - Goal: Enable private organization-scoped coworking presence without allowing

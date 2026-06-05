@@ -104,18 +104,9 @@ export function PresenceProvider({
 
   useEffect(() => {
     let staleTimer: number | undefined;
+    let isCancelled = false;
     const clientId = globalThis.crypto.randomUUID();
     clientIdRef.current = clientId;
-    const channel = supabase.channel(
-      `org:${member.organization.id}:presence`,
-      {
-        config: {
-          presence: { key: clientId },
-          private: true,
-        },
-      },
-    );
-    channelRef.current = channel;
 
     function markStale() {
       subscribedRef.current = false;
@@ -129,44 +120,77 @@ export function PresenceProvider({
       }, STALE_GRACE_MS);
     }
 
-    channel
-      .on("presence", { event: "sync" }, () => {
-        window.clearTimeout(staleTimer);
-        setMembers(
-          normalizePresenceState(
-            channel.presenceState<PresencePayload>() as Record<
-              string,
-              unknown[]
-            >,
-          ),
-        );
-        setLastSyncedAt(new Date().toISOString());
-        setConnectionState("live");
-      })
-      .subscribe(async (nextState) => {
-        if (nextState === "SUBSCRIBED") {
-          subscribedRef.current = true;
-          setConnectionState("live");
-          await channel.track(buildPayload(payloadDataRef.current, clientId));
-          return;
-        }
+    async function subscribeToPresence() {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
 
-        if (
-          nextState === "CHANNEL_ERROR" ||
-          nextState === "TIMED_OUT" ||
-          nextState === "CLOSED"
-        ) {
-          markStale();
-        }
-      });
+      if (isCancelled) return;
+      if (error || !session) {
+        markStale();
+        return;
+      }
+
+      await supabase.realtime.setAuth(session.access_token);
+      if (isCancelled) return;
+
+      const channel = supabase.channel(
+        `org:${member.organization.id}:presence`,
+        {
+          config: {
+            presence: { key: clientId },
+            private: true,
+          },
+        },
+      );
+      channelRef.current = channel;
+
+      channel
+        .on("presence", { event: "sync" }, () => {
+          window.clearTimeout(staleTimer);
+          setMembers(
+            normalizePresenceState(
+              channel.presenceState<PresencePayload>() as Record<
+                string,
+                unknown[]
+              >,
+            ),
+          );
+          setLastSyncedAt(new Date().toISOString());
+          setConnectionState("live");
+        })
+        .subscribe(async (nextState) => {
+          if (nextState === "SUBSCRIBED") {
+            subscribedRef.current = true;
+            setConnectionState("live");
+            await channel.track(buildPayload(payloadDataRef.current, clientId));
+            return;
+          }
+
+          if (
+            nextState === "CHANNEL_ERROR" ||
+            nextState === "TIMED_OUT" ||
+            nextState === "CLOSED"
+          ) {
+            markStale();
+          }
+        });
+    }
+
+    void subscribeToPresence();
 
     return () => {
+      isCancelled = true;
       window.clearTimeout(staleTimer);
       subscribedRef.current = false;
       clientIdRef.current = null;
+      const channel = channelRef.current;
       channelRef.current = null;
-      void channel.untrack();
-      void supabase.removeChannel(channel);
+      if (channel) {
+        void channel.untrack();
+        void supabase.removeChannel(channel);
+      }
     };
   }, [member.organization.id, supabase]);
 
