@@ -36,6 +36,7 @@ interface AppShellProps {
   member: CurrentMember;
   studioProgress: StudioProgress;
   presenceFocusState: PresenceFocusState | null;
+  presenceAccessToken: string | null;
 }
 
 export function AppShell({
@@ -43,11 +44,16 @@ export function AppShell({
   member,
   studioProgress,
   presenceFocusState,
+  presenceAccessToken,
 }: AppShellProps) {
   const pathname = usePathname();
 
   return (
-    <PresenceProvider member={member} focusState={presenceFocusState}>
+    <PresenceProvider
+      accessToken={presenceAccessToken}
+      member={member}
+      focusState={presenceFocusState}
+    >
       <div className="min-h-screen">
         <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 border-r border-border bg-background/95 p-4 backdrop-blur lg:flex lg:flex-col">
           <Brand />

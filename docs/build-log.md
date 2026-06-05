@@ -23,6 +23,32 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-04 - Pass server session token to private presence
+
+### Scope
+
+- Passed the server-verified Supabase access token from the workspace layout to
+  the presence provider.
+- Kept the browser session lookup as a fallback when no server token is
+  available.
+
+### Decisions
+
+- Preserve private Realtime authorization and avoid enabling public channels.
+- Use the authenticated server session as the source of truth for the Realtime
+  join token because workspace rendering already depends on it.
+
+### Verification
+
+- Realtime logs showed unauthorized read attempts for the organization presence
+  topic before this code change.
+- The same topic and William's user id evaluate as authorized in SQL.
+- ESLint, TypeScript, 50 tests, and production build passed.
+
+### Follow-ups
+
+- Deploy and confirm Realtime logs stop reporting unauthorized presence reads.
+
 ## 2026-06-04 - Fix private presence channel join
 
 ### Scope

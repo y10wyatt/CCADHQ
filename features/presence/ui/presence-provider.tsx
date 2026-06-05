@@ -42,10 +42,12 @@ const PresenceContext = createContext<PresenceContextValue>({
 
 export function PresenceProvider({
   children,
+  accessToken,
   member,
   focusState,
 }: {
   children: React.ReactNode;
+  accessToken: string | null;
   member: CurrentMember;
   focusState: PresenceFocusState | null;
 }) {
@@ -121,18 +123,29 @@ export function PresenceProvider({
     }
 
     async function subscribeToPresence() {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
+      let realtimeAccessToken = accessToken;
+
+      if (!realtimeAccessToken) {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error) {
+          markStale();
+          return;
+        }
+
+        realtimeAccessToken = session?.access_token ?? null;
+      }
 
       if (isCancelled) return;
-      if (error || !session) {
+      if (!realtimeAccessToken) {
         markStale();
         return;
       }
 
-      await supabase.realtime.setAuth(session.access_token);
+      await supabase.realtime.setAuth(realtimeAccessToken);
       if (isCancelled) return;
 
       const channel = supabase.channel(
@@ -192,7 +205,7 @@ export function PresenceProvider({
         void supabase.removeChannel(channel);
       }
     };
-  }, [member.organization.id, supabase]);
+  }, [accessToken, member.organization.id, supabase]);
 
   useEffect(() => {
     payloadDataRef.current = {

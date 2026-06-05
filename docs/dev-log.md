@@ -15,6 +15,21 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-04 19:03 PDT - Pass server session token to presence
+
+- Goal: Fix private Realtime presence still becoming unavailable after channel
+  policies and topic helper were corrected.
+- Files changed: `app/(app)/layout.tsx`, `shared/ui/app-shell.tsx`,
+  `features/presence/ui/presence-provider.tsx`, `docs/build-log.md`,
+  `docs/dev-log.md`.
+- What works: Workspace layout now passes the server-verified Supabase access
+  token into the presence provider before joining the private channel; ESLint,
+  TypeScript, 50 tests, and production build pass.
+- Known issues: The change must be committed, pushed, and deployed before
+  hosted presence can be retested.
+- Next recommended step: Deploy, reload the app, and confirm Realtime logs no
+  longer report unauthorized reads for the organization presence topic.
+
 ## 2026-06-04 18:51 PDT - Fix private presence join
 
 - Goal: Resolve unavailable private Realtime presence after policies were
