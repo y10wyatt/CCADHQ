@@ -138,6 +138,10 @@ Admin operations must validate authorization server-side.
 - `organization_members` maps the auth user to CCAD and its role.
 - Accounts are invite-only and use email/password credentials.
 - Account confirmation and password recovery use time-limited email links.
+- Auth email callbacks resolve from the explicit app URL first, then trusted
+  forwarded request headers, and finally local development.
+- Supabase Auth URL Configuration must use the production app as Site URL and
+  allow the exact production `/auth/confirm` callback.
 - William and Alice are the initial organization admins.
 - Authenticated users without an active membership are denied product access.
 - Deactivated members remain available as inactive historical attribution.

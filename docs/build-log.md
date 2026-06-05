@@ -23,6 +23,30 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-04 - Harden hosted authentication callbacks
+
+### Scope
+
+- Added centralized authentication-origin resolution for signup confirmation
+  and password recovery callbacks.
+- Documented the exact Supabase production Site URL and redirect allowlist.
+
+### Decisions
+
+- Prefer an explicit canonical app URL, then trusted forwarded request headers,
+  before falling back to localhost.
+- Keep the callback path exact in production because Supabase falls back to its
+  Site URL when a requested redirect is not allowlisted.
+
+### Verification
+
+- Added coverage for configured, Vercel-forwarded, and local callback origins.
+
+### Follow-ups
+
+- Update Supabase Auth URL Configuration so production email links no longer
+  fall back to localhost.
+
 ## 2026-06-04 - Replace magic-link login with invited password accounts
 
 ### Scope

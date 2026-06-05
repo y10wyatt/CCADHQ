@@ -15,6 +15,21 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-04 13:12 PDT - Fix hosted auth callback origin
+
+- Goal: Prevent password recovery and confirmation emails from redirecting to
+  localhost in production.
+- Files changed: `.env.example`, `features/auth/application/actions.ts`,
+  `features/auth/domain/auth.ts`, `features/auth/domain/auth.test.ts`,
+  `README.md`, `docs/system-architecture.md`, `docs/build-log.md`,
+  `docs/dev-log.md`.
+- What works: Auth callback requests prefer the canonical production app URL,
+  then Vercel forwarded headers, while local development remains supported.
+- Known issues: Supabase Auth URL Configuration must still be updated because
+  disallowed callback URLs fall back to its current localhost Site URL.
+- Next recommended step: Set the Supabase production Site URL and exact
+  `/auth/confirm` redirect URL, then request a fresh reset email.
+
 ## 2026-06-04 13:00 PDT - Add invite-only password authentication
 
 - Goal: Replace magic-link-only sign-in with account email and password.

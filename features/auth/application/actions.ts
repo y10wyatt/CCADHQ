@@ -4,7 +4,10 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { normalizeAuthNextPath } from "@/features/auth/domain/auth";
+import {
+  normalizeAuthNextPath,
+  resolveAuthOrigin,
+} from "@/features/auth/domain/auth";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 const emailSchema = z.string().trim().email().max(254);
@@ -23,6 +26,19 @@ function loginRedirect(
     search.set("next", nextPath);
   }
   redirect(`/login?${search.toString()}`);
+}
+
+async function getAuthOrigin() {
+  const requestHeaders = await headers();
+
+  return resolveAuthOrigin({
+    configuredOrigin:
+      process.env.NEXT_PUBLIC_APP_URL ??
+      process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    forwardedHost: requestHeaders.get("x-forwarded-host"),
+    forwardedProto: requestHeaders.get("x-forwarded-proto"),
+    host: requestHeaders.get("host"),
+  });
 }
 
 export async function signInWithPassword(formData: FormData) {
@@ -60,8 +76,7 @@ export async function createInvitedAccount(formData: FormData) {
     loginRedirect({ mode: "create", error: "invalid-account" });
   }
 
-  const requestHeaders = await headers();
-  const origin = requestHeaders.get("origin") ?? "http://localhost:3000";
+  const origin = await getAuthOrigin();
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase.auth.signUp({
     ...parsed.data,
@@ -88,8 +103,7 @@ export async function requestPasswordReset(formData: FormData) {
     loginRedirect({ mode: "reset", error: "invalid-email" });
   }
 
-  const requestHeaders = await headers();
-  const origin = requestHeaders.get("origin") ?? "http://localhost:3000";
+  const origin = await getAuthOrigin();
   const supabase = await createServerSupabaseClient();
   await supabase.auth.resetPasswordForEmail(parsed.data, {
     redirectTo: `${origin}/auth/confirm?next=/reset-password`,

@@ -88,7 +88,8 @@ npm run build
 ```
 
 Copy `.env.example` to `.env.local` and provide the Supabase project URL and
-publishable key. Never place a service-role key in a browser-visible variable.
+publishable key. Set `NEXT_PUBLIC_APP_URL` to the environment's canonical app
+origin. Never place a service-role key in a browser-visible variable.
 
 The application routes are:
 
@@ -115,8 +116,14 @@ days. Role and activation changes use guarded database functions, preserve
 append-only history, prevent self-deactivation, and retain at least one active
 admin.
 
-Before hosted sign-in testing or deployment, allow the app URL and
-`/auth/confirm` callback in Supabase Auth redirect settings.
+For production authentication, configure Supabase Auth URL Configuration with:
+
+- Site URL: `https://ccadhq.vercel.app`
+- Redirect URL: `https://ccadhq.vercel.app/auth/confirm`
+- Local Redirect URL: `http://localhost:3000/auth/confirm`
+
+Supabase falls back to the Site URL when the requested callback is not on the
+redirect allowlist. Keep production callback URLs exact.
 
 Home reads live task counts, Studio XP progress and activity, and current-month
 finance totals through a typed Supabase adapter. Home and Focus Room now consume
