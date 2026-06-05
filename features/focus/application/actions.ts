@@ -59,6 +59,26 @@ export async function startFocusSession(
 
   const member = await requireCurrentMember();
   const supabase = await createServerSupabaseClient();
+  const { data: activeSession, error: activeSessionError } = await supabase
+    .from("focus_sessions")
+    .select("id")
+    .eq("member_id", member.id)
+    .in("state", ["running", "paused"])
+    .maybeSingle();
+
+  if (activeSessionError) {
+    return finish(activeSessionError, "Unable to check active sessions.");
+  }
+
+  if (activeSession) {
+    revalidateFocusPaths();
+    return {
+      ok: false,
+      error:
+        "You already have an active session. Finish or cancel it before starting another.",
+    };
+  }
+
   const { error } = await supabase.rpc("start_focus_session", {
     target_organization_id: member.organization.id,
     session_mode: parsed.data.mode,

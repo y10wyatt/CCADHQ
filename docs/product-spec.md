@@ -375,8 +375,8 @@ Implemented:
   or room position.
 - Empty and unavailable states preserve Home and all core workflows.
 
-Live occupants remain dependent on Supabase repairing the managed Realtime
-schema and the Phase 8 authorization migration being applied.
+Live occupants now depend on the private presence provider and should be
+verified with two signed-in staff accounts.
 
 ## 13. Phase 10 Studio Access Implementation Status
 

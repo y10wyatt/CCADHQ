@@ -152,7 +152,7 @@ export function FocusRoomClient({ room }: { room: FocusRoomViewModel }) {
       setMessage(null);
       const result = await action();
       setMessage(result.ok ? successMessage : (result.error ?? "Try again."));
-      if (result.ok) router.refresh();
+      router.refresh();
     });
   }
 
@@ -251,56 +251,90 @@ export function FocusRoomClient({ room }: { room: FocusRoomViewModel }) {
             </div>
 
             {active ? (
-              <div className="flex flex-wrap justify-center gap-3">
-                {active.state === "running" ? (
+              <>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {active.state === "running" ? (
+                    <Button
+                      disabled={isPending}
+                      onClick={() =>
+                        runAction(
+                          () => pauseFocusSession(active.id),
+                          "Session paused.",
+                        )
+                      }
+                    >
+                      <Pause aria-hidden="true" />
+                      Pause
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={isPending}
+                      onClick={() =>
+                        runAction(
+                          () => resumeFocusSession(active.id),
+                          "Session resumed.",
+                        )
+                      }
+                    >
+                      <Play aria-hidden="true" />
+                      Resume
+                    </Button>
+                  )}
                   <Button
+                    variant="secondary"
+                    disabled={isPending}
+                    onClick={() => finishSession(active)}
+                  >
+                    <Check aria-hidden="true" />
+                    {active.mode === "freeform"
+                      ? "Finish & record"
+                      : "Finish early"}
+                  </Button>
+                  <Button
+                    variant="ghost"
                     disabled={isPending}
                     onClick={() =>
                       runAction(
-                        () => pauseFocusSession(active.id),
-                        "Session paused.",
+                        () => cancelFocusSession(active.id),
+                        "Session cancelled.",
                       )
                     }
                   >
-                    <Pause aria-hidden="true" />
-                    Pause
+                    <CircleStop aria-hidden="true" />
+                    Cancel
                   </Button>
-                ) : (
-                  <Button
+                </div>
+                {isFocusActive && (
+                  <WorkDetails
+                    active={active}
+                    workName={workName}
+                    setWorkName={setWorkName}
+                    workDescription={workDescription}
+                    setWorkDescription={setWorkDescription}
+                    workCategoryId={workCategoryId}
+                    setWorkCategoryId={setWorkCategoryId}
+                    linkedTaskId={linkedTaskId}
+                    chooseTask={chooseTask}
+                    categories={room.categories}
+                    tasks={room.tasks}
                     disabled={isPending}
-                    onClick={() =>
+                    embedded
+                    onSave={() => {
                       runAction(
-                        () => resumeFocusSession(active.id),
-                        "Session resumed.",
-                      )
-                    }
-                  >
-                    <Play aria-hidden="true" />
-                    Resume
-                  </Button>
+                        () =>
+                          updateFocusSessionDetails({
+                            sessionId: active.id,
+                            workName,
+                            workDescription,
+                            workCategoryId,
+                            linkedTaskId: linkedTaskId || null,
+                          }),
+                        "Active-session details saved.",
+                      );
+                    }}
+                  />
                 )}
-                <Button
-                  variant="secondary"
-                  disabled={isPending}
-                  onClick={() => finishSession(active)}
-                >
-                  <Check aria-hidden="true" />
-                  {active.mode === "freeform" ? "Finish & record" : "Finish early"}
-                </Button>
-                <Button
-                  variant="ghost"
-                  disabled={isPending}
-                  onClick={() =>
-                    runAction(
-                      () => cancelFocusSession(active.id),
-                      "Session cancelled.",
-                    )
-                  }
-                >
-                  <CircleStop aria-hidden="true" />
-                  Cancel
-                </Button>
-              </div>
+              </>
             ) : (
               <>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -342,11 +376,33 @@ export function FocusRoomClient({ room }: { room: FocusRoomViewModel }) {
                     Start 15-minute break
                   </Button>
                 </div>
+                {!canStartFocus && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    Add a work name, description, and shared category before
+                    starting focus time.
+                  </p>
+                )}
                 {!room.longBreakAvailable && (
                   <p className="text-center text-xs text-muted-foreground">
                     A long break becomes available after four full Pomodoros.
                   </p>
                 )}
+                <WorkDetails
+                  active={null}
+                  workName={workName}
+                  setWorkName={setWorkName}
+                  workDescription={workDescription}
+                  setWorkDescription={setWorkDescription}
+                  workCategoryId={workCategoryId}
+                  setWorkCategoryId={setWorkCategoryId}
+                  linkedTaskId={linkedTaskId}
+                  chooseTask={chooseTask}
+                  categories={room.categories}
+                  tasks={room.tasks}
+                  disabled={isPending}
+                  embedded
+                  onSave={() => {}}
+                />
               </>
             )}
           </div>
@@ -388,37 +444,6 @@ export function FocusRoomClient({ room }: { room: FocusRoomViewModel }) {
           </div>
         </Card>
       </section>
-
-      {(isFocusActive || !active) && (
-        <WorkDetails
-          active={isFocusActive ? active : null}
-          workName={workName}
-          setWorkName={setWorkName}
-          workDescription={workDescription}
-          setWorkDescription={setWorkDescription}
-          workCategoryId={workCategoryId}
-          setWorkCategoryId={setWorkCategoryId}
-          linkedTaskId={linkedTaskId}
-          chooseTask={chooseTask}
-          categories={room.categories}
-          tasks={room.tasks}
-          disabled={isPending}
-          onSave={() => {
-            if (!active) return;
-            runAction(
-              () =>
-                updateFocusSessionDetails({
-                  sessionId: active.id,
-                  workName,
-                  workDescription,
-                  workCategoryId,
-                  linkedTaskId: linkedTaskId || null,
-                }),
-              "Active-session details saved.",
-            );
-          }}
-        />
-      )}
 
       <section className="grid gap-5 lg:grid-cols-2">
         <Card>
@@ -584,6 +609,7 @@ function WorkDetails({
   categories,
   tasks,
   disabled,
+  embedded = false,
   onSave,
 }: {
   active: FocusSessionView | null;
@@ -598,10 +624,11 @@ function WorkDetails({
   categories: FocusRoomViewModel["categories"];
   tasks: FocusRoomViewModel["tasks"];
   disabled: boolean;
+  embedded?: boolean;
   onSave: () => void;
 }) {
-  return (
-    <Card>
+  const content = (
+    <>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold">Work details</h2>
@@ -620,7 +647,7 @@ function WorkDetails({
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <label className="grid gap-2 text-sm font-medium">
-          Work name
+          Work name <span className="text-muted-foreground">(Required)</span>
           <input
             className={fieldClass}
             value={workName}
@@ -629,7 +656,8 @@ function WorkDetails({
           />
         </label>
         <label className="grid gap-2 text-sm font-medium">
-          Shared category
+          Shared category{" "}
+          <span className="text-muted-foreground">(Required)</span>
           <select
             className={fieldClass}
             value={workCategoryId}
@@ -643,9 +671,15 @@ function WorkDetails({
               </option>
             ))}
           </select>
+          {categories.length === 0 && (
+            <span className="text-xs font-normal text-muted-foreground">
+              Add a shared category below before starting focus time.
+            </span>
+          )}
         </label>
         <label className="grid gap-2 text-sm font-medium lg:col-span-2">
-          Work description
+          Work description{" "}
+          <span className="text-muted-foreground">(Required)</span>
           <textarea
             className={`${fieldClass} min-h-24 py-3`}
             value={workDescription}
@@ -654,7 +688,7 @@ function WorkDetails({
           />
         </label>
         <label className="grid gap-2 text-sm font-medium lg:col-span-2">
-          Linked task (optional)
+          Linked task <span className="text-muted-foreground">(Optional)</span>
           <select
             className={fieldClass}
             value={linkedTaskId}
@@ -669,6 +703,20 @@ function WorkDetails({
           </select>
         </label>
       </div>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div className="rounded-xl border border-border bg-muted/20 p-4 text-left sm:p-5">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      {content}
     </Card>
   );
 }

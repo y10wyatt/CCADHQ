@@ -424,10 +424,9 @@ Phase 8 adds an ephemeral coworking-presence feature boundary:
   never block durable workflows.
 - Presence has no durable table and never enters database change history.
 
-The client is configured for private channels. Final activation is pending
-private-only Realtime project configuration and application of the
-organization-member policies in the Phase 8 migration after Supabase
-initializes its managed `realtime.messages` authorization surface.
+The client is configured for private channels. Private-only Realtime is enabled
+and the organization-member policies from the Phase 8 migration are applied to
+Supabase's managed `realtime.messages` authorization surface.
 
 ## 24. Phase 9 Pixel Office Implementation
 
@@ -445,9 +444,9 @@ Phase 9 adds an optional visualization boundary over normalized presence:
 - The feature can be removed or redesigned without changing presence, Focus,
   Tasks, Finance, XP, or navigation contracts.
 
-Live room occupants remain blocked by Supabase's missing managed `realtime`
-schema. The visualization degrades to a quiet unavailable state without
-affecting Home or other workflows.
+Live room occupants now depend on the private presence provider and should be
+verified with two signed-in staff accounts. The visualization still degrades to
+a quiet unavailable state if Realtime disconnects or authorization fails.
 
 ## 25. Phase 10 Studio Access Implementation
 

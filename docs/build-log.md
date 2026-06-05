@@ -23,6 +23,83 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-04 - Activate private Realtime presence authorization
+
+### Scope
+
+- Applied the Phase 8 Supabase Realtime authorization migration.
+- Confirmed `realtime.messages` has authenticated send and receive policies for
+  organization presence channels.
+- Updated documentation from blocked Realtime schema repair to pending live
+  two-user verification.
+
+### Decisions
+
+- Keep public Realtime channel access disabled.
+- Authorize presence through private channels scoped to
+  `org:{organization_id}:presence`.
+- Keep presence ephemeral and non-durable; no attendance history is stored.
+
+### Verification
+
+- Confirmed `realtime.messages` and `realtime.subscription` exist.
+- Confirmed `organization_members_receive_presence` and
+  `organization_members_send_presence` policies exist on `realtime.messages`.
+
+### Follow-ups
+
+- Test William and Alice signed in at the same time to verify live presence,
+  focus, break, disconnect, and unauthorized behavior.
+
+## 2026-06-04 - Embed required Focus Room details
+
+### Scope
+
+- Moved Focus Room work details into the timer card.
+- Added explicit required labels to work name, category, and description.
+- Labeled linked task as optional.
+
+### Decisions
+
+- Keep required setup physically next to the timer start controls so users can
+  understand why Pomodoro or freeform start may be disabled.
+- Preserve the existing database requirement that focus sessions include a
+  name, description, and shared category.
+
+### Verification
+
+- ESLint, TypeScript, 50 tests, and production build passed.
+
+### Follow-ups
+
+- Publish the UI update to production.
+
+## 2026-06-04 - Clarify Focus Room active-session handling
+
+### Scope
+
+- Added an active-session precheck before starting a Focus Room session.
+- Added clearer disabled-start guidance for required work details.
+- Refresh Focus Room after start failures as well as successes so stale UI
+  catches up to durable session state.
+
+### Decisions
+
+- Keep the one-active-session-per-member database rule and explain it in the
+  UI instead of allowing overlapping focus records.
+- Treat missing work name, description, or category as a visible preparation
+  step before Pomodoro or freeform time can start.
+
+### Verification
+
+- ESLint, TypeScript, 50 tests, and production build passed.
+- Live Supabase data confirmed William has one running Pomodoro, so production
+  correctly blocks a second active session.
+
+### Follow-ups
+
+- Publish the fix and finish or cancel the current active production session.
+
 ## 2026-06-04 - Harden hosted authentication callbacks
 
 ### Scope

@@ -170,16 +170,20 @@ Implemented:
 - Inactivity changes a connected client to away after ten minutes.
 - Presence remains ephemeral and creates no change-history or attendance rows.
 
-Pending infrastructure activation:
+Activated infrastructure:
 
-- Supabase private mode is enabled, but the managed `realtime.messages` and
-  `realtime.subscription` relations are missing and Realtime logs report
-  `Database supervisor not found for tenant`.
-- Supabase support must repair or rerun the managed Realtime migrations.
-- Apply `20260604122400_phase_8_realtime_presence.sql` after
-  `realtime.messages` exists.
-- Live-test join, leave, multiple-tab, focus, break, reconnect, and unauthorized
-  access with two active signed-in users.
+- Supabase Realtime service is enabled.
+- Public channel access is disabled so only private channels are allowed.
+- The managed `realtime.messages` and `realtime.subscription` relations exist.
+- `20260604122400_phase_8_realtime_presence.sql` has been applied.
+- `organization_members_receive_presence` and
+  `organization_members_send_presence` limit presence access to authenticated
+  active organization members for `org:{organization_id}:presence`.
+
+Pending live verification:
+
+- Live-test join, leave, multiple-tab, focus, break, reconnect, and
+  unauthorized access with two active signed-in users.
 
 Manual repair check:
 
@@ -190,8 +194,8 @@ select
   to_regclass('realtime.subscription') as subscription_table;
 ```
 
-All three results must be non-null before applying the Phase 8 authorization
-migration. Do not manually create or modify the managed Realtime schema.
+All three results should be non-null. Do not manually create or modify the
+managed Realtime schema.
 
 ## 13. Phase 9 Pixel Office Integration
 

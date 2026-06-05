@@ -15,6 +15,49 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-04 18:37 PDT - Activate private Realtime presence policies
+
+- Goal: Enable private organization-scoped coworking presence without allowing
+  public Realtime channels.
+- Files changed: `AGENTS.md`, `README.md`, `docs/database-schema.md`,
+  `docs/realtime-presence.md`, `docs/system-architecture.md`,
+  `docs/product-spec.md`, `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Supabase managed Realtime relations exist, the Phase 8 migration
+  applied successfully, and `realtime.messages` now has authenticated
+  organization-member send/receive policies.
+- Known issues: Two-user live verification for join, leave, focus, break,
+  reconnect, and unauthorized access is still pending.
+- Next recommended step: Reload the deployed app with William and Alice signed
+  in on separate browsers/devices and verify presence states.
+
+## 2026-06-04 18:25 PDT - Embed required Focus Room details
+
+- Goal: Make required Focus Room setup obvious before starting Pomodoro or
+  freeform time.
+- Files changed: `features/focus/ui/focus-room-client.tsx`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Work details now live inside the timer card, required fields are
+  labeled, linked task is labeled optional, and the start button guidance is
+  adjacent to the timer controls.
+- Known issues: Realtime private-channel authorization is active, but two-user
+  live presence verification is still pending.
+- Next recommended step: Commit, push, and redeploy the Focus Room UI update.
+
+## 2026-06-04 18:21 PDT - Clarify Focus Room start state
+
+- Goal: Make Focus Room recover clearly when a start attempt meets an existing
+  active session or missing required details.
+- Files changed: `features/focus/application/actions.ts`,
+  `features/focus/ui/focus-room-client.tsx`, `docs/build-log.md`,
+  `docs/dev-log.md`.
+- What works: Start attempts now check for an active session before inserting,
+  refresh Focus Room after both success and failure, and explain that work name,
+  description, and category are required before Pomodoro or freeform starts.
+- Known issues: William currently has one running Pomodoro in production, so a
+  second session cannot start until that session is finished or cancelled.
+- Next recommended step: Publish the fix and use the active-session controls to
+  finish or cancel the current production session.
+
 ## 2026-06-04 13:12 PDT - Fix hosted auth callback origin
 
 - Goal: Prevent password recovery and confirmation emails from redirecting to

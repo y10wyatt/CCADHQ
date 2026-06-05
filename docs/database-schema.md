@@ -370,11 +370,10 @@ Presence channels and a small ephemeral payload described in
 `realtime-presence.md`.
 
 The Phase 8 migration contains organization-member policies for the managed
-`realtime.messages` authorization surface. Supabase must first initialize that
-managed surface by enabling private-only channels in Realtime settings. The
-project currently has no `realtime.messages` relation, so the Phase 8 policy
-migration remains unapplied. Do not manually create Supabase-managed Realtime
-tables.
+`realtime.messages` authorization surface. Private-only channels are enabled,
+Supabase has initialized the managed Realtime relations, and the CCAD
+organization-member send/receive policies are applied. Do not manually create
+or modify Supabase-managed Realtime tables.
 
 Task or finance Postgres-change subscriptions may be added later if a concrete
 workflow needs them. They are not required for initial CRUD behavior.
@@ -561,15 +560,15 @@ The authenticated Finance RPCs are intentionally `security definer` functions.
 Each verifies active organization membership and ownership or admin permission,
 uses an empty `search_path`, and preserves append-only change history.
 
-## 15. Phase 8 Pending Realtime Authorization
+## 15. Phase 8 Realtime Authorization
 
-Phase 8 adds no durable presence table or presence history. Its pending
-migration adds read and insert policies to Supabase's managed
-`realtime.messages` table so only active organization members can receive or
-track presence on `org:{organization_id}:presence`.
+Phase 8 adds no durable presence table or presence history. Its migration adds
+read and insert policies to Supabase's managed `realtime.messages` table so
+only active organization members can receive or track presence on
+`org:{organization_id}:presence`.
 
-The policies can be applied after private-only channels are enabled and
-Supabase initializes the managed Realtime authorization schema.
+Private-only Realtime channels are enabled and the organization-member policies
+are applied. The remaining verification is live two-user presence testing.
 
 ## 16. Phase 10 Applied Studio Access Schema
 

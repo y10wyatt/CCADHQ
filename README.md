@@ -11,14 +11,12 @@ The core product idea is simple:
 
 ## Status
 
-Phases 1 through 7, Phase 9 Pixel Office, and Phase 10 Studio Access are
-complete. Phase 8 realtime-presence application code is implemented; final
-private-channel activation is blocked until Supabase repairs the project's
-missing managed `realtime` schema. The responsive app shell, four MVP tabs,
-invite-only authentication, admin-managed staff access, durable Home summaries,
-persisted Focus Room, shared Studio XP, detailed Tasks and Finance, optional
-Pixel Office, crash monitoring, RLS policies, database change history, and
-automated project checks are in place.
+Phases 1 through 10 are complete, including private Supabase Realtime presence
+authorization. The responsive app shell, four MVP tabs, invite-only
+authentication, admin-managed staff access, durable Home summaries, persisted
+Focus Room, shared Studio XP, detailed Tasks and Finance, optional Pixel
+Office, crash monitoring, RLS policies, database change history, and automated
+project checks are in place.
 
 ## Primary Users
 
@@ -131,10 +129,9 @@ a shared ephemeral presence provider with live, stale, connecting, unavailable,
 focus, break, online, and away states. Home can switch between the default
 accessible status list and an isolated Pixel Office visualization.
 
-Private-only channels are enabled, but the project is missing Supabase's managed
-`realtime.messages` and `realtime.subscription` relations. Supabase must repair
-the managed schema before `20260604122400_phase_8_realtime_presence.sql` can
-apply and live presence can be tested.
+Private-only Realtime channels are enabled and the Phase 8 organization-member
+policies are applied to `realtime.messages`. Live presence should be verified
+with two signed-in staff accounts after deployment.
 
 The Focus Room supports persisted fixed Pomodoros, freeform time recording,
 pause/resume, early completion, active detail editing, optional task links,
