@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Clock3, Sparkles, Target, UsersRound } from "lucide-react";
+import { ArrowUpRight, Clock3, Sparkles, UsersRound } from "lucide-react";
 
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
 import { PresenceWorkspace } from "@/features/presence/ui/presence-workspace";
+import { WeeklyQuestsPanel } from "@/features/weekly-quests/ui/weekly-quests-panel";
 import { Card } from "@/shared/ui/card";
 import { StatusPill } from "@/shared/ui/status-pill";
 
@@ -155,6 +156,25 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
                     </p>
                   </div>
                 </div>
+                <div className="mt-5">
+                  <div className="mb-2 flex justify-between text-xs font-medium text-muted-foreground">
+                    <span>Character level progress</span>
+                    <span>{character.progressPercent}%</span>
+                  </div>
+                  <div
+                    className="h-2 overflow-hidden rounded-full bg-muted"
+                    aria-label={`${character.progressPercent}% character progress`}
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={character.progressPercent}
+                  >
+                    <div
+                      className="h-full rounded-full bg-accent"
+                      style={{ width: `${character.progressPercent}%` }}
+                    />
+                  </div>
+                </div>
                 <div className="mt-5 space-y-2 text-sm text-muted-foreground">
                   <p>{character.streakLabel}</p>
                   <p>{character.focusLabel}</p>
@@ -166,49 +186,7 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
         </div>
 
         <div>
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold">Weekly quests</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Shared direction for the studio this week.
-              </p>
-            </div>
-            <Target className="size-5 text-accent" aria-hidden="true" />
-          </div>
-          <div className="grid gap-4">
-            {dashboard.weeklyQuests.map((quest) => (
-              <Card key={quest.id}>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <StatusPill tone="info">{quest.stat}</StatusPill>
-                    <h3 className="mt-3 text-base font-semibold">
-                      {quest.title}
-                    </h3>
-                  </div>
-                  <StatusPill tone="success">{quest.rewardLabel}</StatusPill>
-                </div>
-                <div className="mt-5">
-                  <div className="mb-2 flex justify-between text-xs font-medium text-muted-foreground">
-                    <span>{quest.progressLabel}</span>
-                    <span>{quest.progressPercent}%</span>
-                  </div>
-                  <div
-                    className="h-2 overflow-hidden rounded-full bg-muted"
-                    aria-label={`${quest.progressPercent}% quest progress`}
-                    role="progressbar"
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-valuenow={quest.progressPercent}
-                  >
-                    <div
-                      className="h-full rounded-full bg-accent"
-                      style={{ width: `${quest.progressPercent}%` }}
-                    />
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <WeeklyQuestsPanel quests={dashboard.weeklyQuests} />
         </div>
       </section>
 

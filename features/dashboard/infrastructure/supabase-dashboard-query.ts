@@ -1,7 +1,9 @@
 import type { CurrentMember } from "@/features/auth/domain/current-member";
+import { buildCharacterSummaries } from "@/features/character-xp/domain/character-xp";
 import { buildDashboardViewModel } from "@/features/dashboard/application/build-dashboard-view-model";
 import type { DashboardQuery } from "@/features/dashboard/application/dashboard-query";
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
+import { getWeeklyQuests } from "@/features/weekly-quests/application/get-weekly-quests";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 export class SupabaseDashboardQuery implements DashboardQuery {
@@ -24,6 +26,9 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       xpTotal,
       recentXp,
       financeEntries,
+      members,
+      characterXpEvents,
+      weeklyQuests,
     ] = await Promise.all([
       supabase
         .from("tasks")
@@ -55,6 +60,19 @@ export class SupabaseDashboardQuery implements DashboardQuery {
         .gte("entry_date", monthRange.start)
         .lt("entry_date", monthRange.end)
         .is("archived_at", null),
+      supabase
+        .from("organization_members")
+        .select(
+          "id, profile:profiles!organization_members_user_id_fkey(display_name, avatar_url)",
+        )
+        .eq("organization_id", organizationId)
+        .eq("is_active", true)
+        .order("joined_at"),
+      supabase
+        .from("character_xp_events")
+        .select("member_id, event_type, points")
+        .eq("organization_id", organizationId),
+      getWeeklyQuests(this.member),
     ]);
 
     const firstError = [
@@ -63,6 +81,8 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       xpTotal.error,
       recentXp.error,
       financeEntries.error,
+      members.error,
+      characterXpEvents.error,
     ].find(Boolean);
 
     if (firstError) {
@@ -84,6 +104,19 @@ export class SupabaseDashboardQuery implements DashboardQuery {
         entryType: entry.entry_type,
         amountMinor: entry.amount_minor,
       })),
+      characters: buildCharacterSummaries({
+        members: (members.data ?? []).map((candidate) => ({
+          id: candidate.id,
+          name: candidate.profile?.display_name ?? "Unnamed member",
+          avatarUrl: candidate.profile?.avatar_url ?? null,
+        })),
+        events: (characterXpEvents.data ?? []).map((event) => ({
+          memberId: event.member_id,
+          eventType: event.event_type,
+          points: event.points,
+        })),
+      }),
+      weeklyQuests,
       recentXpEvents: (recentXp.data ?? []).map((event) => ({
         id: event.id,
         description: event.description,

@@ -38,14 +38,13 @@ The project is in implementation. Phases 1 through 10 are complete, including
 private Supabase Realtime presence authorization. The foundation includes the
 responsive app shell, invite-only authentication, admin-managed staff access,
 durable Home summaries, persisted Focus Room, shared Studio XP, detailed Tasks
-and Finance, private presence policies, Pixel Office, crash monitoring, RLS,
-and database change history. Continue to treat the documentation in `docs/` as
-the implementation source of truth.
+and Finance, private presence policies, Pixel Office, Character XP, editable
+Weekly Quests, crash monitoring, RLS, and database change history. Continue to
+treat the documentation in `docs/` as the implementation source of truth.
 
-The next documentation direction keeps shared Studio XP, adds lightweight
-Character XP, and introduces Weekly Quests. Treat these updates as product and
-architecture guidance until application code and migrations explicitly implement
-them.
+Shared Studio XP remains the organization-level progression system. Character
+XP is implemented as lightweight non-ranking member progression, and Weekly
+Quests are implemented as editable shared direction on Home and Tasks.
 
 ## Scope
 

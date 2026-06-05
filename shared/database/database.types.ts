@@ -19,7 +19,21 @@ export type TaskPriority = "low" | "normal" | "high" | "urgent";
 export type XpEventType =
   | "focus_session_completed"
   | "task_completed"
+  | "weekly_quest_completed"
   | "correction";
+export type CharacterXpEventType =
+  | "focus_session_completed"
+  | "task_completed"
+  | "weekly_quest_completed"
+  | "streak_bonus"
+  | "maintenance"
+  | "correction";
+export type WeeklyQuestStatus = "active" | "completed" | "archived";
+export type StudioStatKey =
+  | "stability"
+  | "reputation"
+  | "creativity"
+  | "community";
 export type FinanceEntryType = "income" | "expense";
 export type FocusMode = "pomodoro" | "freeform";
 export type FocusKind = "focus" | "short_break" | "long_break";
@@ -231,6 +245,80 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["xp_events"]["Insert"]>;
+        Relationships: [];
+      };
+      character_xp_events: {
+        Row: {
+          id: string;
+          organization_id: string;
+          member_id: string;
+          event_type: CharacterXpEventType;
+          points: number;
+          source_type: string;
+          source_id: string | null;
+          idempotency_key: string;
+          actor_member_id: string | null;
+          description: string;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          member_id: string;
+          event_type: CharacterXpEventType;
+          points: number;
+          source_type: string;
+          source_id?: string | null;
+          idempotency_key: string;
+          actor_member_id?: string | null;
+          description: string;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      weekly_quests: {
+        Row: {
+          id: string;
+          organization_id: string;
+          title: string;
+          description: string | null;
+          status: WeeklyQuestStatus;
+          studio_stat_key: StudioStatKey | null;
+          xp_value: number;
+          character_xp_value: number;
+          progress_current: number;
+          progress_target: number;
+          due_at: string | null;
+          completed_at: string | null;
+          completed_by_member_id: string | null;
+          archived_at: string | null;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          title: string;
+          description?: string | null;
+          status?: WeeklyQuestStatus;
+          studio_stat_key?: StudioStatKey | null;
+          xp_value?: number;
+          character_xp_value?: number;
+          progress_current?: number;
+          progress_target?: number;
+          due_at?: string | null;
+          completed_at?: string | null;
+          completed_by_member_id?: string | null;
+          archived_at?: string | null;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["weekly_quests"]["Insert"]>;
         Relationships: [];
       };
       finance_categories: {
@@ -499,6 +587,41 @@ export interface Database {
         Args: { target_task_id: string };
         Returns: undefined;
       };
+      create_weekly_quest: {
+        Args: {
+          target_organization_id: string;
+          quest_title: string;
+          quest_description?: string | null;
+          quest_studio_stat_key?: StudioStatKey | null;
+          quest_xp_value?: number;
+          quest_character_xp_value?: number;
+          quest_progress_target?: number;
+          quest_due_at?: string | null;
+        };
+        Returns: string;
+      };
+      update_weekly_quest: {
+        Args: {
+          target_quest_id: string;
+          quest_title: string;
+          quest_description?: string | null;
+          quest_studio_stat_key?: StudioStatKey | null;
+          quest_xp_value?: number;
+          quest_character_xp_value?: number;
+          quest_progress_current?: number;
+          quest_progress_target?: number;
+          quest_due_at?: string | null;
+        };
+        Returns: undefined;
+      };
+      complete_weekly_quest: {
+        Args: { target_quest_id: string };
+        Returns: Json;
+      };
+      archive_weekly_quest: {
+        Args: { target_quest_id: string };
+        Returns: undefined;
+      };
       create_finance_entry: {
         Args: {
           target_organization_id: string;
@@ -555,6 +678,9 @@ export interface Database {
       task_status: TaskStatus;
       task_priority: TaskPriority;
       xp_event_type: XpEventType;
+      character_xp_event_type: CharacterXpEventType;
+      weekly_quest_status: WeeklyQuestStatus;
+      studio_stat_key: StudioStatKey;
       finance_entry_type: FinanceEntryType;
       focus_mode: FocusMode;
       focus_kind: FocusKind;

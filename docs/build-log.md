@@ -23,6 +23,44 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-05 - Implement Character XP and Weekly Quests
+
+### Scope
+
+- Added durable Character XP events linked to organization members.
+- Added editable Weekly Quests with Studio XP rewards, Character XP rewards,
+  studio stat impact, progress, due dates, completion, and archive behavior.
+- Replaced Home placeholder character and quest data with Supabase-backed view
+  models.
+- Added the same editable Weekly Quest panel to Home and Tasks.
+- Applied the Supabase migration to the `CCAD HQ` project.
+
+### Decisions
+
+- Studio XP remains the shared organization-level progression system.
+- Character XP is a separate append-only member ledger and is not stored on
+  profiles.
+- Character XP is awarded alongside eligible Studio XP sources through guarded
+  database functions.
+- Weekly Quest completion is idempotent and source-backed.
+- Weekly Quest steps are MVP numeric progress, not separate checklist rows.
+
+### Verification
+
+- Supabase migration applied successfully.
+- Verified new tables and quest RPCs exist in Supabase.
+- Verified two active Weekly Quest rows and two backfilled Character XP rows.
+- ESLint passed.
+- TypeScript passed.
+- Vitest passed: 15 files, 52 tests.
+- Production build passed.
+
+### Follow-ups
+
+- Activate Alice's membership so her Character XP card appears from real account
+  data.
+- Consider checklist-style quest steps after validating numeric progress.
+
 ## 2026-06-05 - Add Home character and quest placeholders
 
 ### Scope

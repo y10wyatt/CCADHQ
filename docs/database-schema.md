@@ -750,3 +750,26 @@ change-history triggers preserve the full row changes.
 
 The shared-profile helper now permits active organization members to read
 inactive coworkers' profiles for approved historical attribution.
+
+## 17. Character XP And Weekly Quests Applied Schema
+
+This phase adds:
+
+- `character_xp_events`, an append-only organization-scoped ledger linked to
+  individual `organization_members`.
+- `weekly_quests`, editable shared quest records with status, studio stat,
+  Studio XP reward, Character XP reward, numeric progress, due date, completion
+  attribution, archive state, updated-at triggers, and change history.
+- `character_xp_event_type`, `weekly_quest_status`, and `studio_stat_key`
+  enums.
+- Guarded Weekly Quest RPCs for create, update, complete, and archive.
+- A private Character XP award helper used by task, focus, and quest
+  completion flows.
+- Backfilled Character XP rows from existing eligible Studio XP task and focus
+  events.
+- `weekly_quest_completed` as an additional Studio XP event type.
+
+Direct authenticated writes to Character XP and Weekly Quest tables are revoked.
+Active organization members can read organization rows through RLS, while all
+mutations go through guarded functions that preserve idempotent XP awards and
+append-only history.

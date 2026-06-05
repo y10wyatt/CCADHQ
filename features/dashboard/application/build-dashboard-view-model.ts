@@ -1,4 +1,6 @@
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
+import type { CharacterSummary } from "@/features/character-xp/domain/character-xp";
+import type { WeeklyQuestView } from "@/features/weekly-quests/domain/weekly-quests";
 import { getStudioProgress } from "@/features/dashboard/domain/studio-progress";
 
 export interface DashboardSnapshot {
@@ -19,6 +21,8 @@ export interface DashboardSnapshot {
     points: number;
     createdAt: string;
   }>;
+  characters: CharacterSummary[];
+  weeklyQuests: WeeklyQuestView[];
 }
 
 export function buildDashboardViewModel(
@@ -77,8 +81,8 @@ export function buildDashboardViewModel(
         tone: netMinor > 0 ? "success" : netMinor < 0 ? "warning" : "neutral",
       },
     ],
-    characters: buildPlaceholderCharacters(),
-    weeklyQuests: buildPlaceholderWeeklyQuests(),
+    characters: snapshot.characters,
+    weeklyQuests: snapshot.weeklyQuests,
     activities: snapshot.recentXpEvents.map((event) => ({
       id: event.id,
       description: event.description,
@@ -122,52 +126,4 @@ function getShortOrganizationName(organizationName: string) {
   return organizationName === "Cloud Centre of Art & Design"
     ? "CCAD"
     : organizationName;
-}
-
-function buildPlaceholderCharacters() {
-  return [
-    {
-      id: "william",
-      name: "William",
-      avatarSrc: "/placeholders/william-avatar.svg",
-      level: 4,
-      characterXp: 360,
-      xpToNextLevel: 140,
-      streakLabel: "3-day focus streak",
-      focusLabel: "5 focus sessions",
-      taskLabel: "8 tasks completed",
-    },
-    {
-      id: "alice",
-      name: "Alice",
-      avatarSrc: "/placeholders/alice-avatar.svg",
-      level: 3,
-      characterXp: 240,
-      xpToNextLevel: 160,
-      streakLabel: "2-day focus streak",
-      focusLabel: "4 focus sessions",
-      taskLabel: "6 tasks completed",
-    },
-  ];
-}
-
-function buildPlaceholderWeeklyQuests() {
-  return [
-    {
-      id: "quest-stability",
-      title: "Close the weekly studio admin loop",
-      stat: "Stability",
-      rewardLabel: "+250 Studio XP",
-      progressLabel: "3 of 5 steps",
-      progressPercent: 60,
-    },
-    {
-      id: "quest-reputation",
-      title: "Prepare one public student-work highlight",
-      stat: "Reputation",
-      rewardLabel: "+250 Studio XP",
-      progressLabel: "1 of 3 steps",
-      progressPercent: 33,
-    },
-  ];
 }

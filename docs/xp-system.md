@@ -283,3 +283,18 @@ individual progression light, optically secondary, and free of shame mechanics.
 - Reopening preserves the immutable first-completion timestamp and earned XP.
 - The Tasks interface reports shared XP and CCAD level-up results without
   creating individual scores.
+
+## 17. Character XP And Weekly Quest Implementation
+
+- `character_xp_events` stores append-only member-linked Character XP.
+- Existing focus and task Studio XP events are backfilled into Character XP so
+  current member cards start from real account activity.
+- Full Pomodoro completion awards 10 Character XP to the session owner when the
+  same source earns Studio XP.
+- First task completion awards 15 Character XP to the completing member when
+  the same source earns Studio XP.
+- Completing a Weekly Quest awards its configured Studio XP to CCAD and its
+  configured Character XP to the completing member.
+- Character XP idempotency is scoped by organization, member, and source key.
+- Home shows Character Level, Character XP, progress to the next level, and
+  contribution counts without ranking staff.

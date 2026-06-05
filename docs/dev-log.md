@@ -15,6 +15,41 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-05 07:37 PDT - Implement Character XP and Weekly Quests
+
+- Goal: Replace Home placeholder Character XP and Weekly Quest data with
+  account-linked Character XP, durable editable Weekly Quests, and Tasks-page
+  quest visibility.
+- Files changed: `AGENTS.md`, `README.md`, `docs/product-spec.md`,
+  `docs/system-architecture.md`, `docs/xp-system.md`,
+  `docs/ui-guidelines.md`, `docs/database-schema.md`, `docs/build-log.md`,
+  `docs/dev-log.md`, `shared/database/database.types.ts`,
+  `shared/domain/xp-progress.ts`,
+  `features/character-xp/domain/character-xp.ts`,
+  `features/character-xp/domain/character-xp.test.ts`,
+  `features/weekly-quests/domain/weekly-quests.ts`,
+  `features/weekly-quests/domain/weekly-quests.test.ts`,
+  `features/weekly-quests/application/get-weekly-quests.ts`,
+  `features/weekly-quests/application/actions.ts`,
+  `features/weekly-quests/ui/weekly-quests-panel.tsx`,
+  `features/dashboard/domain/studio-progress.ts`,
+  `features/dashboard/domain/dashboard-view-model.ts`,
+  `features/dashboard/application/build-dashboard-view-model.ts`,
+  `features/dashboard/application/build-dashboard-view-model.test.ts`,
+  `features/dashboard/infrastructure/supabase-dashboard-query.ts`,
+  `features/dashboard/ui/dashboard-overview.tsx`, `app/(app)/tasks/page.tsx`,
+  `supabase/migrations/20260605150000_character_xp_weekly_quests.sql`.
+- What works: Supabase has `character_xp_events` and `weekly_quests`, two
+  active seeded Weekly Quests, two backfilled Character XP events, guarded quest
+  RPCs, idempotent Character XP awards for future focus/task/quest completions,
+  Home account-linked Character XP cards, and the same editable quest panel on
+  Home and Tasks.
+- Known issues: Production currently has one active organization member, so
+  Alice appears after her account becomes an active member. Weekly Quest steps
+  are numeric progress rather than individual checklist rows.
+- Next recommended step: Add optional per-quest checklist steps or show
+  Character XP on presence cards once Alice has active access.
+
 ## 2026-06-05 07:00 PDT - Add Home character and quest placeholders
 
 - Goal: Keep Studio XP as shared progression while adding placeholder Character

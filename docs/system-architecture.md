@@ -504,3 +504,21 @@ Phase 10 adds a small admin-only access-management boundary:
   append audit events, and retain change history.
 - Active organization members may still read inactive member profiles so
   historical attribution remains useful.
+
+## 27. Character XP And Weekly Quests Implementation
+
+- `features/character-xp/domain/` owns Character XP member summaries and level
+  calculation inputs.
+- `features/weekly-quests/domain/` owns quest view models, studio stat labels,
+  reward labels, and progress formatting.
+- `features/weekly-quests/application/` owns Supabase-backed quest loading and
+  validated server actions.
+- `features/weekly-quests/ui/` owns the reusable editable quest panel consumed
+  by Home and Tasks.
+- `features/dashboard/` composes active member, Character XP, Studio XP,
+  finance, task, and Weekly Quest data without owning quest or Character XP
+  rules.
+- `shared/domain/xp-progress.ts` owns the shared XP level curve used by Studio
+  XP and Character XP.
+- Database RPCs keep Character XP awards idempotent and source-backed alongside
+  the existing Studio XP ledger.

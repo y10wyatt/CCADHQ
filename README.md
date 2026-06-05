@@ -17,8 +17,8 @@ Phases 1 through 10 are complete, including private Supabase Realtime presence
 authorization. The responsive app shell, four MVP tabs, invite-only
 authentication, admin-managed staff access, durable Home summaries, persisted
 Focus Room, shared Studio XP, detailed Tasks and Finance, optional Pixel
-Office, crash monitoring, RLS policies, database change history, and automated
-project checks are in place.
+Office, Character XP, editable Weekly Quests, crash monitoring, RLS policies,
+database change history, and automated project checks are in place.
 
 ## Primary Users
 
@@ -31,7 +31,7 @@ project checks are in place.
 The first release has four primary tabs:
 
 - **Home:** at-a-glance outstanding tasks, finance summary, Studio XP progress,
-  and links into detailed sections
+  Character XP cards, Weekly Quests, and links into detailed sections
 - **Focus Room:** Pomodoro timer, freeform time recording, and shared coworking
   presence
 - **Tasks:** Kanban-first shared task planning with alternate views
@@ -126,10 +126,12 @@ Supabase falls back to the Site URL when the requested callback is not on the
 redirect allowlist. Keep production callback URLs exact.
 
 Home reads live task counts, Studio XP progress and activity, and current-month
-finance totals through a typed Supabase adapter. Home and Focus Room now consume
-a shared ephemeral presence provider with live, stale, connecting, unavailable,
-focus, break, online, and away states. Home can switch between the default
-accessible status list and an isolated Pixel Office visualization.
+finance totals through a typed Supabase adapter. Home also reads active members,
+Character XP events, and editable Weekly Quests from Supabase. Home and Focus
+Room now consume a shared ephemeral presence provider with live, stale,
+connecting, unavailable, focus, break, online, and away states. Home can switch
+between the default accessible status list and an isolated Pixel Office
+visualization.
 
 Private-only Realtime channels are enabled and the Phase 8 organization-member
 policies are applied to `realtime.messages`. Live presence should be verified

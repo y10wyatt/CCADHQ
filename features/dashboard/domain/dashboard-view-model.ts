@@ -1,3 +1,6 @@
+import type { CharacterSummary } from "@/features/character-xp/domain/character-xp";
+import type { WeeklyQuestView } from "@/features/weekly-quests/domain/weekly-quests";
+
 export type DashboardTone = "neutral" | "info" | "success" | "warning";
 
 export interface DashboardMetric {
@@ -15,27 +18,6 @@ export interface DashboardActivity {
   tone: DashboardTone;
 }
 
-export interface DashboardCharacter {
-  id: string;
-  name: string;
-  avatarSrc: string;
-  level: number;
-  characterXp: number;
-  xpToNextLevel: number;
-  streakLabel: string;
-  focusLabel: string;
-  taskLabel: string;
-}
-
-export interface DashboardWeeklyQuest {
-  id: string;
-  title: string;
-  stat: string;
-  rewardLabel: string;
-  progressLabel: string;
-  progressPercent: number;
-}
-
 export interface DashboardViewModel {
   dateLabel: string;
   greeting: string;
@@ -44,7 +26,7 @@ export interface DashboardViewModel {
   xpToNextLevel: number;
   xpProgressPercent: number;
   metrics: DashboardMetric[];
-  characters: DashboardCharacter[];
-  weeklyQuests: DashboardWeeklyQuest[];
+  characters: CharacterSummary[];
+  weeklyQuests: WeeklyQuestView[];
   activities: DashboardActivity[];
 }

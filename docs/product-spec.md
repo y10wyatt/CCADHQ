@@ -187,6 +187,7 @@ consistency, focus sessions, completed tasks, handoffs, and studio maintenance.
 Required behavior:
 
 - Show Character Level on user and presence cards where useful.
+- Calculate Character Level from the append-only `character_xp_events` ledger.
 - Keep Character Level visually secondary to Studio Level.
 - Award only positive or neutral recognition; do not subtract XP for inactivity
   or broken streaks.
@@ -318,6 +319,7 @@ Required behavior:
 - Define a clear weekly outcome, owner or shared ownership, due date, XP value,
   and optional studio stat impact.
 - Keep quests collaborative and motivating rather than punitive.
+- Show editable quests on Home and in Tasks.
 - Show quest completion in Home, Studio XP activity, and optional Pixel Office
   visualization.
 - Do not use quests to rank staff.
@@ -486,3 +488,27 @@ Implemented:
 - Direct authenticated writes to member and invitation tables are revoked.
 - Access actions append both normal change history and explicit audit events.
 - Inactive member profiles remain readable for historical attribution.
+
+## 14. Character XP And Weekly Quests Implementation Status
+
+Implemented:
+
+- Character XP has a durable append-only `character_xp_events` ledger.
+- Existing Studio XP task and focus awards are backfilled into Character XP
+  events for member-linked progress.
+- Future full Pomodoro completions and first task completions award Character
+  XP idempotently alongside Studio XP.
+- Weekly Quests have durable editable records, guarded create/update/complete
+  and archive functions, Studio XP rewards, Character XP rewards, studio stat
+  impact, progress, due dates, and append-only change history.
+- Home reads active members and real Character XP events instead of hard-coded
+  character stats.
+- Home and Tasks both show the same editable Weekly Quests panel.
+
+Known limits:
+
+- Character XP is visible only as lightweight Home context.
+- Alice appears in Character XP cards after her account has an active
+  organization membership.
+- Weekly Quest steps are stored as numeric progress, not separate checklist
+  rows.

@@ -139,6 +139,8 @@ reduce visual movement.
 
 - Keep Home at-a-glance: outstanding tasks, Studio XP, Character XP cards,
   Weekly Quests, and finance summary are the primary content.
+- Character XP cards should use real member accounts and derived XP progress,
+  not hard-coded staff scores.
 - Use compact summaries rather than duplicating detailed feature screens.
 - Summary cards link to their detailed tabs.
 - Clearly label stale presence or delayed summaries.
@@ -166,6 +168,7 @@ reduce visual movement.
 ### Tasks
 
 - Use Kanban as the default primary view.
+- Show Weekly Quests above the task board as shared direction for the week.
 - Support Backlog, Today, This Week, Blocked, Waiting, and Completed as the
   product-facing status language.
 - Provide a visible switch between Kanban and list/table views and preserve
@@ -215,6 +218,7 @@ reduce visual movement.
 
 - Use Stability, Reputation, Creativity, and Community as contribution lenses.
 - Display stat impact as task or quest context, not as staff evaluation.
+- Weekly quests should be editable from Home and Tasks.
 - Weekly quests should feel like shared direction and momentum.
 - Quest completion can create a restrained shared celebration.
 

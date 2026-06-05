@@ -24,6 +24,52 @@ describe("buildDashboardViewModel", () => {
           createdAt: "2026-06-03T20:00:00.000Z",
         },
       ],
+      characters: [
+        {
+          id: "member-1",
+          name: "William",
+          avatarSrc: "/placeholders/william-avatar.svg",
+          level: 2,
+          characterXp: 120,
+          xpToNextLevel: 280,
+          progressPercent: 6,
+          streakLabel: "1 weekly quest completed",
+          focusLabel: "3 focus sessions",
+          taskLabel: "2 tasks completed",
+        },
+        {
+          id: "member-2",
+          name: "Alice",
+          avatarSrc: "/placeholders/alice-avatar.svg",
+          level: 1,
+          characterXp: 80,
+          xpToNextLevel: 20,
+          progressPercent: 80,
+          streakLabel: "No weekly quests completed yet",
+          focusLabel: "2 focus sessions",
+          taskLabel: "1 task completed",
+        },
+      ],
+      weeklyQuests: [
+        {
+          id: "quest-1",
+          title: "Close the weekly studio admin loop",
+          description: null,
+          status: "active",
+          stat: "Stability",
+          statKey: "stability",
+          rewardLabel: "+250 Studio XP",
+          characterRewardLabel: "+25 Character XP",
+          progressCurrent: 3,
+          progressTarget: 5,
+          progressLabel: "3 of 5 steps",
+          progressPercent: 60,
+          dueAt: null,
+          completedAt: null,
+          completedByName: null,
+          createdByName: "William",
+        },
+      ],
     });
 
     expect(dashboard.greeting).toBe("Good afternoon, CCAD");
@@ -36,7 +82,7 @@ describe("buildDashboardViewModel", () => {
       "William",
       "Alice",
     ]);
-    expect(dashboard.weeklyQuests).toHaveLength(2);
+    expect(dashboard.weeklyQuests).toHaveLength(1);
     expect(dashboard.activities[0].occurredAtLabel).toContain("+20 XP");
   });
 });
