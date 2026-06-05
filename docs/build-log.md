@@ -23,21 +23,53 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
-## 2026-06-04 - Add Office and Character XP direction
+## 2026-06-05 - Add Home character and quest placeholders
+
+### Scope
+
+- Added placeholder Character XP cards to Home using existing William and Alice
+  placeholder avatars.
+- Added placeholder Weekly Quest cards with Studio XP rewards and progress.
+- Corrected current documentation to keep Studio XP and Studio Level as the
+  shared organization progression names.
+
+### Decisions
+
+- Studio XP remains the shared organization-level progression system.
+- Character XP is visible on Home as lightweight staff rhythm context, not as a
+  leaderboard or ranking.
+- Weekly Quests appear on Home as shared direction and award Studio XP when
+  they become durable.
+- The previous "task status migration" phrase referred only to a possible
+  future rename of task states; it is not part of this step.
+
+### Verification
+
+- ESLint passed.
+- TypeScript passed.
+- Vitest passed: 13 files, 50 tests.
+- Production build passed.
+- Browser screenshot verification was attempted but unavailable because the
+  Node browser kernel crashed.
+
+### Follow-ups
+
+- Add durable Character XP and Weekly Quest schema/mutations.
+- Replace placeholder Home data with Supabase-backed view models.
+
+## 2026-06-04 - Add Character XP and quest direction
 
 ### Scope
 
 - Updated product, architecture, XP, presence, UI, schema, agent, and overview
   documentation for the next product direction.
-- Added lightweight Character XP, Office XP / Office Level language, office
-  stats, weekly quests, handoffs, richer presence cards, and suggested future
-  schema tables.
-- Kept the current Studio XP implementation documented as the existing
-  organization-level progression foundation.
+- Added lightweight Character XP, studio stats, weekly quests, handoffs, richer
+  presence cards, and suggested future schema tables.
+- Kept Studio XP documented as the organization-level progression foundation.
 
 ### Decisions
 
-- Office Level remains the primary progression system.
+- Studio Level remains the primary progression system.
 - Character Level can be shown on user and presence cards but must stay
   secondary, non-punitive, and non-ranking.
 - Stability, Reputation, Creativity, and Community describe contribution types,
@@ -55,9 +87,8 @@ record of every completed development task.
 
 ### Follow-ups
 
-- Choose a migration path from Studio XP naming to Office XP naming.
-- Define the first implementation slice: Character XP, handoffs, weekly quests,
-  or task status migration.
+- Define the first implementation slice: Character XP, handoffs, or Weekly
+  Quests.
 
 ## 2026-06-04 - Widen private presence write authorization
 

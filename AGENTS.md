@@ -5,8 +5,8 @@ Art & Design.
 
 ## Product Principle
 
-The organization is the character. CCAD earns XP and levels up through the
-combined work of its staff. Office XP and Office Level are the primary
+The organization is the character. CCAD earns Studio XP and levels up through
+the combined work of its staff. Studio XP and Studio Level are the primary
 progression systems.
 
 Individual activity may be recorded for accountability and lightweight
@@ -25,7 +25,7 @@ Design rules:
 - Avoid shame mechanics, productivity scores, and punitive streak loss.
 - Use light competition through character levels, streaks, and contribution
   summaries.
-- Keep Office Level as the primary progression system.
+- Keep Studio Level as the primary progression system.
 - Make invisible operational work visible and valuable.
 - Represent different work types as different forms of contribution.
 - Use quests to create shared direction.
@@ -42,9 +42,10 @@ and Finance, private presence policies, Pixel Office, crash monitoring, RLS,
 and database change history. Continue to treat the documentation in `docs/` as
 the implementation source of truth.
 
-The next documentation direction extends shared Studio XP into Office XP and
-adds lightweight Character XP. Treat these updates as product and architecture
-guidance until application code and migrations explicitly implement them.
+The next documentation direction keeps shared Studio XP, adds lightweight
+Character XP, and introduces Weekly Quests. Treat these updates as product and
+architecture guidance until application code and migrations explicitly implement
+them.
 
 ## Scope
 
@@ -59,7 +60,7 @@ Build order:
 
 1. Home dashboard
 2. Focus Room timer
-3. Office XP / Studio XP system
+3. Studio XP system
 4. Character XP
 5. Tasks
 6. Finance

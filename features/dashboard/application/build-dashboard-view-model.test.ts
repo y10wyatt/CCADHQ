@@ -32,6 +32,11 @@ describe("buildDashboardViewModel", () => {
       "640",
       "$950.00",
     ]);
+    expect(dashboard.characters.map((character) => character.name)).toEqual([
+      "William",
+      "Alice",
+    ]);
+    expect(dashboard.weeklyQuests).toHaveLength(2);
     expect(dashboard.activities[0].occurredAtLabel).toContain("+20 XP");
   });
 });

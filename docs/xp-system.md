@@ -1,9 +1,9 @@
-# Office And Character XP System
+# Studio And Character XP System
 
 ## 1. Principle
 
-The organization is the character. CCAD earns XP and levels up through the
-combined work of its staff. Office XP and Office Level are the primary
+The organization is the character. CCAD earns Studio XP and levels up through
+the combined work of its staff. Studio XP and Studio Level are the primary
 progression systems.
 
 Character XP is allowed only as lightweight individual progression for work
@@ -15,15 +15,14 @@ into surveillance.
 
 ## 2. Progression Models
 
-### Office XP / Office Level
+### Studio XP / Studio Level
 
-Office XP represents CCAD's collective progress, studio health, finance
+Studio XP represents CCAD's collective progress, studio health, finance
 stability, creative output, reputation, and community growth.
 
-The current implementation calls this shared system Studio XP and stores it in
-the append-only `xp_events` ledger. Future schema and UI language may introduce
-`office_xp_events`, but the source of truth should remain an append-only
-organization-level ledger.
+The current implementation stores this shared system in the append-only
+`xp_events` ledger. The source of truth should remain one append-only
+organization-level Studio XP ledger.
 
 Recommended level formula:
 
@@ -53,7 +52,7 @@ sessions, completed tasks, completed handoffs, and studio maintenance.
 Rules:
 
 - Character Level can be visible on user cards and presence cards.
-- Character progression must remain secondary to Office Level.
+- Character progression must remain secondary to Studio Level.
 - Character XP can only increase or remain unchanged; inactivity should not
   create penalties.
 - Streaks can grant bonuses, but missed days do not subtract XP or display
@@ -64,9 +63,9 @@ Rules:
 Use the same quadratic formula initially unless later testing shows character
 levels need a slower curve.
 
-## 3. Office XP Award Rules
+## 3. Studio XP Award Rules
 
-Candidate Office XP sources:
+Candidate Studio XP sources:
 
 | Event | XP | Notes |
 | --- | ---: | --- |
@@ -91,8 +90,8 @@ Freeform focus sessions, break intervals, cancelled focus sessions, Pomodoros
 finished early, task creation, task reopening, and finance entries do not award
 XP in the current implementation.
 
-Keep implemented awards deliberately simple until the new Office XP direction
-has matching migrations and tests.
+Keep implemented awards deliberately simple until Character XP and Weekly Quests
+have matching migrations and tests.
 
 ## 4. Character XP Award Rules
 
@@ -107,12 +106,12 @@ Initial candidate rules:
 | Studio maintenance work | 10-25 | Based on task or quest configuration |
 
 Character XP events should preserve source records and idempotency just like
-Office XP. A source event can award both Office XP and Character XP, but the UI
-must keep Office XP as the primary progression.
+Studio XP. A source event can award both Studio XP and Character XP, but the UI
+must keep Studio XP as the primary progression.
 
-## 5. Office Stats
+## 5. Studio Stats
 
-Tasks and quests may optionally contribute to one or more office stats:
+Tasks and quests may optionally contribute to one or more studio stats:
 
 | Stat | Contribution areas |
 | --- | --- |
@@ -125,7 +124,7 @@ Stats describe the type of contribution. They must not become staff ratings.
 
 ## 6. Award Invariants
 
-- Office XP belongs to the organization.
+- Studio XP belongs to the organization.
 - Character XP belongs to the acting member but is secondary and non-ranking.
 - Every award has actor attribution when available.
 - Every award has a human-readable description.
@@ -147,7 +146,7 @@ weekly_quest_completed:{weekly_quest_id}
 correction:{generated_correction_id}
 ```
 
-The database enforces one `idempotency_key` per organization for Office XP and
+The database enforces one `idempotency_key` per organization for Studio XP and
 one per member/source for Character XP. Client retries, refreshes, duplicate
 clicks, and concurrent requests must all return the original award result
 rather than insert another award.
@@ -156,10 +155,10 @@ rather than insert another award.
 
 Show:
 
-- Current Office Level / CCAD Level
-- Total Office XP
+- Current Studio Level / CCAD Level
+- Total Studio XP
 - Progress toward the next level
-- Recent activity such as "Alice completed a focus session: +10 Office XP"
+- Recent activity such as "Alice completed a focus session: +10 Studio XP"
 - Brief shared celebration when CCAD reaches a new level
 - Character Level on user cards and presence cards
 - Personal character progress only in lightweight, self-oriented contexts
@@ -210,7 +209,7 @@ Complete task use case
   -> validate task transition
   -> transaction completes task
   -> XP award service inserts idempotent event
-  -> return task and Office XP result
+  -> return task and Studio XP result
 ```
 
 ## 11. Abuse And Correction Handling
@@ -238,7 +237,7 @@ Required cases:
 - Admin correction changes total while preserving history.
 - Character XP awards are idempotent per source.
 - Character Level appears without leaderboards or rank ordering.
-- Office stat impact is stored as contribution metadata, not staff scoring.
+- Studio stat impact is stored as contribution metadata, not staff scoring.
 
 ## 13. Handoffs And Weekly Quests
 
@@ -246,7 +245,7 @@ Handoffs and weekly quests are future product direction until implemented.
 
 Handoffs should award XP only when they reduce ambiguity and transfer ownership
 with useful context. Weekly quests should create shared direction for a small
-creative studio and may contribute to Office XP, Character XP, and office stats.
+creative studio and may contribute to Studio XP, Character XP, and studio stats.
 
 Both features must avoid blame language, staff ranking, and hidden surveillance.
 

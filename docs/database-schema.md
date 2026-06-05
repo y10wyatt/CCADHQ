@@ -10,9 +10,9 @@
 - Use constraints and transactional database functions for critical invariants.
 - Record every durable application-data mutation in append-only database change
   history.
-- Keep Office XP as the primary progression ledger, with Character XP in a
+- Keep Studio XP as the primary progression ledger, with Character XP in a
   separate lightweight individual ledger.
-- Store office stat impact as contribution metadata, not staff ratings.
+- Store studio stat impact as contribution metadata, not staff ratings.
 - Use `timestamptz` and store timestamps in UTC.
 - Generate UUID primary keys.
 
@@ -122,8 +122,8 @@ Constraints:
 | `status` | enum | `backlog`, `planned`, `in_progress`, `blocked`, `done` |
 | `priority` | enum | `low`, `normal`, `high`, `urgent` |
 | `assignee_member_id` | uuid nullable | References `organization_members.id` |
-| `xp_value` | integer nullable | Future Office XP value override |
-| `office_stat_impact` | jsonb | Optional Stability/Reputation/Creativity/Community impact |
+| `xp_value` | integer nullable | Future Studio XP value override |
+| `studio_stat_impact` | jsonb | Optional Stability/Reputation/Creativity/Community impact |
 | `blocked_reason` | text nullable | Required product context when blocked |
 | `handoff_target_member_id` | uuid nullable | Optional intended handoff recipient |
 | `due_at` | timestamptz nullable | Optional due time |
@@ -144,7 +144,7 @@ Constraints:
 - `first_completed_at` is retained when a task is reopened
 - Product-facing future statuses are Backlog, Today, This Week, Blocked,
   Waiting, and Completed. Keep any migration from current enum values explicit.
-- Office stat impact must only contain approved stat keys and non-negative
+- Studio stat impact must only contain approved stat keys and non-negative
   contribution values.
 
 Recommended indexes:
@@ -229,9 +229,7 @@ Constraints:
 
 ### `xp_events`
 
-Append-only ledger of shared Office XP awards and corrections. The current
-implementation names this table `xp_events` and presents the shared progression
-as Studio XP.
+Append-only ledger of shared Studio XP awards and corrections.
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -263,11 +261,12 @@ Recommended indexes:
 Current total XP is `sum(points)` for the organization. A cached summary may be
 added only if measurements show the ledger query is insufficient.
 
-### `office_xp_events`
+### `studio_xp_events`
 
-Suggested future name for the organization-level XP ledger. This may be a
-rename or compatibility view over `xp_events`; do not create a competing ledger
-without a migration plan.
+Suggested explicit future name for the organization-level Studio XP ledger if
+the project outgrows the generic `xp_events` name. This may be a rename or
+compatibility view over `xp_events`; do not create a competing ledger without a
+migration plan.
 
 Recommended columns match `xp_events` with these naming clarifications:
 
@@ -275,13 +274,13 @@ Recommended columns match `xp_events` with these naming clarifications:
 | --- | --- | --- |
 | `id` | uuid | Primary key |
 | `organization_id` | uuid | Organization receiving XP |
-| `event_type` | enum | Approved Office XP source or `correction` |
+| `event_type` | enum | Approved Studio XP source or `correction` |
 | `points` | integer | Positive award or signed admin correction |
 | `source_type` | text | For example `task`, `focus_session`, `handoff`, or `weekly_quest` |
 | `source_id` | uuid nullable | Durable source record |
 | `idempotency_key` | text | Unique award identity |
 | `actor_member_id` | uuid nullable | Attribution |
-| `office_stat_impact` | jsonb | Optional Stability/Reputation/Creativity/Community impact |
+| `studio_stat_impact` | jsonb | Optional Stability/Reputation/Creativity/Community impact |
 | `description` | text | Human-readable activity text |
 | `metadata` | jsonb | Small versioned context only |
 | `created_at` | timestamptz | Award time |
@@ -313,7 +312,7 @@ Constraints:
 - No update or delete for normal application roles
 - Do not use this table to build leaderboards or rankings
 
-### `office_stats`
+### `studio_stats`
 
 Suggested configuration and summary table for the four contribution categories.
 
@@ -342,8 +341,8 @@ Shared weekly goals that create direction without ranking staff.
 | `title` | text | Required |
 | `description` | text nullable | Context and outcome |
 | `status` | enum | `planned`, `active`, `completed`, or `archived` |
-| `xp_value` | integer | Office XP award value |
-| `office_stat_impact` | jsonb | Optional stat contribution |
+| `xp_value` | integer | Studio XP award value |
+| `studio_stat_impact` | jsonb | Optional stat contribution |
 | `owner_member_id` | uuid nullable | Optional owner; quests may be shared |
 | `starts_at` | timestamptz | Start time |
 | `due_at` | timestamptz | Due time |

@@ -45,7 +45,7 @@ features/
   focus/
   xp/
   character-xp/
-  office-stats/
+  studio-stats/
   tasks/
   handoffs/
   weekly-quests/
@@ -94,8 +94,8 @@ Examples:
 - Tasks request XP through the same interface without knowing XP ledger storage.
 - Character XP awards use the same application boundary but write to a separate
   non-ranking individual ledger.
-- Tasks and weekly quests request office-stat contribution mapping through an
-  office-progress contract, not through presentation components.
+- Tasks and weekly quests request studio-stat contribution mapping through a
+  studio-progress contract, not through presentation components.
 - Handoffs own ownership-transfer rules and may request XP after a completed
   handoff.
 - Focus and Tasks consume a shared work-category contract without importing each
@@ -263,10 +263,10 @@ Initial decisions:
 - Feature-based modular architecture
 - Organization-scoped data model from day one
 - Shared append-only XP ledger
-- Office XP / Office Level remain the primary progression surface.
+- Studio XP / Studio Level remain the primary progression surface.
 - Character XP is a separate lightweight progression feature and must not
   produce rankings or productivity scores.
-- Office stats classify contribution types without becoming staff ratings.
+- Studio stats classify contribution types without becoming staff ratings.
 - Handoffs reduce ownership ambiguity and stay separate from chat or CRM.
 - Weekly quests create shared direction without ranking staff.
 - Realtime presence is ephemeral and non-critical
@@ -280,26 +280,26 @@ Initial decisions:
 
 Record material changes and rationale in `build-log.md`.
 
-## 15. Office Progression Direction
+## 15. Studio Progression Direction
 
-Future Office XP work should treat the current Studio XP feature as the
+Future progression work should keep the current Studio XP feature as the
 implemented foundation for organization-level progression. The architecture
-should migrate naming and contracts deliberately rather than duplicating two
-competing shared XP systems.
+should add Character XP and Weekly Quests deliberately rather than introducing a
+competing shared XP system.
 
 Recommended boundaries:
 
 - `features/xp/` continues to own shared ledger math, idempotency, corrections,
-  and level calculations until renamed or split.
+  and Studio Level calculations.
 - `features/character-xp/` owns individual character events, level calculation,
   and user-card display models.
-- `features/office-stats/` owns Stability, Reputation, Creativity, and
+- `features/studio-stats/` owns Stability, Reputation, Creativity, and
   Community contribution rules.
 - `features/weekly-quests/` owns quest lifecycle and completion rules.
 - `features/handoffs/` owns lightweight ownership-transfer state.
 
-React components should receive already-computed Office Level, Character Level,
-quest, handoff, and office-stat view models. They should not decide award
+React components should receive already-computed Studio Level, Character Level,
+quest, handoff, and studio-stat view models. They should not decide award
 eligibility or calculate progression.
 
 ## 16. Phase 1 Implementation

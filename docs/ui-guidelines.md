@@ -6,7 +6,7 @@ CCAD HQ should feel like a calm, capable studio workspace with a small amount of
 playfulness. Operational clarity comes first; the pixel-office layer and XP
 celebrations add character without making core work feel like a game interface.
 
-Office Level is the primary progression signal. Character Level can add a light
+Studio Level is the primary progression signal. Character Level can add a light
 personal touch on user cards and presence cards, but must stay secondary and
 must never create a leaderboard, productivity score, or shame mechanic.
 
@@ -51,8 +51,7 @@ Guidelines:
 
 - Keep navigation labels and destinations in one centralized definition.
 - Clearly show the current tab.
-- Keep Office XP / Studio XP visible in the shell without creating another MVP
-  tab.
+- Keep Studio XP visible in the shell without creating another MVP tab.
 - Show Character Level only as lightweight user-card context.
 - Place account, settings, and sign-out actions outside primary navigation.
 - Do not add Pixel Office to primary navigation until it has a validated use.
@@ -138,8 +137,8 @@ reduce visual movement.
 
 ### Home
 
-- Keep Home at-a-glance: outstanding tasks, Office XP / Studio XP, and finance
-  summary are the primary content.
+- Keep Home at-a-glance: outstanding tasks, Studio XP, Character XP cards,
+  Weekly Quests, and finance summary are the primary content.
 - Use compact summaries rather than duplicating detailed feature screens.
 - Summary cards link to their detailed tabs.
 - Clearly label stale presence or delayed summaries.
@@ -199,21 +198,20 @@ reduce visual movement.
 - Keep monthly totals independent from narrower type and category table filters.
 - Show view-only state when a staff member cannot edit another creator's entry.
 
-### Office XP And Character XP
+### Studio XP And Character XP
 
-- Always label shared progression as Office XP, Office Level, Studio XP, or CCAD
-  progress, depending on the implemented surface.
-- Keep Office Level visually primary.
+- Always label shared progression as Studio XP, Studio Level, or CCAD progress.
+- Keep Studio Level visually primary.
 - Character Level may appear on user cards and presence cards, but should not
   dominate the screen.
-- Shared activity may name the actor but never summarize Office XP by person.
+- Shared activity may name the actor but never summarize Studio XP by person.
 - Level-up visuals celebrate CCAD.
 - Keep Studio XP as a drill-down from Home and the app shell, not a primary MVP
   navigation tab.
 - Show admin corrections as append-only shared activity with their reason.
 - Never sort staff by Character Level or show hard rankings.
 
-### Office Stats And Quests
+### Studio Stats And Quests
 
 - Use Stability, Reputation, Creativity, and Community as contribution lenses.
 - Display stat impact as task or quest context, not as staff evaluation.
@@ -238,7 +236,7 @@ reduce visual movement.
 - Do not hide core actions inside the visualization.
 - Keep sprites and layout assets isolated from operational UI components.
 - Pixel Office may visualize who is present, who is focusing, office activity
-  level, Office Level, quest completion, and calm office states.
+  level, Studio Level, quest completion, and calm office states.
 
 ### Studio Access
 
@@ -271,8 +269,7 @@ Timer announcements should be useful but not speak every countdown tick.
 
 - Use clear, friendly, direct language.
 - Prefer verbs for actions: `Start focus`, `Complete task`, `Add entry`.
-- Use `CCAD`, `Office XP`, `Office Level`, or `Studio XP` for shared
-  progression.
+- Use `CCAD`, `Studio XP`, or `Studio Level` for shared progression.
 - Avoid competitive language such as `top performer`, `rank`, `beat`, `winner`,
   or `loser`.
 - Avoid productivity shaming and punitive streak-loss language.
@@ -287,6 +284,6 @@ Timer announcements should be useful but not speak every countdown tick.
 - Does it work with keyboard and reduced motion?
 - Is status understandable without color?
 - Does any wording accidentally score individual staff?
-- Does Character Level stay secondary to Office Level?
+- Does Character Level stay secondary to Studio Level?
 - Are blocked, waiting, and handoff states clear without blame?
 - Does Pixel Office remain optional?

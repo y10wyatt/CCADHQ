@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Clock3, UsersRound } from "lucide-react";
+import { ArrowUpRight, Clock3, Sparkles, Target, UsersRound } from "lucide-react";
 
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
 import { PresenceWorkspace } from "@/features/presence/ui/presence-workspace";
@@ -104,6 +104,112 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
             <Clock3 className="size-4 text-accent" aria-hidden="true" />
           </Link>
         </Card>
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Character XP</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Lightweight rhythm stats for the current studio crew.
+              </p>
+            </div>
+            <Sparkles className="size-5 text-accent" aria-hidden="true" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {dashboard.characters.map((character) => (
+              <Card key={character.id} className="h-full">
+                <div className="flex items-center gap-4">
+                  <Image
+                    src={character.avatarSrc}
+                    alt=""
+                    width={72}
+                    height={72}
+                    className="size-16 rounded-lg border border-border bg-muted object-cover"
+                  />
+                  <div className="min-w-0">
+                    <h3 className="truncate text-base font-semibold">
+                      {character.name}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Character Level {character.level}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="font-mono text-2xl font-semibold">
+                      {character.characterXp}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Character XP
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-mono text-2xl font-semibold">
+                      {character.xpToNextLevel}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      XP to next level
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-5 space-y-2 text-sm text-muted-foreground">
+                  <p>{character.streakLabel}</p>
+                  <p>{character.focusLabel}</p>
+                  <p>{character.taskLabel}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Weekly quests</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Shared direction for the studio this week.
+              </p>
+            </div>
+            <Target className="size-5 text-accent" aria-hidden="true" />
+          </div>
+          <div className="grid gap-4">
+            {dashboard.weeklyQuests.map((quest) => (
+              <Card key={quest.id}>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <StatusPill tone="info">{quest.stat}</StatusPill>
+                    <h3 className="mt-3 text-base font-semibold">
+                      {quest.title}
+                    </h3>
+                  </div>
+                  <StatusPill tone="success">{quest.rewardLabel}</StatusPill>
+                </div>
+                <div className="mt-5">
+                  <div className="mb-2 flex justify-between text-xs font-medium text-muted-foreground">
+                    <span>{quest.progressLabel}</span>
+                    <span>{quest.progressPercent}%</span>
+                  </div>
+                  <div
+                    className="h-2 overflow-hidden rounded-full bg-muted"
+                    aria-label={`${quest.progressPercent}% quest progress`}
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={quest.progressPercent}
+                  >
+                    <div
+                      className="h-full rounded-full bg-accent"
+                      style={{ width: `${quest.progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       </section>
 
       <Card>

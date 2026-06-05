@@ -15,24 +15,44 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
-## 2026-06-04 19:43 PDT - Document Office and Character XP direction
+## 2026-06-05 07:00 PDT - Add Home character and quest placeholders
 
-- Goal: Update project documentation for Office XP, lightweight Character XP,
-  office stats, handoffs, quests, richer presence cards, and MVP-friendly schema
-  direction before writing application code.
+- Goal: Keep Studio XP as shared progression while adding placeholder Character
+  XP cards and Weekly Quests to Home.
+- Files changed: `AGENTS.md`, `README.md`, `docs/product-spec.md`,
+  `docs/system-architecture.md`, `docs/xp-system.md`,
+  `docs/ui-guidelines.md`, `docs/database-schema.md`, `docs/build-log.md`,
+  `docs/dev-log.md`, `features/dashboard/domain/dashboard-view-model.ts`,
+  `features/dashboard/application/build-dashboard-view-model.ts`,
+  `features/dashboard/application/build-dashboard-view-model.test.ts`,
+  `features/dashboard/ui/dashboard-overview.tsx`.
+- What works: Home now exposes placeholder Character XP cards for William and
+  Alice plus Weekly Quest progress cards, and documentation consistently keeps
+  Studio XP as the organization-level progression name.
+- Known issues: Character XP and Weekly Quests are placeholder dashboard data,
+  not yet backed by migrations or Supabase queries. Browser screenshot
+  verification was unavailable because the Node browser kernel crashed.
+- Next recommended step: Implement durable Character XP and Weekly Quest tables
+  and replace the Home placeholders with Supabase-backed view models.
+
+## 2026-06-04 19:43 PDT - Document Character XP and quest direction
+
+- Goal: Update project documentation for Studio XP, lightweight Character XP,
+  studio stats, handoffs, quests, richer presence cards, and MVP-friendly schema
+  direction.
 - Files changed: `AGENTS.md`, `README.md`, `docs/product-spec.md`,
   `docs/system-architecture.md`, `docs/xp-system.md`,
   `docs/realtime-presence.md`, `docs/ui-guidelines.md`,
   `docs/database-schema.md`, `docs/build-log.md`, `docs/dev-log.md`.
-- What works: Documentation now keeps Office Level as primary progression while
+- What works: Documentation now keeps Studio Level as primary progression while
   allowing secondary non-ranking Character Level, defines Stability,
   Reputation, Creativity, and Community stats, adds handoff and weekly quest
   direction, and documents suggested schema tables.
 - Known issues: No application code, migrations, tests, or UI have been updated
   for the new progression model yet; current implementation still uses Studio
   XP naming and existing task statuses.
-- Next recommended step: Decide whether to migrate Studio XP naming to Office
-  XP first or implement handoffs/Character XP behind compatibility contracts.
+- Next recommended step: Implement Character XP or Weekly Quests behind
+  compatibility contracts that keep Studio XP as the shared progression system.
 
 ## 2026-06-04 19:39 PDT - Widen private presence write authorization
 
