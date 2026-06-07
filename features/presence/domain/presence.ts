@@ -21,6 +21,11 @@ export type PresenceConnectionState =
   | "stale"
   | "unavailable";
 
+export interface PixelOfficePosition {
+  leftPercent: number;
+  topPercent: number;
+}
+
 export interface PresencePayload {
   memberId: string;
   displayName: string;
@@ -28,6 +33,7 @@ export interface PresencePayload {
   status: PresenceStatus;
   location: PresenceLocation;
   focusSessionId: string | null;
+  pixelOfficePosition: PixelOfficePosition | null;
   updatedAt: string;
   clientId: string;
   version: 1;
@@ -39,6 +45,7 @@ export interface PresenceMember {
   avatarUrl: string | null;
   status: PresenceStatus;
   location: PresenceLocation;
+  pixelOfficePosition: PixelOfficePosition | null;
   updatedAt: string;
 }
 
@@ -112,6 +119,9 @@ export function isPresencePayload(value: unknown): value is PresencePayload {
     presenceLocations.includes(candidate.location as PresenceLocation) &&
     (candidate.focusSessionId === null ||
       typeof candidate.focusSessionId === "string") &&
+    (candidate.pixelOfficePosition === undefined ||
+      candidate.pixelOfficePosition === null ||
+      isPixelOfficePosition(candidate.pixelOfficePosition)) &&
     typeof candidate.updatedAt === "string" &&
     !Number.isNaN(Date.parse(candidate.updatedAt)) &&
     typeof candidate.clientId === "string"
@@ -137,10 +147,29 @@ function normalizeMember(entries: PresencePayload[]): PresenceMember {
     avatarUrl: mostRecent.avatarUrl,
     status,
     location: mostRecent.location,
+    pixelOfficePosition: mostRecent.pixelOfficePosition ?? null,
     updatedAt: mostRecent.updatedAt,
   };
 }
 
 function compareUpdatedAt(left: PresencePayload, right: PresencePayload) {
   return Date.parse(right.updatedAt) - Date.parse(left.updatedAt);
+}
+
+function isPixelOfficePosition(
+  value: unknown,
+): value is PixelOfficePosition {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<PixelOfficePosition>;
+
+  return (
+    typeof candidate.leftPercent === "number" &&
+    Number.isFinite(candidate.leftPercent) &&
+    candidate.leftPercent >= 0 &&
+    candidate.leftPercent <= 100 &&
+    typeof candidate.topPercent === "number" &&
+    Number.isFinite(candidate.topPercent) &&
+    candidate.topPercent >= 0 &&
+    candidate.topPercent <= 100
+  );
 }

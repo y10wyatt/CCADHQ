@@ -55,7 +55,7 @@ export function AppShell({
       focusState={presenceFocusState}
     >
       <div className="min-h-screen">
-        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 border-r border-border bg-background/95 p-4 backdrop-blur lg:flex lg:flex-col">
+        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 border-r border-border bg-card/88 p-4 shadow-[12px_0_40px_rgb(31_59_93/0.06)] backdrop-blur lg:flex lg:flex-col">
           <Brand />
           <nav aria-label="Primary navigation" className="mt-8 grid gap-1">
             {navigationItems.map((item) => (
@@ -69,7 +69,7 @@ export function AppShell({
           <MemberSummary member={member} />
           <Link
             href="/studio-xp"
-            className="mt-auto rounded-xl border border-border bg-card p-4 transition-colors hover:border-accent/60 hover:bg-muted/40"
+            className="mt-auto rounded-xl border border-border bg-gradient-to-br from-sky-50 to-emerald-50 p-4 shadow-sm transition-colors hover:border-accent/60"
           >
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-semibold">Studio XP</p>
@@ -82,7 +82,7 @@ export function AppShell({
           </Link>
         </aside>
 
-        <header className="sticky top-0 z-20 border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
+        <header className="sticky top-0 z-20 border-b border-border bg-card/90 px-4 py-3 backdrop-blur lg:hidden">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <Brand compact />
             <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export function AppShell({
 
         <nav
           aria-label="Primary navigation"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-border bg-background/95 p-2 backdrop-blur lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card/95 p-2 backdrop-blur lg:hidden"
         >
           {navigationItems.map((item) => (
             <NavigationLink
@@ -181,7 +181,7 @@ function NavigationLink({ item, active, compact }: NavigationLinkProps) {
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex items-center gap-3 rounded-lg text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-        active && "bg-muted text-foreground",
+        active && "bg-blue-50 text-accent shadow-sm",
         compact
           ? "min-h-14 flex-col justify-center gap-1 px-2 py-1 text-[0.68rem]"
           : "px-3 py-2.5",

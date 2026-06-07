@@ -82,7 +82,7 @@ Current implemented MVP rules:
 
 | Event | XP | Conditions |
 | --- | ---: | --- |
-| Complete Pomodoro focus interval | 10 | Full 25-minute Pomodoro `focus` session only |
+| Complete Pomodoro focus interval | 10 | Full 25-minute Pomodoro `focus` session only, including manually logged past Pomodoro sessions |
 | Complete task | 20 | First transition of a task to done |
 | Admin correction | Signed | Explicit correction with reason |
 

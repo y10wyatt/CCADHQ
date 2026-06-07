@@ -198,6 +198,9 @@ Constraints:
 - State-specific timestamps are internally consistent.
 - At most one active session of any kind per member, enforced by a partial
   unique index for `running` and `paused` states.
+- `record_past_focus_session` creates an already-completed focus session for
+  the current member, snapshots the category name, and awards Pomodoro XP only
+  when the logged duration is at least 25 minutes.
 
 Recommended indexes:
 

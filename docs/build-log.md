@@ -23,6 +23,82 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-06 - Brighten CCAD HQ interface theme
+
+### Scope
+
+- Shifted the shared theme from dark navy to a light studio palette.
+- Updated shared card, button, status-pill, shell, and Home metric styling.
+- Added soft pastel variety to dashboard metric cards while keeping existing
+  layouts and workflows intact.
+
+### Decisions
+
+- Used shared design tokens for the main color change so feature screens inherit
+  the brighter treatment consistently.
+- Kept the palette multi-color and restrained: blue action color, teal success,
+  amber warning, coral danger, and light neutral surfaces.
+
+### Verification
+
+- TypeScript passed.
+- ESLint passed.
+- Vitest passed: 15 files, 55 tests.
+- Production build passed. Next.js still warns about multiple lockfiles.
+
+## 2026-06-06 - Add interactive Pixel Office placement
+
+### Scope
+
+- Added optional live Pixel Office coordinates to the private presence payload.
+- Let staff click the Pixel Office to move their own visible character.
+- Kept automatic status-zone placement as the fallback when no clicked position
+  is available.
+
+### Decisions
+
+- Clicked positions are ephemeral Realtime presence data, not durable database
+  state, so they cannot become attendance or historical location tracking.
+- Pixel Office remains a view over normalized presence and still does not create
+  its own Supabase subscription.
+
+### Verification
+
+- TypeScript passed.
+- ESLint passed.
+- Vitest passed: 15 files, 54 tests.
+
+## 2026-06-06 - Add past Focus Room logging
+
+### Scope
+
+- Added a guarded Supabase RPC for recording completed past focus sessions.
+- Added a Focus Room form for entering past Pomodoro or freeform focus work.
+- Updated task and focus completion messaging to include Character XP when it is
+  awarded.
+
+### Decisions
+
+- Past focus sessions are recorded as completed `focus_sessions` owned by the
+  current member.
+- Full manually logged Pomodoro sessions follow the existing XP rule and award
+  10 Studio XP plus 10 Character XP.
+- Freeform past sessions are recorded without Studio XP, matching the current
+  live freeform behavior.
+
+### Verification
+
+- ESLint passed.
+- TypeScript passed.
+- Vitest passed: 15 files, 52 tests.
+- Production build passed. Next.js warned about multiple lockfiles because the
+  repo is cloned inside another Node workspace.
+
+### Follow-ups
+
+- Apply the new migration to Supabase before using the feature in production.
+- Consider an admin review or audit view if manual backfilling becomes common.
+
 ## 2026-06-05 - Implement Character XP and Weekly Quests
 
 ### Scope

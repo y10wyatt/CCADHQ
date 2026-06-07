@@ -131,12 +131,17 @@ Required behavior:
   focus session. Its work details and optional task link prefill, while the
   previous session remains unchanged.
 - User can start, pause, resume, cancel, and complete a timer.
+- User can log a past focus session that was completed without the timer
+  running, including mode, work details, category, optional linked task, start
+  time, and duration.
 - A user can have only one active timer of any kind across all devices.
 - Timer state survives page refresh and temporary disconnection.
 - A timer continues locally during temporary disconnection and submits its final
   state after reconnection. Server state wins if another device changed it.
 - Reaching zero automatically completes a Pomodoro and awards Studio XP once,
   but does not start the next timer.
+- Logging a past full Pomodoro focus session awards the same Studio XP and
+  Character XP as completing that Pomodoro with the live timer.
 - Finishing a Pomodoro early records its actual elapsed time without awarding
   Studio XP.
 - Completing a freeform focus session records its elapsed time but does not

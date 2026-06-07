@@ -12,6 +12,7 @@ const baseMember: PresenceMember = {
   avatarUrl: null,
   status: "online",
   location: "home",
+  pixelOfficePosition: null,
   updatedAt: "2026-06-04T12:00:00.000Z",
 };
 
@@ -43,6 +44,22 @@ describe("pixel office scene", () => {
 
     expect(occupants[0].memberId).toBe("alice");
     expect(occupants[0].leftPercent).not.toBe(occupants[1].leftPercent);
+  });
+
+  it("uses a member's live clicked position when available", () => {
+    const occupants = buildPixelOfficeScene([
+      {
+        ...baseMember,
+        pixelOfficePosition: { leftPercent: 44, topPercent: 72 },
+      },
+    ]);
+
+    expect(occupants[0]).toEqual(
+      expect.objectContaining({
+        leftPercent: 44,
+        topPercent: 72,
+      }),
+    );
   });
 
   it("provides text equivalents for every visual zone", () => {

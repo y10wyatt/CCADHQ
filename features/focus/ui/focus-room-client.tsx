@@ -3,6 +3,7 @@
 import {
   Bell,
   BellOff,
+  CalendarPlus,
   Check,
   CircleStop,
   Coffee,
@@ -22,10 +23,12 @@ import {
   completeFocusSession,
   createWorkCategory,
   pauseFocusSession,
+  recordPastFocusSession,
   renameWorkCategory,
   resumeFocusSession,
   startFocusSession,
   updateFocusSessionDetails,
+  type FocusActionResult,
 } from "@/features/focus/application/actions";
 import {
   formatTimer,
@@ -120,9 +123,13 @@ export function FocusRoomClient({ room }: { room: FocusRoomViewModel }) {
               result.previousLevel &&
               result.newLevel > result.previousLevel
               ? `Pomodoro complete. CCAD reached level ${result.newLevel}.`
+              : result.xpAwarded && result.characterXpAwarded
+                ? "Pomodoro complete. CCAD earned 10 Studio XP and you earned 10 Character XP."
               : result.xpAwarded
-              ? "Pomodoro complete. CCAD earned 10 Studio XP."
-              : "Session recorded.",
+                ? "Pomodoro complete. CCAD earned 10 Studio XP."
+                : result.characterXpAwarded
+                  ? "Pomodoro complete. Character XP awarded."
+                  : "Session recorded.",
           );
           router.refresh();
         } else {
@@ -445,7 +452,25 @@ export function FocusRoomClient({ room }: { room: FocusRoomViewModel }) {
         </Card>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-2">
+      <section className="grid gap-5 lg:grid-cols-3">
+        <PastFocusSessionForm
+          categories={room.categories}
+          tasks={room.tasks}
+          disabled={isPending}
+          onSubmit={(input) => {
+            startTransition(async () => {
+              setMessage(null);
+              const result = await recordPastFocusSession(input);
+              if (!result.ok) {
+                setMessage(result.error ?? "Unable to log the past session.");
+                return;
+              }
+              setMessage(formatFocusResult(result, "Past session logged."));
+              router.refresh();
+            });
+          }}
+        />
+
         <Card>
           <h2 className="text-lg font-semibold">Continue previous work</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -593,6 +618,188 @@ export function FocusRoomClient({ room }: { room: FocusRoomViewModel }) {
         </Card>
       </section>
     </div>
+  );
+}
+
+function PastFocusSessionForm({
+  categories,
+  tasks,
+  disabled,
+  onSubmit,
+}: {
+  categories: FocusRoomViewModel["categories"];
+  tasks: FocusRoomViewModel["tasks"];
+  disabled: boolean;
+  onSubmit: (input: {
+    mode: "pomodoro" | "freeform";
+    workName: string;
+    workDescription: string;
+    workCategoryId: string;
+    linkedTaskId: string | null;
+    startedAt: string;
+    durationMinutes: number;
+  }) => void;
+}) {
+  const [mode, setMode] = useState<"pomodoro" | "freeform">("pomodoro");
+  const [workName, setWorkName] = useState("");
+  const [workDescription, setWorkDescription] = useState("");
+  const [workCategoryId, setWorkCategoryId] = useState("");
+  const [linkedTaskId, setLinkedTaskId] = useState("");
+  const [startedAt, setStartedAt] = useState(() =>
+    toDatetimeLocal(new Date(Date.now() - 25 * 60 * 1000)),
+  );
+  const [durationMinutes, setDurationMinutes] = useState(25);
+
+  function chooseTask(taskId: string) {
+    setLinkedTaskId(taskId);
+    const task = tasks.find((candidate) => candidate.id === taskId);
+    if (!task) return;
+    setWorkName(task.title);
+    setWorkDescription(task.description ?? "");
+    setWorkCategoryId(task.workCategoryId);
+  }
+
+  return (
+    <Card>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">Log past session</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Add focus time that was completed without the timer running.
+          </p>
+        </div>
+        <CalendarPlus aria-hidden="true" className="mt-1 size-5 text-accent" />
+      </div>
+      <form
+        className="mt-5 grid gap-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit({
+            mode,
+            workName,
+            workDescription,
+            workCategoryId,
+            linkedTaskId: linkedTaskId || null,
+            startedAt: new Date(startedAt).toISOString(),
+            durationMinutes,
+          });
+          setWorkName("");
+          setWorkDescription("");
+          setLinkedTaskId("");
+          setDurationMinutes(mode === "pomodoro" ? 25 : 30);
+          setStartedAt(toDatetimeLocal(new Date(Date.now() - 25 * 60 * 1000)));
+        }}
+      >
+        <label className="grid gap-2 text-sm font-medium">
+          Session type
+          <select
+            className={fieldClass}
+            value={mode}
+            onChange={(event) => {
+              const nextMode = event.target.value as "pomodoro" | "freeform";
+              setMode(nextMode);
+              setDurationMinutes(nextMode === "pomodoro" ? 25 : 30);
+            }}
+          >
+            <option value="pomodoro">Pomodoro</option>
+            <option value="freeform">Freeform</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Linked task <span className="text-muted-foreground">(Optional)</span>
+          <select
+            className={fieldClass}
+            value={linkedTaskId}
+            onChange={(event) => chooseTask(event.target.value)}
+          >
+            <option value="">No linked task</option>
+            {tasks.map((task) => (
+              <option key={task.id} value={task.id}>
+                {task.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Work name <span className="text-muted-foreground">(Required)</span>
+          <input
+            className={fieldClass}
+            value={workName}
+            onChange={(event) => setWorkName(event.target.value)}
+            required
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Shared category{" "}
+          <span className="text-muted-foreground">(Required)</span>
+          <select
+            className={fieldClass}
+            value={workCategoryId}
+            onChange={(event) => setWorkCategoryId(event.target.value)}
+            required
+          >
+            <option value="">Choose category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Started at
+          <input
+            className={fieldClass}
+            type="datetime-local"
+            value={startedAt}
+            max={toDatetimeLocal(new Date())}
+            onChange={(event) => setStartedAt(event.target.value)}
+            required
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Minutes
+          <input
+            className={fieldClass}
+            type="number"
+            min={1}
+            max={720}
+            value={durationMinutes}
+            onChange={(event) =>
+              setDurationMinutes(Number(event.target.value))
+            }
+            required
+          />
+          <span className="text-xs font-normal text-muted-foreground">
+            Full Pomodoro sessions award Studio XP and Character XP.
+          </span>
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Work description{" "}
+          <span className="text-muted-foreground">(Required)</span>
+          <textarea
+            className={`${fieldClass} min-h-24 py-3`}
+            value={workDescription}
+            onChange={(event) => setWorkDescription(event.target.value)}
+            required
+          />
+        </label>
+        <Button
+          type="submit"
+          disabled={
+            disabled ||
+            !workName.trim() ||
+            !workDescription.trim() ||
+            !workCategoryId ||
+            !startedAt ||
+            durationMinutes < 1
+          }
+        >
+          <CalendarPlus aria-hidden="true" />
+          Log session
+        </Button>
+      </form>
+    </Card>
   );
 }
 
@@ -776,6 +983,31 @@ function PreferenceButton({
       </StatusPill>
     </button>
   );
+}
+
+function formatFocusResult(result: FocusActionResult, successMessage: string) {
+  if (
+    result.newLevel &&
+    result.previousLevel &&
+    result.newLevel > result.previousLevel
+  ) {
+    return `${successMessage} CCAD reached level ${result.newLevel}.`;
+  }
+  if (result.xpAwarded && result.characterXpAwarded) {
+    return `${successMessage} CCAD earned 10 Studio XP and you earned 10 Character XP.`;
+  }
+  if (result.xpAwarded) {
+    return `${successMessage} CCAD earned 10 Studio XP.`;
+  }
+  if (result.characterXpAwarded) {
+    return `${successMessage} Character XP awarded.`;
+  }
+  return successMessage;
+}
+
+function toDatetimeLocal(date: Date) {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
 }
 
 function sessionLabel(session: FocusSessionView) {

@@ -104,8 +104,12 @@ export function TasksWorkspace({
           result.previousLevel &&
           result.newLevel > result.previousLevel
           ? `${successMessage} CCAD reached level ${result.newLevel}.`
+          : result.xpAwarded && result.characterXpAwarded
+            ? `${successMessage} CCAD earned 20 Studio XP and you earned 15 Character XP.`
           : result.xpAwarded
             ? `${successMessage} CCAD earned 20 Studio XP.`
+            : result.characterXpAwarded
+              ? `${successMessage} Character XP awarded.`
             : successMessage,
       );
       onSuccess?.();

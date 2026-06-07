@@ -237,6 +237,8 @@ managed Realtime schema.
 - Pixel Office maps normalized members into workstation, break-area,
   open-studio, and quiet-corner zones.
 - Room coordinates and visual treatment remain inside `features/pixel-office/`.
+- Staff may click the Pixel Office to publish an ephemeral room coordinate for
+  their own character through the same private presence payload.
 - Pixel Office does not subscribe directly, persist state, or affect presence
   authorization.
 - Every visible occupant retains a text name, status, and location equivalent.

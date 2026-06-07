@@ -22,6 +22,7 @@ export interface TaskActionResult {
   ok: boolean;
   error?: string;
   xpAwarded?: boolean;
+  characterXpAwarded?: boolean;
   previousLevel?: number;
   newLevel?: number;
 }
@@ -94,12 +95,14 @@ export async function transitionTask(
   revalidateTaskPaths();
   const result = data as {
     xp_awarded?: boolean;
+    character_xp_awarded?: boolean;
     previous_level?: number;
     new_level?: number;
   } | null;
   return {
     ok: true,
     xpAwarded: result?.xp_awarded ?? false,
+    characterXpAwarded: result?.character_xp_awarded ?? false,
     previousLevel: result?.previous_level,
     newLevel: result?.new_level,
   };

@@ -72,8 +72,11 @@ export function buildPixelOfficeScene(
       return {
         ...member,
         zone,
-        leftPercent: slot.leftPercent,
-        topPercent: Math.min(slot.topPercent + overflowRow * 5, 90),
+        leftPercent:
+          member.pixelOfficePosition?.leftPercent ?? slot.leftPercent,
+        topPercent:
+          member.pixelOfficePosition?.topPercent ??
+          Math.min(slot.topPercent + overflowRow * 5, 90),
       };
     });
 }

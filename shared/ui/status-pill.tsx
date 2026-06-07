@@ -10,7 +10,7 @@ const statusPillVariants = cva(
         neutral: "border-border bg-muted text-muted-foreground",
         info: "border-accent/30 bg-accent/10 text-accent",
         success: "border-success/30 bg-success/10 text-success",
-        warning: "border-warning/30 bg-warning/10 text-warning",
+        warning: "border-warning/40 bg-warning/10 text-warning",
       },
     },
     defaultVariants: {

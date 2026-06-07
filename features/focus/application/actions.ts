@@ -11,6 +11,15 @@ const optionalUuid = z.string().uuid().nullable().optional();
 const workName = z.string().trim().min(1).max(160);
 const workDescription = z.string().trim().min(1).max(2000);
 const categoryName = z.string().trim().min(1).max(80);
+const pastSessionSchema = z.object({
+  mode: z.enum(["pomodoro", "freeform"]),
+  workName,
+  workDescription,
+  workCategoryId: uuid,
+  linkedTaskId: optionalUuid,
+  startedAt: z.string().datetime(),
+  durationMinutes: z.number().int().min(1).max(720),
+});
 
 const startSchema = z
   .object({
@@ -47,6 +56,7 @@ export type FocusActionResult = {
   ok: boolean;
   error?: string;
   xpAwarded?: boolean;
+  characterXpAwarded?: boolean;
   previousLevel?: number;
   newLevel?: number;
 };
@@ -128,12 +138,51 @@ export async function completeFocusSession(
 
   const result = data as {
     xp_awarded?: boolean;
+    character_xp_awarded?: boolean;
     previous_level?: number;
     new_level?: number;
   } | null;
   return {
     ok: true,
     xpAwarded: result?.xp_awarded ?? false,
+    characterXpAwarded: result?.character_xp_awarded ?? false,
+    previousLevel: result?.previous_level,
+    newLevel: result?.new_level,
+  };
+}
+
+export async function recordPastFocusSession(
+  input: z.input<typeof pastSessionSchema>,
+): Promise<FocusActionResult> {
+  const parsed = pastSessionSchema.safeParse(input);
+  if (!parsed.success) return invalidInput();
+
+  const member = await requireCurrentMember();
+  const supabase = await createServerSupabaseClient();
+  const { data, error } = await supabase.rpc("record_past_focus_session", {
+    target_organization_id: member.organization.id,
+    session_mode: parsed.data.mode,
+    session_work_name: parsed.data.workName,
+    session_work_description: parsed.data.workDescription,
+    session_work_category_id: parsed.data.workCategoryId,
+    session_linked_task_id: parsed.data.linkedTaskId ?? null,
+    session_started_at: parsed.data.startedAt,
+    session_duration_seconds: parsed.data.durationMinutes * 60,
+  });
+
+  revalidateFocusPaths();
+  if (error) return { ok: false, error: "Unable to log the past session." };
+
+  const result = data as {
+    xp_awarded?: boolean;
+    character_xp_awarded?: boolean;
+    previous_level?: number;
+    new_level?: number;
+  } | null;
+  return {
+    ok: true,
+    xpAwarded: result?.xp_awarded ?? false,
+    characterXpAwarded: result?.character_xp_awarded ?? false,
     previousLevel: result?.previous_level,
     newLevel: result?.new_level,
   };

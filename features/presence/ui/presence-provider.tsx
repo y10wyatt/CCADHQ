@@ -20,6 +20,7 @@ import {
   type PresenceFocusState,
   type PresenceMember,
   type PresencePayload,
+  type PixelOfficePosition,
 } from "@/features/presence/domain/presence";
 import { createBrowserSupabaseClient } from "@/shared/database/supabase/browser";
 
@@ -27,17 +28,21 @@ const AWAY_AFTER_MS = 10 * 60 * 1000;
 const STALE_GRACE_MS = 2 * 60 * 1000;
 
 interface PresenceContextValue {
+  currentMemberId: string;
   members: PresenceMember[];
   connectionState: PresenceConnectionState;
   lastSyncedAt: string | null;
+  setPixelOfficePosition: (position: PixelOfficePosition | null) => void;
 }
 
 type PresencePayloadData = Omit<PresencePayload, "clientId" | "updatedAt">;
 
 const PresenceContext = createContext<PresenceContextValue>({
+  currentMemberId: "",
   members: [],
   connectionState: "unavailable",
   lastSyncedAt: null,
+  setPixelOfficePosition: () => {},
 });
 
 export function PresenceProvider({
@@ -54,6 +59,8 @@ export function PresenceProvider({
   const pathname = usePathname();
   const [isAway, setIsAway] = useState(false);
   const [members, setMembers] = useState<PresenceMember[]>([]);
+  const [pixelOfficePosition, setPixelOfficePosition] =
+    useState<PixelOfficePosition | null>(null);
   const [connectionState, setConnectionState] =
     useState<PresenceConnectionState>("connecting");
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
@@ -71,6 +78,7 @@ export function PresenceProvider({
     status,
     location,
     focusSessionId: focusState?.id ?? null,
+    pixelOfficePosition,
     version: 1,
   });
 
@@ -215,6 +223,7 @@ export function PresenceProvider({
       status,
       location,
       focusSessionId: focusState?.id ?? null,
+      pixelOfficePosition,
       version: 1,
     };
 
@@ -228,12 +237,19 @@ export function PresenceProvider({
     member.avatarUrl,
     member.displayName,
     member.id,
+    pixelOfficePosition,
     status,
   ]);
 
   return (
     <PresenceContext.Provider
-      value={{ members, connectionState, lastSyncedAt }}
+      value={{
+        currentMemberId: member.id,
+        members,
+        connectionState,
+        lastSyncedAt,
+        setPixelOfficePosition,
+      }}
     >
       {children}
     </PresenceContext.Provider>

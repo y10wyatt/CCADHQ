@@ -478,6 +478,8 @@ Phase 9 adds an optional visualization boundary over normalized presence:
   between the default accessible status list and Pixel Office.
 - Pixel Office receives `PresenceMember` view models through the existing
   provider and never creates a Supabase client or subscription.
+- Clicked Pixel Office coordinates are ephemeral presence fields, broadcast only
+  while the member is online and not stored in application tables.
 - No Pixel Office state is durable, audited, or used for attendance.
 - The feature can be removed or redesigned without changing presence, Focus,
   Tasks, Finance, XP, or navigation contracts.

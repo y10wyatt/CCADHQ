@@ -14,6 +14,7 @@ const basePresence: PresencePayload = {
   status: "online",
   location: "home",
   focusSessionId: null,
+  pixelOfficePosition: null,
   updatedAt: "2026-06-04T12:00:00.000Z",
   clientId: "client-1",
   version: 1,
@@ -95,6 +96,48 @@ describe("presence normalization", () => {
     });
 
     expect(members[0].location).toBe("tasks");
+  });
+
+  it("keeps the most recent live pixel office position", () => {
+    const members = normalizePresenceState({
+      first: [basePresence],
+      second: [
+        {
+          ...basePresence,
+          clientId: "client-2",
+          pixelOfficePosition: { leftPercent: 40, topPercent: 68 },
+          updatedAt: "2026-06-04T12:01:00.000Z",
+        },
+      ],
+    });
+
+    expect(members[0].pixelOfficePosition).toEqual({
+      leftPercent: 40,
+      topPercent: 68,
+    });
+  });
+
+  it("keeps older presence payloads without pixel office positions visible", () => {
+    const members = normalizePresenceState({
+      legacy: [
+        {
+          memberId: basePresence.memberId,
+          displayName: basePresence.displayName,
+          avatarUrl: basePresence.avatarUrl,
+          status: basePresence.status,
+          location: basePresence.location,
+          focusSessionId: basePresence.focusSessionId,
+          updatedAt: basePresence.updatedAt,
+          clientId: basePresence.clientId,
+          version: basePresence.version,
+        },
+      ],
+    });
+
+    expect(members[0]).toMatchObject({
+      memberId: "william",
+      pixelOfficePosition: null,
+    });
   });
 
   it("ignores malformed payloads at the realtime boundary", () => {

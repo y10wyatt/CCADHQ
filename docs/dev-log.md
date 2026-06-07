@@ -15,6 +15,62 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-06 17:36 PDT - Brighten CCAD HQ interface theme
+
+- Goal: Make the UI colors lighter and brighter using the provided dashboard
+  reference as loose direction without copying it exactly.
+- Files changed: `app/globals.css`, `shared/ui/app-shell.tsx`,
+  `shared/ui/card.tsx`, `shared/ui/button.tsx`, `shared/ui/status-pill.tsx`,
+  `features/dashboard/ui/dashboard-overview.tsx`, `docs/build-log.md`,
+  `docs/dev-log.md`.
+- What works: The app now uses a light studio palette, softer card shadows,
+  brighter active navigation, and pastel Home metric cards.
+- Known issues: Local browser runtime still needs Supabase environment values to
+  view signed-in screens in development.
+- Next recommended step: Review the Home, Focus Room, Tasks, and Finance pages
+  with real data and tune any individual card colors that feel too soft.
+
+## 2026-06-06 17:25 PDT - Add interactive Pixel Office placement
+
+- Goal: Let staff click the Pixel Office to move their own character in the
+  shared live room.
+- Files changed: `docs/realtime-presence.md`, `docs/system-architecture.md`,
+  `docs/build-log.md`, `docs/dev-log.md`,
+  `features/presence/domain/presence.ts`,
+  `features/presence/domain/presence.test.ts`,
+  `features/presence/ui/presence-provider.tsx`,
+  `features/pixel-office/domain/pixel-office.ts`,
+  `features/pixel-office/domain/pixel-office.test.ts`,
+  `features/pixel-office/ui/pixel-office-panel.tsx`,
+  `features/pixel-office/ui/pixel-office.tsx`.
+- What works: Pixel Office clicks broadcast the current member's ephemeral room
+  coordinate through private presence, coworkers can receive that coordinate,
+  and automatic status-zone placement remains the fallback.
+- Known issues: Positions reset when presence disconnects or the user refreshes;
+  this is intentional because the feature is not durable.
+- Next recommended step: Verify with two signed-in staff accounts that each
+  person can move their own character and see the other's movement.
+
+## 2026-06-06 16:34 PDT - Add past focus session logging
+
+- Goal: Let staff log Focus Room sessions completed outside the live timer and
+  make task completion messaging show Character XP.
+- Files changed: `docs/product-spec.md`, `docs/xp-system.md`,
+  `docs/database-schema.md`, `docs/build-log.md`, `docs/dev-log.md`,
+  `shared/database/database.types.ts`, `features/focus/application/actions.ts`,
+  `features/focus/ui/focus-room-client.tsx`,
+  `features/tasks/application/actions.ts`,
+  `features/tasks/ui/tasks-workspace.tsx`,
+  `supabase/migrations/20260606233400_record_past_focus_sessions.sql`.
+- What works: Focus Room has a Log past session form, the new guarded Supabase
+  RPC creates completed focus-session rows, full manually logged Pomodoros award
+  Studio XP and Character XP, and task completion messages now mention personal
+  Character XP when awarded.
+- Known issues: Manual past-session logging trusts active staff to enter honest
+  historical time; no admin approval workflow is included.
+- Next recommended step: Apply the migration to Supabase and verify the form
+  with one past Pomodoro and one freeform session in a seeded organization.
+
 ## 2026-06-05 07:37 PDT - Implement Character XP and Weekly Quests
 
 - Goal: Replace Home placeholder Character XP and Weekly Quest data with

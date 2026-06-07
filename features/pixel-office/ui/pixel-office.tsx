@@ -5,6 +5,7 @@ import type {
   PresenceLocation,
   PresenceMember,
   PresenceStatus,
+  PixelOfficePosition,
 } from "@/features/presence/domain/presence";
 import {
   buildPixelOfficeScene,
@@ -14,19 +15,44 @@ import {
 import { cn } from "@/shared/lib/cn";
 
 interface PixelOfficeProps {
+  currentMemberId: string;
   members: PresenceMember[];
   connectionState: PresenceConnectionState;
+  onMoveCurrentMember: (position: PixelOfficePosition | null) => void;
 }
 
 export function PixelOffice({
+  currentMemberId,
   members,
   connectionState,
+  onMoveCurrentMember,
 }: PixelOfficeProps) {
   const occupants = buildPixelOfficeScene(members);
+  const canMoveCurrentMember = occupants.some(
+    (occupant) => occupant.memberId === currentMemberId,
+  );
+
+  function moveCurrentMember(event: React.PointerEvent<HTMLDivElement>) {
+    if (!canMoveCurrentMember) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const leftPercent = ((event.clientX - rect.left) / rect.width) * 100;
+    const topPercent = ((event.clientY - rect.top) / rect.height) * 100;
+
+    onMoveCurrentMember({
+      leftPercent: clampPercent(leftPercent),
+      topPercent: clampPercent(topPercent),
+    });
+  }
 
   return (
     <figure className="grid gap-3">
-      <div className="relative aspect-[16/9] min-h-56 overflow-hidden rounded-lg border border-border bg-background">
+      <div
+        className={cn(
+          "relative aspect-[16/9] min-h-56 overflow-hidden rounded-lg border border-border bg-background",
+          canMoveCurrentMember && "cursor-crosshair",
+        )}
+        onPointerDown={moveCurrentMember}
+      >
         <Image
           src="/placeholders/pixel-office-empty.svg"
           alt=""
@@ -43,7 +69,11 @@ export function PixelOffice({
         ) : (
           <ol aria-label="Pixel Office occupants">
             {occupants.map((occupant) => (
-              <PixelOccupant key={occupant.memberId} occupant={occupant} />
+              <PixelOccupant
+                key={occupant.memberId}
+                current={occupant.memberId === currentMemberId}
+                occupant={occupant}
+              />
             ))}
           </ol>
         )}
@@ -58,7 +88,13 @@ export function PixelOffice({
   );
 }
 
-function PixelOccupant({ occupant }: { occupant: PixelOfficeOccupant }) {
+function PixelOccupant({
+  current,
+  occupant,
+}: {
+  current: boolean;
+  occupant: PixelOfficeOccupant;
+}) {
   return (
     <li
       className="absolute -translate-x-1/2 -translate-y-full list-none"
@@ -78,6 +114,8 @@ function PixelOccupant({ occupant }: { occupant: PixelOfficeOccupant }) {
           className={cn(
             "absolute -inset-1 rounded-lg border",
             statusFrame(occupant.status),
+            current &&
+              "ring-2 ring-accent/80 ring-offset-2 ring-offset-background",
           )}
         />
         {occupant.avatarUrl ? (
@@ -147,4 +185,8 @@ function emptyMessage(state: PresenceConnectionState) {
   if (state === "stale") return "Pixel Office is reconnecting.";
   if (state === "unavailable") return "Pixel Office is unavailable right now.";
   return "The Pixel Office is quiet.";
+}
+
+function clampPercent(value: number) {
+  return Math.min(Math.max(Number(value.toFixed(2)), 4), 96);
 }

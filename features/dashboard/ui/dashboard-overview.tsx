@@ -5,6 +5,7 @@ import { ArrowUpRight, Clock3, Sparkles, UsersRound } from "lucide-react";
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
 import { PresenceWorkspace } from "@/features/presence/ui/presence-workspace";
 import { WeeklyQuestsPanel } from "@/features/weekly-quests/ui/weekly-quests-panel";
+import { cn } from "@/shared/lib/cn";
 import { Card } from "@/shared/ui/card";
 import { StatusPill } from "@/shared/ui/status-pill";
 
@@ -21,7 +22,12 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
       >
         {dashboard.metrics.map((metric) => (
           <Link key={metric.label} href={metric.href} className="group">
-            <Card className="h-full transition-colors group-hover:border-accent/60 group-hover:bg-muted/50">
+            <Card
+              className={cn(
+                "h-full transition-colors group-hover:border-accent/60",
+                metricCardTone(metric.tone),
+              )}
+            >
               <div className="flex items-start justify-between gap-4">
                 <StatusPill tone={metric.tone}>{metric.label}</StatusPill>
                 <ArrowUpRight
@@ -219,4 +225,18 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
       </Card>
     </div>
   );
+}
+
+function metricCardTone(tone: DashboardViewModel["metrics"][number]["tone"]) {
+  const tones: Record<
+    DashboardViewModel["metrics"][number]["tone"],
+    string
+  > = {
+    neutral: "bg-gradient-to-br from-white to-slate-50",
+    info: "bg-gradient-to-br from-sky-50 to-blue-50",
+    success: "bg-gradient-to-br from-emerald-50 to-teal-50",
+    warning: "bg-gradient-to-br from-amber-50 to-orange-50",
+  };
+
+  return tones[tone];
 }

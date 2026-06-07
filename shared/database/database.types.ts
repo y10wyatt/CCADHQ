@@ -529,6 +529,19 @@ export interface Database {
         Args: { target_session_id: string };
         Returns: Json;
       };
+      record_past_focus_session: {
+        Args: {
+          target_organization_id: string;
+          session_mode: FocusMode;
+          session_work_name: string;
+          session_work_description: string;
+          session_work_category_id: string;
+          session_linked_task_id?: string | null;
+          session_started_at: string;
+          session_duration_seconds: number;
+        };
+        Returns: Json;
+      };
       cancel_focus_session: {
         Args: { target_session_id: string };
         Returns: undefined;
