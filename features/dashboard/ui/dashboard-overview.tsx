@@ -4,6 +4,7 @@ import { ArrowUpRight, Clock3, Sparkles, UsersRound } from "lucide-react";
 
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
 import { PresenceWorkspace } from "@/features/presence/ui/presence-workspace";
+import { StudioNotesPanel } from "@/features/studio-notes/ui/studio-notes-panel";
 import { WeeklyQuestsPanel } from "@/features/weekly-quests/ui/weekly-quests-panel";
 import { cn } from "@/shared/lib/cn";
 import { Card } from "@/shared/ui/card";
@@ -45,6 +46,8 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
           </Link>
         ))}
       </section>
+
+      <StudioNotesPanel />
 
       <section className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
         <Card className="overflow-hidden p-0">

@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Home,
   LogOut,
+  Megaphone,
   Timer,
   UserCog,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const icons = {
   focus: Timer,
   tasks: ClipboardList,
   finance: CircleDollarSign,
+  marketing: Megaphone,
 } satisfies Record<NavigationItem["icon"], typeof Home>;
 
 interface AppShellProps {

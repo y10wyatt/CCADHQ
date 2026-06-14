@@ -9,6 +9,7 @@ describe("navigationItems", () => {
       "Focus Room",
       "Tasks",
       "Finance",
+      "Marketing",
     ]);
   });
 
