@@ -19,6 +19,7 @@ export interface DashboardSnapshot {
     id: string;
     description: string;
     points: number;
+    actorName: string | null;
     createdAt: string;
   }>;
   characters: CharacterSummary[];
@@ -86,6 +87,7 @@ export function buildDashboardViewModel(
     activities: snapshot.recentXpEvents.map((event) => ({
       id: event.id,
       description: event.description,
+      actorName: event.actorName ?? "CCAD",
       occurredAtLabel: `${event.points > 0 ? "+" : ""}${event.points} XP | ${activityDate.format(new Date(event.createdAt))}`,
       tone: event.points > 0 ? "success" : "warning",
     })),

@@ -143,6 +143,8 @@ reduce visual movement.
   not hard-coded staff scores.
 - Use compact summaries rather than duplicating detailed feature screens.
 - Summary cards link to their detailed tabs.
+- Recent activity can be collapsed and should name the actor as context, not as
+  a ranking.
 - Clearly label stale presence or delayed summaries.
 
 ### Focus Room
@@ -174,6 +176,7 @@ reduce visual movement.
 - Provide a visible switch between Kanban and list/table views and preserve
   filters between them where practical.
 - Default view should emphasize active and priority work.
+- Completed tasks should be grouped separately and hidden until requested.
 - Filters remain understandable and easy to clear.
 - Completion interaction is satisfying but restrained.
 - Blocked and overdue states use text or icons in addition to color.
@@ -199,7 +202,41 @@ reduce visual movement.
 - Require deliberate confirmation for archive actions.
 - Avoid visual language implying this is full accounting software.
 - Keep monthly totals independent from narrower type and category table filters.
+- Recurring finance entries are labeled as recurring but remain manually
+  recorded ledger rows.
 - Show view-only state when a staff member cannot edit another creator's entry.
+
+### Students
+
+- Use cards for student summaries so status, program, next action, and follow-up
+  state are easy to scan.
+- Keep student detail pages quiet and operational, with class logs as the main
+  chronological record.
+- Parent-update and permission-to-post states should be visible without using
+  alarmist styling.
+- Archive should feel like moving a student out of the active workspace, not
+  deleting their history.
+
+### Marketing
+
+- Treat Marketing as an internal editorial planning board, not a generic social
+  media dashboard.
+- Account identity, content lanes, weekly plan, and performance learning should
+  read as studio context.
+- Idea cards should expose account, owner, priority, deadline, CTA, and status
+  without becoming visually noisy.
+- Charts and performance summaries should be restrained and explanatory.
+- Asset-upload areas can provide local preview behavior until durable storage is
+  implemented.
+
+### Studio Notes
+
+- Use warm paper tones, thin borders, and light shadows for sticky-note cards.
+- Keep rotations subtle and avoid childish or neon styling.
+- Pinned notes should sort first and show a small pin indicator.
+- Important notes should use a restrained deep-cobalt accent.
+- Notes are casual internal messages; avoid task-manager language.
+- On mobile, stack notes vertically for easy reading.
 
 ### Studio XP And Character XP
 
@@ -224,7 +261,7 @@ reduce visual movement.
 
 ### Presence
 
-- Use the same accessible text panel on Home and in Focus Room.
+- Use the same accessible text panel in Focus Room and Studio XP.
 - Show connecting, live, stale, unavailable, empty, and populated states.
 - Label status and location with text; never rely on color alone.
 - Describe coworking status as approximate and never as attendance.

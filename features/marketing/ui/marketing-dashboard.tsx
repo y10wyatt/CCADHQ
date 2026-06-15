@@ -1,3 +1,15 @@
+"use client";
+
+import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+
+import {
+  archiveContentIdea,
+  createContentIdea,
+  updateContentIdea,
+  type MarketingActionResult,
+} from "@/features/marketing/application/actions";
 import {
   accountLabels,
   type AccountIdentity,
@@ -12,7 +24,11 @@ import {
   type WinningTopic,
 } from "@/features/marketing/domain/marketing";
 import { cn } from "@/shared/lib/cn";
+import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
+import { DataTable } from "@/shared/ui/data-table";
+import { FileUploader } from "@/shared/ui/file-uploader";
+import { MiniBarChart, MiniLineChart } from "@/shared/ui/mini-chart";
 import { StatusPill } from "@/shared/ui/status-pill";
 
 const accountStyles: Record<MarketingAccountId, string> = {
@@ -27,6 +43,9 @@ const roleStyles: Record<string, string> = {
   Secondary: "border-border bg-muted text-muted-foreground",
   No: "border-border bg-transparent text-muted-foreground",
 };
+
+const fieldClass =
+  "min-h-11 rounded-md border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground";
 
 export function MarketingDashboard({
   data,
@@ -54,6 +73,8 @@ export function MarketingDashboard({
         <PerformanceLearningPanel posts={data.performancePosts} />
         <WinningTopicsPanel topics={data.winningTopics} />
       </section>
+
+      <MarketingChartsPanel posts={data.performancePosts} />
 
       <AssetsNeededPanel assets={data.assetNeeds} />
     </div>
@@ -161,12 +182,72 @@ export function IdeaPipelineBoard({
   statuses: MarketingStatus[];
   ideas: ContentIdea[];
 }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingIdea, setEditingIdea] = useState<ContentIdea | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  function runAction(
+    action: () => Promise<MarketingActionResult>,
+    successMessage: string,
+  ) {
+    startTransition(async () => {
+      setMessage(null);
+      const result = await action();
+      if (!result.ok) {
+        setMessage(result.error ?? "Unable to update Marketing.");
+        return;
+      }
+      setMessage(successMessage);
+      setFormOpen(false);
+      setEditingIdea(null);
+      router.refresh();
+    });
+  }
+
   return (
     <Card>
-      <SectionHeading
-        title="Idea pipeline"
-        description="Static sample cards for now; the columns match the future workflow states."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <SectionHeading
+          title="Idea pipeline"
+          description="Create, move, and review content ideas by workflow status."
+        />
+        <Button
+          onClick={() => {
+            setEditingIdea(null);
+            setFormOpen(true);
+          }}
+        >
+          <Plus aria-hidden="true" />
+          Add idea
+        </Button>
+      </div>
+      {message && (
+        <p className="mt-5 rounded-lg border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent">
+          {message}
+        </p>
+      )}
+      {formOpen && (
+        <ContentIdeaForm
+          idea={editingIdea}
+          statuses={statuses}
+          disabled={isPending}
+          onClose={() => {
+            setFormOpen(false);
+            setEditingIdea(null);
+          }}
+          onSubmit={(input) =>
+            runAction(
+              () =>
+                editingIdea
+                  ? updateContentIdea({ ideaId: editingIdea.id, ...input })
+                  : createContentIdea(input),
+              editingIdea ? "Content idea updated." : "Content idea added.",
+            )
+          }
+        />
+      )}
       <div className="mt-5 grid gap-3 overflow-x-auto pb-2 xl:grid-cols-4 2xl:grid-cols-8">
         {statuses.map((status) => {
           const columnIdeas = ideas.filter((idea) => idea.status === status);
@@ -185,7 +266,28 @@ export function IdeaPipelineBoard({
               <div className="mt-3 grid gap-3">
                 {columnIdeas.length > 0 ? (
                   columnIdeas.map((idea) => (
-                    <IdeaCard key={idea.title} idea={idea} />
+                    <IdeaCard
+                      key={idea.id}
+                      idea={idea}
+                      statuses={statuses}
+                      disabled={isPending}
+                      onEdit={() => {
+                        setEditingIdea(idea);
+                        setFormOpen(true);
+                      }}
+                      onDelete={() =>
+                        runAction(
+                          () => archiveContentIdea(idea.id),
+                          "Content idea deleted.",
+                        )
+                      }
+                      onStatusChange={(status) =>
+                        runAction(
+                          () => updateContentIdea({ ideaId: idea.id, ...idea, status }),
+                          "Content idea moved.",
+                        )
+                      }
+                    />
                   ))
                 ) : (
                   <p className="rounded-md border border-dashed border-border px-3 py-4 text-xs leading-5 text-muted-foreground">
@@ -312,29 +414,38 @@ export function PerformanceLearningPanel({
 
 function WinningTopicsPanel({ topics }: { topics: WinningTopic[] }) {
   return (
-    <Card>
-      <SectionHeading
-        title="Winning topics"
-        description="Patterns worth repeating across the next content cycle."
-      />
-      <div className="mt-5 grid gap-3">
-        {topics.map((topic) => (
-          <article
-            key={topic.topic}
-            className="rounded-lg border border-border bg-background/70 p-4"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h3 className="font-semibold">{topic.topic}</h3>
-              <AccountTag account={topic.account} />
-            </div>
-            <p className="mt-3 text-sm font-medium">{topic.result}</p>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              {topic.repeat}
-            </p>
-          </article>
-        ))}
-      </div>
-    </Card>
+    <DataTable
+      title="Winning topics"
+      description="Patterns worth repeating across the next content cycle."
+      rows={topics}
+      getRowKey={(topic) => `${topic.topic}-${topic.account}`}
+      minWidth="640px"
+      emptyMessage="No winning topics logged yet."
+      columns={[
+        {
+          key: "topic",
+          header: "Topic",
+          render: (topic) => <span className="font-semibold">{topic.topic}</span>,
+        },
+        {
+          key: "account",
+          header: "Account",
+          render: (topic) => <AccountTag account={topic.account} />,
+        },
+        {
+          key: "result",
+          header: "Result",
+          render: (topic) => topic.result,
+        },
+        {
+          key: "repeat",
+          header: "What to repeat",
+          render: (topic) => (
+            <span className="text-muted-foreground">{topic.repeat}</span>
+          ),
+        },
+      ]}
+    />
   );
 }
 
@@ -361,16 +472,106 @@ export function AssetsNeededPanel({ assets }: { assets: AssetNeed[] }) {
           </div>
         ))}
       </div>
+      <div className="mt-5">
+        <FileUploader
+          title="Stage reusable marketing assets"
+          description="Drop student work photos, process images, B-roll, post covers, or caption drafts here for local planning. This does not upload to Supabase yet."
+        />
+      </div>
     </Card>
   );
 }
 
-function IdeaCard({ idea }: { idea: ContentIdea }) {
+function MarketingChartsPanel({ posts }: { posts: PerformancePost[] }) {
+  const totals = posts.reduce(
+    (current, post) => ({
+      views: current.views + parseMetric(post.views),
+      saves: current.saves + parseMetric(post.saves),
+      comments: current.comments + parseMetric(post.comments),
+      follows: current.follows + parseMetric(post.followsGained),
+      inquiries: current.inquiries + parseMetric(post.inquiries),
+      booked: current.booked + parseMetric(post.consultationsBooked),
+    }),
+    { views: 0, saves: 0, comments: 0, follows: 0, inquiries: 0, booked: 0 },
+  );
+
+  return (
+    <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+      <Card>
+        <SectionHeading
+          title="Performance snapshot"
+          description="Simple aggregate view until live analytics are connected."
+        />
+        <div className="mt-5">
+          <MiniBarChart
+            data={[
+              { label: "Views", value: totals.views, tone: "info" },
+              { label: "Saves", value: totals.saves, tone: "success" },
+              { label: "Comments", value: totals.comments, tone: "warning" },
+              { label: "Follows", value: totals.follows, tone: "neutral" },
+              { label: "DMs", value: totals.inquiries, tone: "info" },
+              { label: "Booked", value: totals.booked, tone: "success" },
+            ]}
+            valueFormatter={(value) => value.toLocaleString()}
+          />
+        </div>
+      </Card>
+      <Card>
+        <SectionHeading
+          title="Post learning trend"
+          description="A lightweight trend line based on views per reviewed post."
+        />
+        <div className="mt-5">
+          <MiniLineChart
+            data={posts.map((post) => ({
+              label: accountLabels[post.account],
+              value: parseMetric(post.views),
+            }))}
+          />
+        </div>
+      </Card>
+    </section>
+  );
+}
+
+function IdeaCard({
+  idea,
+  statuses,
+  disabled,
+  onEdit,
+  onDelete,
+  onStatusChange,
+}: {
+  idea: ContentIdea;
+  statuses: MarketingStatus[];
+  disabled: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+  onStatusChange: (status: MarketingStatus) => void;
+}) {
   return (
     <article className="rounded-lg border border-border bg-card p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <h4 className="text-sm font-semibold leading-5">{idea.title}</h4>
         <PriorityPill priority={idea.priority} />
+      </div>
+      <div className="mt-3 flex gap-1">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <Pencil className="size-4" aria-hidden="true" />
+          <span className="sr-only">Edit {idea.title}</span>
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-danger"
+        >
+          <Trash2 className="size-4" aria-hidden="true" />
+          <span className="sr-only">Delete {idea.title}</span>
+        </button>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <AccountTag account={idea.account} />
@@ -384,8 +585,178 @@ function IdeaCard({ idea }: { idea: ContentIdea }) {
         <DefinitionRow label="Format" value={idea.format} />
         <DefinitionRow label="CTA" value={idea.cta} />
         <DefinitionRow label="Deadline" value={idea.deadline} />
+        {idea.notes && <DefinitionRow label="Notes" value={idea.notes} />}
       </dl>
+      <select
+        className={`${fieldClass} mt-4 min-h-9 w-full py-1 text-xs`}
+        value={idea.status}
+        disabled={disabled}
+        onChange={(event) => onStatusChange(event.target.value as MarketingStatus)}
+      >
+        {statuses.map((status) => (
+          <option key={status} value={status}>
+            {status}
+          </option>
+        ))}
+      </select>
     </article>
+  );
+}
+
+function ContentIdeaForm({
+  idea,
+  statuses,
+  disabled,
+  onClose,
+  onSubmit,
+}: {
+  idea: ContentIdea | null;
+  statuses: MarketingStatus[];
+  disabled: boolean;
+  onClose: () => void;
+  onSubmit: (input: Omit<ContentIdea, "id">) => void;
+}) {
+  const [input, setInput] = useState<Omit<ContentIdea, "id">>(
+    idea
+      ? {
+          title: idea.title,
+          account: idea.account,
+          owner: idea.owner,
+          lane: idea.lane,
+          audience: idea.audience,
+          format: idea.format,
+          priority: idea.priority,
+          deadline: idea.deadline,
+          cta: idea.cta,
+          status: idea.status,
+          notes: idea.notes,
+        }
+      : {
+          title: "",
+          account: "ccad",
+          owner: "Team",
+          lane: "",
+          audience: "",
+          format: "",
+          priority: "Medium",
+          deadline: "",
+          cta: "",
+          status: "Idea Bank",
+          notes: "",
+        },
+  );
+
+  return (
+    <form
+      className="mt-5 rounded-lg border border-border bg-background/70 p-4"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit({ ...input, title: input.title.trim() });
+      }}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-sm font-semibold">
+            {idea ? "Edit content idea" : "New content idea"}
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Keep the owner, lane, CTA, and next workflow state clear.
+          </p>
+        </div>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={onClose}
+          className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <X className="size-4" aria-hidden="true" />
+          <span className="sr-only">Close content idea form</span>
+        </button>
+      </div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        <TextField label="Title" value={input.title} onChange={(title) => setInput((current) => ({ ...current, title }))} />
+        <SelectField label="Account" value={input.account} options={["ccad", "william", "alice", "mascot"]} onChange={(account) => setInput((current) => ({ ...current, account: account as ContentIdea["account"] }))} />
+        <SelectField label="Owner" value={input.owner} options={["William", "Alice", "Team", "Other"]} onChange={(owner) => setInput((current) => ({ ...current, owner: owner as ContentIdea["owner"] }))} />
+        <TextField label="Content lane" value={input.lane} onChange={(lane) => setInput((current) => ({ ...current, lane }))} />
+        <TextField label="Audience" value={input.audience} onChange={(audience) => setInput((current) => ({ ...current, audience }))} />
+        <TextField label="Format" value={input.format} onChange={(format) => setInput((current) => ({ ...current, format }))} />
+        <SelectField label="Priority" value={input.priority} options={["Low", "Medium", "High"]} onChange={(priority) => setInput((current) => ({ ...current, priority: priority as ContentIdea["priority"] }))} />
+        <TextField label="Deadline" type="date" value={input.deadline} onChange={(deadline) => setInput((current) => ({ ...current, deadline }))} />
+        <SelectField label="Status" value={input.status} options={statuses} onChange={(status) => setInput((current) => ({ ...current, status: status as MarketingStatus }))} />
+        <TextField label="CTA" value={input.cta} onChange={(cta) => setInput((current) => ({ ...current, cta }))} />
+        <label className="grid gap-2 text-sm font-medium lg:col-span-3">
+          Notes
+          <textarea
+            className={`${fieldClass} min-h-24 py-3`}
+            value={input.notes}
+            onChange={(event) =>
+              setInput((current) => ({ ...current, notes: event.target.value }))
+            }
+          />
+        </label>
+      </div>
+      <div className="mt-4 flex justify-end gap-2">
+        <Button type="button" variant="secondary" disabled={disabled} onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={disabled || !input.title.trim()}>
+          {idea ? "Save idea" : "Create idea"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function TextField({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-medium">
+      {label}
+      <input
+        type={type}
+        className={fieldClass}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-medium">
+      {label}
+      <select
+        className={fieldClass}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -478,4 +849,10 @@ function assetTone(status: AssetNeed["status"]) {
   }
 
   return "warning";
+}
+
+function parseMetric(value: string) {
+  const normalized = value.trim().toLowerCase();
+  const multiplier = normalized.endsWith("k") ? 1000 : 1;
+  return Number.parseFloat(normalized.replace("k", "")) * multiplier || 0;
 }

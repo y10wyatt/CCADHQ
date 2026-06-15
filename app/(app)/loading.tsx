@@ -1,15 +1,19 @@
-import { Card } from "@/shared/ui/card";
+import { CardSkeleton, SkeletonBlock } from "@/shared/ui/skeleton";
 
 export default function WorkspaceLoading() {
   return (
-    <div aria-label="Loading workspace" className="grid animate-pulse gap-5">
-      <div className="h-24 rounded-xl bg-muted" />
+    <div aria-label="Loading workspace" className="grid gap-5">
+      <div className="rounded-xl border border-border bg-card p-6">
+        <SkeletonBlock className="h-4 w-32" />
+        <SkeletonBlock className="mt-4 h-9 w-72 max-w-full" />
+        <SkeletonBlock className="mt-3 h-4 w-full max-w-xl" />
+      </div>
       <section className="grid gap-4 md:grid-cols-3">
         {[0, 1, 2].map((item) => (
-          <Card key={item} className="h-40 bg-muted/50" />
+          <CardSkeleton key={item} />
         ))}
       </section>
-      <Card className="h-72 bg-muted/50" />
+      <SkeletonBlock className="h-72 rounded-xl" />
     </div>
   );
 }

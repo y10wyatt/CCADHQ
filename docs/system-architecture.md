@@ -454,7 +454,7 @@ Phase 8 adds an ephemeral coworking-presence feature boundary:
 - `features/presence/application/` reads only the current member's active focus
   state needed to derive presence.
 - `features/presence/ui/` owns the workspace provider and replaceable accessible
-  presence panel consumed by Home and Focus Room.
+  presence panel consumed by Focus Room and Studio XP.
 - The provider subscribes once per workspace to
   `org:{organization_id}:presence`, updates only on meaningful state changes,
   and removes the channel on exit.
@@ -474,8 +474,8 @@ Phase 9 adds an optional visualization boundary over normalized presence:
   room placement.
 - `features/pixel-office/ui/` owns the room background, occupant rendering,
   empty states, and text equivalents.
-- `features/presence/ui/presence-workspace.tsx` owns the Home-only view toggle
-  between the default accessible status list and Pixel Office.
+- `features/presence/ui/presence-workspace.tsx` owns the view toggle between the
+  default accessible status list and Pixel Office.
 - Pixel Office receives `PresenceMember` view models through the existing
   provider and never creates a Supabase client or subscription.
 - Clicked Pixel Office coordinates are ephemeral presence fields, broadcast only
@@ -524,3 +524,33 @@ Phase 10 adds a small admin-only access-management boundary:
   XP and Character XP.
 - Database RPCs keep Character XP awards idempotent and source-backed alongside
   the existing Studio XP ledger.
+
+## 28. Students, Marketing, And Studio Notes Implementation
+
+Phase 28 adds the first scoped CCAD operating-system surfaces beyond Tasks and
+Finance:
+
+- `features/students/domain/` owns student and class-log view models, enums, and
+  display lists.
+- `features/students/application/` owns organization-scoped student loading and
+  validated server actions for student and class-log writes.
+- `features/students/ui/` owns the card workspace and student detail workspace.
+- `features/marketing/domain/` owns account identity, lane, calendar,
+  performance, asset, and idea view models.
+- `features/marketing/application/` owns organization-scoped idea loading and
+  validated server actions for content-idea writes.
+- `features/marketing/ui/` owns the planning dashboard and editable idea
+  pipeline.
+- `features/studio-notes/application/` owns organization-scoped note loading and
+  validated server actions for note writes.
+- `features/studio-notes/ui/` owns the reusable Home note wall, note cards, and
+  note form behavior.
+- The Dashboard composes Studio Notes as a Home section but does not own note
+  persistence rules.
+- The database migration creates organization-scoped tables for students, class
+  logs, marketing ideas, and studio notes with RLS and change-history triggers.
+
+This phase intentionally keeps Marketing account identity and performance
+learning as structured planning data while making the idea pipeline durable.
+Class-log photos and marketing files are represented by lightweight URL/local
+preview hooks until a Supabase Storage feature boundary is added.

@@ -23,6 +23,68 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-15 - Add Students, Marketing Ideas, and Studio Notes persistence
+
+### Scope
+
+- Added a Students workspace with student cards, create/edit/archive flows, and
+  student detail pages.
+- Added class logs for each student with create, edit, and delete behavior.
+- Connected Studio Notes on Home to Supabase-backed create/edit/delete/pin
+  actions and seeded the starter sticky notes.
+- Connected the Marketing idea pipeline to Supabase-backed create/edit/archive
+  actions while keeping the account identity board and planning reference data.
+- Added shared lightweight table, upload, chart, and skeleton UI helpers used by
+  the dashboard surfaces.
+
+### Decisions
+
+- Students, class logs, marketing ideas, and studio notes are organization
+  scoped and protected with organization-member RLS policies.
+- Studio Notes are casual internal messages, not task records; pinned notes sort
+  first and important notes get stronger visual treatment.
+- Marketing performance, account identity, and planning sections remain
+  structured dashboard reference data until a broader content system is needed.
+
+### Verification
+
+- TypeScript passed.
+- ESLint passed.
+- Vitest passed: 15 files, 55 tests.
+- Production build passed. Next.js still warns about multiple lockfiles.
+
+### Follow-ups
+
+- Apply `20260614090000_students_marketing_notes.sql` to Supabase before using
+  these persistent workflows in production.
+- Add Supabase Storage later for class-log photos and marketing asset files.
+
+## 2026-06-06 - Refine Finance, Tasks, Home, and Presence surfaces
+
+### Scope
+
+- Added a recurrence marker to finance entries and exposed it in the form and
+  ledger table.
+- Split completed tasks into a separate collapsible section.
+- Added actor context and show/hide behavior to Home recent activity.
+- Removed the duplicate Home Pixel Office/static presence surfaces and exposed
+  the presence workspace in Studio XP and Focus Room.
+
+### Decisions
+
+- Recurring finance entries are labels only for now; the app does not generate
+  future ledger rows automatically.
+- Completed tasks default out of the main task board/list to keep active work
+  easier to scan.
+- Pixel Office remains optional and attached to presence-focused contexts rather
+  than duplicated on Home.
+
+### Verification
+
+- TypeScript passed.
+- ESLint passed.
+- Vitest passed: 15 files, 55 tests.
+
 ## 2026-06-06 - Brighten CCAD HQ interface theme
 
 ### Scope

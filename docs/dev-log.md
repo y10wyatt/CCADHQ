@@ -15,6 +15,54 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-15 02:10 PDT - Add Students, Marketing Ideas, and Studio Notes persistence
+
+- Goal: Turn the scoped CCADHQ operating-system pieces into practical
+  Supabase-backed workflows without expanding navigation beyond Students,
+  Marketing, and Home Studio Notes.
+- Files changed: `app/(app)/students/**`, `app/(app)/marketing/page.tsx`,
+  `app/(app)/page.tsx`, `features/students/**`, `features/marketing/**`,
+  `features/studio-notes/**`, `features/dashboard/ui/dashboard-overview.tsx`,
+  `shared/config/navigation.ts`, `shared/ui/app-shell.tsx`,
+  `shared/database/database.types.ts`, `shared/ui/data-table.tsx`,
+  `shared/ui/file-uploader.tsx`, `shared/ui/mini-chart.tsx`,
+  `shared/ui/skeleton.tsx`,
+  `supabase/migrations/20260614090000_students_marketing_notes.sql`,
+  `docs/build-log.md`, `docs/dev-log.md`, `docs/product-spec.md`,
+  `docs/database-schema.md`, `docs/system-architecture.md`,
+  `docs/ui-guidelines.md`.
+- What works: Students can be created, edited, archived, opened in a detail
+  page, and given class logs; Marketing ideas can be added, edited, archived,
+  and moved through the pipeline; Studio Notes on Home can be created, edited,
+  deleted, pinned, and visually marked important.
+- Known issues: The Supabase migration could not be applied from this session
+  because the connector returned a permission error; local browser verification
+  is blocked until real Supabase environment variables are available in
+  `.env.local`.
+- Next recommended step: Apply the migration in Supabase, then verify the
+  Students page, Marketing idea pipeline, and Home Studio Notes with a signed-in
+  staff account.
+
+## 2026-06-06 18:06 PDT - Refine Finance, Tasks, Home, and Presence surfaces
+
+- Goal: Add recurring finance labels, collapse completed tasks, improve Home
+  activity visibility, and remove duplicate Home Pixel Office/presence surfaces.
+- Files changed: `features/finance/**`, `features/tasks/ui/tasks-workspace.tsx`,
+  `features/dashboard/**`, `features/studio-xp/ui/studio-xp-overview.tsx`,
+  `features/focus/ui/focus-room-client.tsx`, `shared/database/database.types.ts`,
+  `supabase/migrations/20260607004000_finance_recurring_entries.sql`,
+  `docs/product-spec.md`, `docs/database-schema.md`,
+  `docs/system-architecture.md`, `docs/ui-guidelines.md`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Finance entries can be marked one-time, weekly, monthly, or
+  yearly; completed tasks are grouped behind a show/hide control; Home recent
+  activity names the actor and can be collapsed; Pixel Office is available in
+  Studio XP and Focus Room presence contexts.
+- Known issues: Recurring finance entries do not auto-create future ledger rows;
+  this is intentional for the current implementation.
+- Next recommended step: Apply the new Supabase migration before deploying code
+  that writes finance recurrence.
+
 ## 2026-06-06 17:36 PDT - Brighten CCAD HQ interface theme
 
 - Goal: Make the UI colors lighter and brighter using the provided dashboard

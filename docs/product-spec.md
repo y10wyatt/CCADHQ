@@ -91,8 +91,7 @@ Required sections:
 - Studio XP level and progress to next level
 - Studio stat and weekly quest highlights when implemented
 - Current-month income, expenses, and net summary
-- Compact current focus and presence summary
-- Recent activity summary
+- Recent activity summary with actor context and a show/hide control
 
 Acceptance criteria:
 
@@ -245,6 +244,8 @@ Required behavior:
 - Filter by status, priority, assignee, and due state.
 - Use a Kanban board as the primary view and provide a list/table alternate
   view.
+- Keep completed tasks in a separate collapsible section so active work remains
+  easy to scan.
 - Staff can edit and archive tasks created by other staff.
 - Completing a task awards Studio XP once and may award Character XP to the
   completing user.
@@ -284,6 +285,7 @@ Required fields:
 - Category
 - Description
 - Optional note
+- Optional recurrence marker: one-time, weekly, monthly, or yearly
 - Creator and timestamps
 
 Required behavior:
@@ -291,6 +293,8 @@ Required behavior:
 - Create, edit, archive, and review manual entries.
 - Show monthly income, expenses, and net total.
 - Filter by month, type, and category.
+- Mark manual entries as recurring without automatically generating future
+  ledger rows.
 - Display currency consistently.
 - Require confirmation before archiving an entry.
 - Preserve the recorded category name when category configuration later changes.
@@ -299,7 +303,105 @@ Finance entries do not award XP in the current implementation. Future Studio XP
 rules may award XP for meaningful finance updates, but should avoid encouraging
 artificial financial activity.
 
-### 6.9 Realtime Presence
+### 6.9 Students
+
+Students is the operational record for current mentorship relationships and
+portfolio coaching context.
+
+Required fields:
+
+- Student name
+- Grade
+- Program
+- Status: Active, Trial, Paused, or Completed
+- Main goal
+- Current focus
+- Next action
+- Optional next and last class dates
+- Follow-up-needed flag
+- Permission-to-post state
+- Notes, strengths, support needs, application targets, parent notes, and
+  payment notes
+
+Required behavior:
+
+- Show students as scannable cards with status, program, focus, and next action.
+- Create, edit, and archive students.
+- Open a student detail page for deeper context.
+- Keep archived students out of the default active workspace.
+- Avoid turning student records into public portfolio pages; this is internal
+  studio context.
+
+### 6.10 Class Logs
+
+Class logs are session notes attached to a student.
+
+Required fields:
+
+- Log date
+- Teacher
+- Duration
+- Worked-on summary
+- Feedback given
+- Homework assigned
+- Materials needed
+- Parent-update-sent flag
+- Next class focus
+- Optional image URL
+
+Required behavior:
+
+- Create, edit, and delete logs from the student detail page.
+- Show the newest logs first.
+- Keep parent-update state easy to scan.
+- Treat image URL as a future storage hook until Supabase Storage is added.
+
+### 6.11 Marketing
+
+Marketing is a lightweight internal content-planning workspace for CCAD, William,
+Alice, and Mascot accounts.
+
+Required content:
+
+- Account identity board
+- Content lane matrix
+- Idea pipeline
+- Weekly content calendar
+- Performance learning, winning topics, and asset needs
+
+Required behavior:
+
+- Create, edit, archive, and move content ideas through the pipeline.
+- Track account, owner, lane, audience, format, priority, deadline, CTA, status,
+  and notes for each idea.
+- Keep account identity and planning reference data calm and editorial rather
+  than generic social-media software.
+- Treat performance and asset sections as structured planning context until a
+  deeper analytics/storage system is needed.
+
+### 6.12 Studio Notes
+
+Studio Notes is a casual internal message wall for William, Alice, and Team.
+
+Required fields:
+
+- Note text
+- Author
+- Category
+- Priority
+- Pinned state
+- Created date
+
+Required behavior:
+
+- Show notes on Home in a sticky-note-inspired grid.
+- Create, edit, delete, and pin notes.
+- Sort pinned notes first.
+- Visually distinguish important notes with a restrained CCAD accent.
+- Show an empty state when there are no active notes.
+- Keep the tone casual and internal; Studio Notes are not task assignments.
+
+### 6.13 Realtime Presence
 
 Realtime presence communicates availability and focus state, not productivity
 measurement.
@@ -315,7 +417,7 @@ Required statuses:
 Presence is ephemeral and must not become a historical attendance log. Details
 are defined in `realtime-presence.md`.
 
-### 6.10 Weekly Quests
+### 6.14 Weekly Quests
 
 Weekly quests create shared direction for the studio.
 
@@ -329,7 +431,7 @@ Required behavior:
   visualization.
 - Do not use quests to rank staff.
 
-### 6.11 Pixel Office
+### 6.15 Pixel Office
 
 Pixel office is a lightweight visual representation of active staff and their
 current status.
@@ -468,8 +570,8 @@ These are product signals, not employee performance metrics.
 
 Implemented:
 
-- Home keeps the accessible coworking status list as the default view and
-  offers Pixel Office as an optional alternate view.
+- Focus Room and Studio XP expose the accessible presence list and optional
+  Pixel Office view.
 - Pixel Office consumes normalized `PresenceMember` records and never
   subscribes to Supabase directly.
 - Online, focusing, break, and away states map to separate visual room zones.

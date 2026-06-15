@@ -35,6 +35,38 @@ export type StudioStatKey =
   | "creativity"
   | "community";
 export type FinanceEntryType = "income" | "expense";
+export type FinanceRecurrence = "none" | "weekly" | "monthly" | "yearly";
+export type StudentProgram =
+  | "Portfolio"
+  | "AP Drawing"
+  | "Animation"
+  | "Trial"
+  | "Other";
+export type StudentStatus = "Active" | "Trial" | "Paused" | "Completed";
+export type PermissionToPost = "Yes" | "No" | "Pending";
+export type ClassLogTeacher = "William" | "Alice" | "Gerald" | "Other";
+export type MarketingAccount = "CCAD" | "William" | "Alice" | "Mascot";
+export type MarketingOwner = "William" | "Alice" | "Team" | "Other";
+export type MarketingPriority = "Low" | "Medium" | "High";
+export type MarketingStatus =
+  | "Idea Bank"
+  | "Selected This Week"
+  | "Script Needed"
+  | "Ready to Film"
+  | "Editing"
+  | "Scheduled"
+  | "Posted"
+  | "Review Performance";
+export type StudioNoteAuthor = "William" | "Alice" | "Team";
+export type StudioNoteCategory =
+  | "Reminder"
+  | "Content Idea"
+  | "Student Follow-up"
+  | "Admin"
+  | "Website"
+  | "Marketing"
+  | "Random";
+export type StudioNotePriority = "Normal" | "Important";
 export type FocusMode = "pomodoro" | "freeform";
 export type FocusKind = "focus" | "short_break" | "long_break";
 export type FocusState = "running" | "paused" | "completed" | "cancelled";
@@ -357,6 +389,7 @@ export interface Database {
           category_name: string;
           description: string;
           note: string | null;
+          recurrence: FinanceRecurrence;
           created_by_member_id: string;
           archived_at: string | null;
           created_at: string;
@@ -373,6 +406,7 @@ export interface Database {
           category_name: string;
           description: string;
           note?: string | null;
+          recurrence?: FinanceRecurrence;
           created_by_member_id: string;
           archived_at?: string | null;
           created_at?: string;
@@ -381,6 +415,174 @@ export interface Database {
         Update: Partial<
           Database["public"]["Tables"]["finance_entries"]["Insert"]
         >;
+        Relationships: [];
+      };
+      students: {
+        Row: {
+          id: string;
+          organization_id: string;
+          name: string;
+          grade: string;
+          program: StudentProgram;
+          status: StudentStatus;
+          main_goal: string;
+          current_focus: string;
+          next_action: string;
+          next_class_date: string | null;
+          last_class_date: string | null;
+          follow_up_needed: boolean;
+          permission_to_post: PermissionToPost;
+          notes: string;
+          strengths: string[];
+          needs_support: string[];
+          application_targets: string[];
+          parent_notes: string;
+          payment_notes: string;
+          archived_at: string | null;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          name: string;
+          grade?: string;
+          program?: StudentProgram;
+          status?: StudentStatus;
+          main_goal?: string;
+          current_focus?: string;
+          next_action?: string;
+          next_class_date?: string | null;
+          last_class_date?: string | null;
+          follow_up_needed?: boolean;
+          permission_to_post?: PermissionToPost;
+          notes?: string;
+          strengths?: string[];
+          needs_support?: string[];
+          application_targets?: string[];
+          parent_notes?: string;
+          payment_notes?: string;
+          archived_at?: string | null;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["students"]["Insert"]>;
+        Relationships: [];
+      };
+      class_logs: {
+        Row: {
+          id: string;
+          organization_id: string;
+          student_id: string;
+          log_date: string;
+          teacher: ClassLogTeacher;
+          duration: string;
+          worked_on: string;
+          feedback_given: string;
+          homework_assigned: string;
+          materials_needed: string;
+          parent_update_sent: boolean;
+          next_class_focus: string;
+          image_url: string | null;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          student_id: string;
+          log_date?: string;
+          teacher?: ClassLogTeacher;
+          duration?: string;
+          worked_on?: string;
+          feedback_given?: string;
+          homework_assigned?: string;
+          materials_needed?: string;
+          parent_update_sent?: boolean;
+          next_class_focus?: string;
+          image_url?: string | null;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["class_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      marketing_content_ideas: {
+        Row: {
+          id: string;
+          organization_id: string;
+          title: string;
+          account: MarketingAccount;
+          owner: MarketingOwner;
+          content_lane: string;
+          audience: string;
+          format: string;
+          priority: MarketingPriority;
+          deadline: string | null;
+          cta: string;
+          status: MarketingStatus;
+          notes: string;
+          archived_at: string | null;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          title: string;
+          account?: MarketingAccount;
+          owner?: MarketingOwner;
+          content_lane?: string;
+          audience?: string;
+          format?: string;
+          priority?: MarketingPriority;
+          deadline?: string | null;
+          cta?: string;
+          status?: MarketingStatus;
+          notes?: string;
+          archived_at?: string | null;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["marketing_content_ideas"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      studio_notes: {
+        Row: {
+          id: string;
+          organization_id: string;
+          note_text: string;
+          author: StudioNoteAuthor;
+          category: StudioNoteCategory;
+          priority: StudioNotePriority;
+          pinned: boolean;
+          archived_at: string | null;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          note_text: string;
+          author?: StudioNoteAuthor;
+          category?: StudioNoteCategory;
+          priority?: StudioNotePriority;
+          pinned?: boolean;
+          archived_at?: string | null;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["studio_notes"]["Insert"]>;
         Relationships: [];
       };
       focus_sessions: {
@@ -644,6 +846,7 @@ export interface Database {
           finance_category_id: string;
           finance_description: string;
           finance_note?: string | null;
+          finance_recurrence?: FinanceRecurrence;
         };
         Returns: string;
       };
@@ -656,6 +859,7 @@ export interface Database {
           finance_category_id: string;
           finance_description: string;
           finance_note?: string | null;
+          finance_recurrence?: FinanceRecurrence;
         };
         Returns: undefined;
       };
@@ -695,6 +899,7 @@ export interface Database {
       weekly_quest_status: WeeklyQuestStatus;
       studio_stat_key: StudioStatKey;
       finance_entry_type: FinanceEntryType;
+      finance_recurrence: FinanceRecurrence;
       focus_mode: FocusMode;
       focus_kind: FocusKind;
       focus_state: FocusState;

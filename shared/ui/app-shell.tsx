@@ -11,6 +11,7 @@ import {
   Megaphone,
   Timer,
   UserCog,
+  Users,
 } from "lucide-react";
 
 import { signOut } from "@/features/auth/application/actions";
@@ -29,6 +30,7 @@ const icons = {
   home: Home,
   focus: Timer,
   tasks: ClipboardList,
+  students: Users,
   finance: CircleDollarSign,
   marketing: Megaphone,
 } satisfies Record<NavigationItem["icon"], typeof Home>;
@@ -113,7 +115,7 @@ export function AppShell({
 
         <nav
           aria-label="Primary navigation"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card/95 p-2 backdrop-blur lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t border-border bg-card/95 p-2 backdrop-blur lg:hidden"
         >
           {navigationItems.map((item) => (
             <NavigationLink

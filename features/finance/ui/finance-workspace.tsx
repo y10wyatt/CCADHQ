@@ -5,6 +5,7 @@ import {
   Check,
   Pencil,
   Plus,
+  Search,
   X,
 } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
@@ -20,14 +21,20 @@ import {
   formatCurrency,
   formatEntryDate,
   formatMonthLabel,
+  formatRecurrence,
   parseAmountToMinor,
   summarizeFinance,
   type FinanceEntryView,
   type FinanceViewModel,
 } from "@/features/finance/domain/finance";
-import type { FinanceEntryType } from "@/shared/database/database.types";
+import type {
+  FinanceEntryType,
+  FinanceRecurrence,
+} from "@/shared/database/database.types";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
+import { DataTable } from "@/shared/ui/data-table";
+import { MiniBarChart } from "@/shared/ui/mini-chart";
 import { StatusPill } from "@/shared/ui/status-pill";
 
 const fieldClass =
@@ -42,6 +49,7 @@ export function FinanceWorkspace({ finance }: { finance: FinanceViewModel }) {
   const [monthFilter, setMonthFilter] = useState(finance.currentMonth);
   const [typeFilter, setTypeFilter] = useState<FinanceEntryType | "all">("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const months = useMemo(
     () =>
@@ -63,9 +71,10 @@ export function FinanceWorkspace({ finance }: { finance: FinanceViewModel }) {
       monthEntries.filter(
         (entry) =>
           (typeFilter === "all" || entry.entryType === typeFilter) &&
-          (categoryFilter === "all" || entry.categoryId === categoryFilter),
+          (categoryFilter === "all" || entry.categoryId === categoryFilter) &&
+          matchesFinanceSearch(entry, searchQuery),
       ),
-    [categoryFilter, monthEntries, typeFilter],
+    [categoryFilter, monthEntries, searchQuery, typeFilter],
   );
   const summary = summarizeFinance(monthEntries);
   const monthLabel = formatMonthLabel(monthFilter, finance.timezone);
@@ -149,7 +158,19 @@ export function FinanceWorkspace({ finance }: { finance: FinanceViewModel }) {
             Add entry
           </Button>
         </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <label className="mt-5 grid gap-2 text-xs font-medium text-muted-foreground">
+          Search
+          <span className="flex min-h-11 items-center gap-2 rounded-md border border-border bg-background px-3 text-sm text-foreground">
+            <Search className="size-4 text-muted-foreground" aria-hidden="true" />
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search description, note, category, or owner"
+              className="min-h-10 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+            />
+          </span>
+        </label>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <FilterSelect
             label="Month"
             value={monthFilter}
@@ -262,7 +283,6 @@ function MonthlyComparison({
   currencyCode: string;
   monthLabel: string;
 }) {
-  const maximum = Math.max(incomeMinor, expenseMinor, 1);
   return (
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -275,44 +295,15 @@ function MonthlyComparison({
         <StatusPill tone="neutral">Internal visibility</StatusPill>
       </div>
       <div className="mt-6 grid gap-5">
-        <ComparisonBar
-          label="Income"
-          value={formatCurrency(incomeMinor, currencyCode)}
-          width={(incomeMinor / maximum) * 100}
-          tone="bg-success"
-        />
-        <ComparisonBar
-          label="Expenses"
-          value={formatCurrency(expenseMinor, currencyCode)}
-          width={(expenseMinor / maximum) * 100}
-          tone="bg-warning"
+        <MiniBarChart
+          data={[
+            { label: "Income", value: incomeMinor, tone: "success" },
+            { label: "Expenses", value: expenseMinor, tone: "warning" },
+          ]}
+          valueFormatter={(value) => formatCurrency(value, currencyCode)}
         />
       </div>
     </Card>
-  );
-}
-
-function ComparisonBar({
-  label,
-  value,
-  width,
-  tone,
-}: {
-  label: string;
-  value: string;
-  width: number;
-  tone: string;
-}) {
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-        <span className="font-medium">{label}</span>
-        <span className="font-mono text-muted-foreground">{value}</span>
-      </div>
-      <div className="h-3 overflow-hidden rounded-full bg-muted">
-        <div className={`h-full rounded-full ${tone}`} style={{ width: `${width}%` }} />
-      </div>
-    </div>
   );
 }
 
@@ -330,84 +321,98 @@ function LedgerTable({
   onArchive: (entry: FinanceEntryView) => void;
 }) {
   return (
-    <Card className="overflow-x-auto p-0">
-      <div className="border-b border-border px-6 py-5">
-        <h2 className="font-semibold">Ledger entries</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {entries.length} matching {entries.length === 1 ? "entry" : "entries"}
-        </p>
-      </div>
-      <table className="w-full min-w-[900px] text-left text-sm">
-        <thead className="border-b border-border bg-muted/30 text-xs text-muted-foreground">
-          <tr>
-            <th className="px-5 py-4 font-medium">Date</th>
-            <th className="px-5 py-4 font-medium">Description</th>
-            <th className="px-5 py-4 font-medium">Category</th>
-            <th className="px-5 py-4 font-medium">Recorded by</th>
-            <th className="px-5 py-4 text-right font-medium">Amount</th>
-            <th className="px-5 py-4 font-medium">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {entries.map((entry) => (
-            <tr key={entry.id}>
-              <td className="whitespace-nowrap px-5 py-4">
-                {formatEntryDate(entry.entryDate, timezone)}
-              </td>
-              <td className="max-w-sm px-5 py-4">
+    <DataTable
+      title="Ledger entries"
+      description={`${entries.length} matching ${entries.length === 1 ? "entry" : "entries"}`}
+      rows={entries}
+      getRowKey={(entry) => entry.id}
+      emptyMessage="No finance entries match these filters."
+      columns={[
+        {
+          key: "date",
+          header: "Date",
+          className: "whitespace-nowrap",
+          render: (entry) => formatEntryDate(entry.entryDate, timezone),
+        },
+        {
+          key: "description",
+          header: "Description",
+          className: "max-w-sm",
+          render: (entry) => (
+            <>
                 <p className="font-medium">{entry.description}</p>
                 {entry.note && (
                   <p className="mt-1 truncate text-xs text-muted-foreground">
                     {entry.note}
                   </p>
                 )}
-              </td>
-              <td className="px-5 py-4">{entry.categoryName}</td>
-              <td className="px-5 py-4">{entry.creatorName}</td>
-              <td
-                className={`whitespace-nowrap px-5 py-4 text-right font-mono font-semibold ${
-                  entry.entryType === "income" ? "text-success" : "text-warning"
-                }`}
-              >
-                {entry.entryType === "income" ? "+" : "-"}
-                {formatCurrency(entry.amountMinor, entry.currencyCode)}
-              </td>
-              <td className="px-5 py-4">
-                {entry.canManage ? (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={disabled}
-                      onClick={() => onEdit(entry)}
-                    >
-                      <Pencil aria-hidden="true" />
-                      Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={disabled}
-                      onClick={() => onArchive(entry)}
-                    >
-                      <Archive aria-hidden="true" />
-                      Archive
-                    </Button>
-                  </div>
-                ) : (
-                  <span className="text-xs text-muted-foreground">View only</span>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {entries.length === 0 && (
-        <p className="p-6 text-sm text-muted-foreground">
-          No finance entries match these filters.
-        </p>
-      )}
-    </Card>
+            </>
+          ),
+        },
+        {
+          key: "category",
+          header: "Category",
+          render: (entry) => entry.categoryName,
+        },
+        {
+          key: "recurrence",
+          header: "Repeats",
+          render: (entry) => (
+            <StatusPill tone={entry.recurrence === "none" ? "neutral" : "info"}>
+              {formatRecurrence(entry.recurrence)}
+            </StatusPill>
+          ),
+        },
+        {
+          key: "creator",
+          header: "Recorded by",
+          render: (entry) => entry.creatorName,
+        },
+        {
+          key: "amount",
+          header: "Amount",
+          align: "right",
+          className: "whitespace-nowrap font-mono font-semibold",
+          render: (entry) => (
+            <span
+              className={entry.entryType === "income" ? "text-success" : "text-warning"}
+            >
+              {entry.entryType === "income" ? "+" : "-"}
+              {formatCurrency(entry.amountMinor, entry.currencyCode)}
+            </span>
+          ),
+        },
+        {
+          key: "actions",
+          header: "Actions",
+          render: (entry) =>
+            entry.canManage ? (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={disabled}
+                  onClick={() => onEdit(entry)}
+                >
+                  <Pencil aria-hidden="true" />
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={disabled}
+                  onClick={() => onArchive(entry)}
+                >
+                  <Archive aria-hidden="true" />
+                  Archive
+                </Button>
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground">View only</span>
+            ),
+        },
+      ]}
+    />
   );
 }
 
@@ -429,6 +434,7 @@ function FinanceEntryForm({
     categoryId: string;
     description: string;
     note: string | null;
+    recurrence: FinanceRecurrence;
   }) => void;
 }) {
   const initialType = entry?.entryType ?? "expense";
@@ -449,6 +455,9 @@ function FinanceEntryForm({
   );
   const [description, setDescription] = useState(entry?.description ?? "");
   const [note, setNote] = useState(entry?.note ?? "");
+  const [recurrence, setRecurrence] = useState<FinanceRecurrence>(
+    entry?.recurrence ?? "none",
+  );
   const [amountError, setAmountError] = useState<string | null>(null);
   const categories = finance.categories.filter(
     (category) => category.entryType === entryType,
@@ -494,6 +503,7 @@ function FinanceEntryForm({
             categoryId,
             description,
             note: note.trim() || null,
+            recurrence,
           });
         }}
       >
@@ -532,6 +542,24 @@ function FinanceEntryForm({
             value={entryDate}
             onChange={(event) => setEntryDate(event.target.value)}
           />
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          Repeats
+          <select
+            className={fieldClass}
+            value={recurrence}
+            onChange={(event) =>
+              setRecurrence(event.target.value as FinanceRecurrence)
+            }
+          >
+            <option value="none">One-time</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+          <span className="text-xs font-normal text-muted-foreground">
+            Marks the entry as recurring; future entries are still recorded manually.
+          </span>
         </label>
         <label className="grid gap-2 text-sm font-medium">
           Category
@@ -614,4 +642,22 @@ function FilterSelect({
 
 function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function matchesFinanceSearch(entry: FinanceEntryView, query: string) {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return [
+    entry.description,
+    entry.note ?? "",
+    entry.categoryName,
+    entry.creatorName,
+    formatRecurrence(entry.recurrence),
+  ]
+    .join(" ")
+    .toLowerCase()
+    .includes(normalizedQuery);
 }

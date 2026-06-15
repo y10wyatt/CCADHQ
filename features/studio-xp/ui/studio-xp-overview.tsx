@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { createStudioXpCorrection } from "@/features/studio-xp/application/actions";
 import type { StudioXpViewModel } from "@/features/studio-xp/domain/studio-xp";
+import { PresenceWorkspace } from "@/features/presence/ui/presence-workspace";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { StatusPill } from "@/shared/ui/status-pill";
@@ -110,6 +111,18 @@ export function StudioXpOverview({ studio }: { studio: StudioXpViewModel }) {
             className="h-full rounded-full bg-accent"
             style={{ width: `${studio.progressPercent}%` }}
           />
+        </div>
+      </Card>
+
+      <Card>
+        <div>
+          <h2 className="text-lg font-semibold">Focus and presence</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Optional live studio context, including Pixel Office.
+          </p>
+        </div>
+        <div className="mt-5">
+          <PresenceWorkspace />
         </div>
       </Card>
 

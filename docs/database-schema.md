@@ -406,6 +406,7 @@ Constraints:
 | `category_name` | text | Historical category-name snapshot |
 | `description` | text | Required summary |
 | `note` | text nullable | Optional detail |
+| `recurrence` | enum | `none`, `weekly`, `monthly`, or `yearly` marker |
 | `created_by_member_id` | uuid | Creator attribution |
 | `archived_at` | timestamptz nullable | Soft archive |
 | `created_at` | timestamptz | Creation time |
@@ -417,12 +418,113 @@ Constraints:
 - Category entry type and organization match the entry
 - Creator belongs to the organization
 - Category name is retained when category configuration later changes
+- Recurrence is a marker only; future ledger rows are not generated
+  automatically.
 
 Recommended indexes:
 
 - `(organization_id, entry_date desc)` where not archived
 - `(organization_id, entry_type, entry_date)` where not archived
 - `(organization_id, category_id, entry_date)` where not archived
+
+### `students`
+
+Internal student records for active and archived mentorship relationships.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `name` | text | Required display name |
+| `grade` | text | Student grade or school stage |
+| `program` | enum | `Portfolio`, `AP Drawing`, `Animation`, `Trial`, or `Other` |
+| `status` | enum | `Active`, `Trial`, `Paused`, or `Completed` |
+| `main_goal` | text | High-level student goal |
+| `current_focus` | text | Current studio focus |
+| `next_action` | text | Next staff action |
+| `next_class_date` | date nullable | Upcoming class date |
+| `last_class_date` | date nullable | Most recent class date |
+| `follow_up_needed` | boolean | Whether staff should follow up |
+| `permission_to_post` | enum | `Yes`, `No`, or `Pending` |
+| `notes` | text | Internal notes |
+| `strengths` | text[] | Student strengths |
+| `needs_support` | text[] | Support areas |
+| `application_targets` | text[] | Target schools or programs |
+| `parent_notes` | text | Parent communication context |
+| `payment_notes` | text | Payment/package context |
+| `archived_at` | timestamptz nullable | Soft archive |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+### `class_logs`
+
+Session notes attached to a student.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `student_id` | uuid | References `students.id` |
+| `log_date` | date | Class/session date |
+| `teacher` | enum | `William`, `Alice`, `Gerald`, or `Other` |
+| `duration` | text | Human-readable class length |
+| `worked_on` | text | What happened in class |
+| `feedback_given` | text | Critique or guidance given |
+| `homework_assigned` | text | Homework or next work |
+| `materials_needed` | text | Materials or assets needed |
+| `parent_update_sent` | boolean | Whether parent update was sent |
+| `next_class_focus` | text | Next session focus |
+| `image_url` | text nullable | Future storage hook |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+### `marketing_content_ideas`
+
+Durable idea pipeline records for the Marketing workspace.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `title` | text | Required idea title |
+| `account` | enum | `CCAD`, `William`, `Alice`, or `Mascot` |
+| `owner` | enum | `William`, `Alice`, `Team`, or `Other` |
+| `content_lane` | text | Content category or lane |
+| `audience` | text | Intended audience |
+| `format` | text | Post format |
+| `priority` | enum | `Low`, `Medium`, or `High` |
+| `deadline` | date nullable | Optional deadline |
+| `cta` | text | Call to action |
+| `status` | enum | Pipeline status |
+| `notes` | text | Internal planning notes |
+| `archived_at` | timestamptz nullable | Soft archive |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+### `studio_notes`
+
+Casual internal notes shown on Home.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `note_text` | text | Required note body |
+| `author` | enum | `William`, `Alice`, or `Team` |
+| `category` | enum | `Reminder`, `Content Idea`, `Student Follow-up`, `Admin`, `Website`, `Marketing`, or `Random` |
+| `priority` | enum | `Normal` or `Important` |
+| `pinned` | boolean | Pinned notes sort first |
+| `archived_at` | timestamptz nullable | Soft archive/delete |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+All four tables use organization-member RLS policies, updated-at triggers, and
+change-history triggers. The migration seeds starter Studio Notes per existing
+organization when no notes already exist.
 
 ### `change_history`
 

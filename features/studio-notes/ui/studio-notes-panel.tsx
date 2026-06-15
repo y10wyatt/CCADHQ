@@ -1,10 +1,16 @@
 "use client";
 
 import { Pencil, Pin, Plus, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 
 import {
-  initialStudioNotes,
+  archiveStudioNote,
+  createStudioNote,
+  updateStudioNote,
+  type StudioNoteActionResult,
+} from "@/features/studio-notes/application/actions";
+import {
   sortStudioNotes,
   studioNoteAuthors,
   studioNoteCategories,
@@ -32,10 +38,12 @@ const emptyInput: StudioNoteFormInput = {
   pinned: false,
 };
 
-export function StudioNotesPanel() {
-  const [notes, setNotes] = useState<StudioNote[]>(initialStudioNotes);
+export function StudioNotesPanel({ notes }: { notes: StudioNote[] }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [formOpen, setFormOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<StudioNote | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const sortedNotes = useMemo(() => sortStudioNotes(notes), [notes]);
 
   function beginAdd() {
@@ -48,30 +56,26 @@ export function StudioNotesPanel() {
     setFormOpen(true);
   }
 
-  function saveNote(input: StudioNoteFormInput) {
-    if (editingNote) {
-      setNotes((current) =>
-        current.map((note) =>
-          note.id === editingNote.id ? { ...note, ...input } : note,
-        ),
-      );
-    } else {
-      setNotes((current) => [
-        {
-          ...input,
-          id: `studio-note-${Date.now()}`,
-          createdAt: new Date().toISOString().slice(0, 10),
-        },
-        ...current,
-      ]);
-    }
-
-    setFormOpen(false);
-    setEditingNote(null);
+  function runAction(
+    action: () => Promise<StudioNoteActionResult>,
+    successMessage: string,
+  ) {
+    startTransition(async () => {
+      setMessage(null);
+      const result = await action();
+      if (!result.ok) {
+        setMessage(result.error ?? "Unable to update Studio Notes.");
+        return;
+      }
+      setMessage(successMessage);
+      setFormOpen(false);
+      setEditingNote(null);
+      router.refresh();
+    });
   }
 
   function deleteNote(noteId: string) {
-    setNotes((current) => current.filter((note) => note.id !== noteId));
+    runAction(() => archiveStudioNote(noteId), "Studio note deleted.");
   }
 
   return (
@@ -93,14 +97,29 @@ export function StudioNotesPanel() {
         </Button>
       </div>
 
+      {message && (
+        <p className="mt-5 rounded-lg border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent">
+          {message}
+        </p>
+      )}
+
       {formOpen && (
         <StudioNoteForm
           note={editingNote}
+          disabled={isPending}
           onCancel={() => {
             setFormOpen(false);
             setEditingNote(null);
           }}
-          onSubmit={saveNote}
+          onSubmit={(input) =>
+            runAction(
+              () =>
+                editingNote
+                  ? updateStudioNote({ noteId: editingNote.id, ...input })
+                  : createStudioNote(input),
+              editingNote ? "Studio note updated." : "Studio note added.",
+            )
+          }
         />
       )}
 
@@ -200,10 +219,12 @@ export function StudioNoteForm({
   note,
   onCancel,
   onSubmit,
+  disabled,
 }: {
   note: StudioNote | null;
   onCancel: () => void;
   onSubmit: (input: StudioNoteFormInput) => void;
+  disabled: boolean;
 }) {
   const [input, setInput] = useState<StudioNoteFormInput>(
     note
@@ -245,6 +266,7 @@ export function StudioNoteForm({
         <button
           type="button"
           onClick={onCancel}
+          disabled={disabled}
           title="Close form"
           className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
@@ -318,10 +340,12 @@ export function StudioNoteForm({
           Pin note
         </label>
         <div className="flex gap-2">
-          <Button type="button" variant="secondary" onClick={onCancel}>
+          <Button type="button" variant="secondary" disabled={disabled} onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">{note ? "Save note" : "Add note"}</Button>
+          <Button type="submit" disabled={disabled}>
+            {note ? "Save note" : "Add note"}
+          </Button>
         </div>
       </div>
     </form>

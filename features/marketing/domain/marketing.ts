@@ -1,3 +1,5 @@
+import type { MarketingOwner } from "@/shared/database/database.types";
+
 export type MarketingAccountId = "ccad" | "william" | "alice" | "mascot";
 
 export type MarketingStatus =
@@ -27,9 +29,10 @@ export interface ContentLaneRow {
 }
 
 export interface ContentIdea {
+  id: string;
   title: string;
   account: MarketingAccountId;
-  owner: string;
+  owner: MarketingOwner;
   lane: string;
   audience: string;
   format: string;
@@ -37,6 +40,7 @@ export interface ContentIdea {
   deadline: string;
   cta: string;
   status: MarketingStatus;
+  notes: string;
 }
 
 export interface WeeklyScheduleRow {
@@ -233,6 +237,7 @@ export const marketingDashboardData: MarketingDashboardData = {
   ],
   ideas: [
     {
+      id: "sample-portfolio-collection",
       title: "作品集不是作品合集",
       account: "ccad",
       owner: "William",
@@ -243,8 +248,10 @@ export const marketingDashboardData: MarketingDashboardData = {
       status: "Script Needed",
       priority: "High",
       deadline: "This week",
+      notes: "",
     },
     {
+      id: "sample-teacher-day",
       title: "一个艺术老师的一天",
       account: "william",
       owner: "William",
@@ -255,8 +262,10 @@ export const marketingDashboardData: MarketingDashboardData = {
       status: "Idea Bank",
       priority: "Medium",
       deadline: "Open",
+      notes: "",
     },
     {
+      id: "sample-beginner-faq",
       title: "孩子没有基础可以准备作品集吗？",
       account: "alice",
       owner: "Alice",
@@ -267,8 +276,10 @@ export const marketingDashboardData: MarketingDashboardData = {
       status: "Selected This Week",
       priority: "High",
       deadline: "Thursday",
+      notes: "",
     },
     {
+      id: "sample-red-flag",
       title: "Portfolio Red Flag: 只有好看的图",
       account: "mascot",
       owner: "William",
@@ -279,6 +290,7 @@ export const marketingDashboardData: MarketingDashboardData = {
       status: "Idea Bank",
       priority: "Medium",
       deadline: "Open",
+      notes: "",
     },
   ],
   weeklySchedule: [

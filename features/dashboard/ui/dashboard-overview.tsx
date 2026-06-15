@@ -1,9 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Clock3, Sparkles, UsersRound } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronRight, Sparkles } from "lucide-react";
+import { useState } from "react";
 
-import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
-import { PresenceWorkspace } from "@/features/presence/ui/presence-workspace";
+import type {
+  DashboardActivity,
+  DashboardViewModel,
+} from "@/features/dashboard/domain/dashboard-view-model";
+import type { StudioNote } from "@/features/studio-notes/domain/studio-notes";
 import { StudioNotesPanel } from "@/features/studio-notes/ui/studio-notes-panel";
 import { WeeklyQuestsPanel } from "@/features/weekly-quests/ui/weekly-quests-panel";
 import { cn } from "@/shared/lib/cn";
@@ -12,9 +18,12 @@ import { StatusPill } from "@/shared/ui/status-pill";
 
 interface DashboardOverviewProps {
   dashboard: DashboardViewModel;
+  studioNotes: StudioNote[];
 }
 
-export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
+export function DashboardOverview({ dashboard, studioNotes }: DashboardOverviewProps) {
+  const [showActivity, setShowActivity] = useState(true);
+
   return (
     <div className="grid gap-5">
       <section
@@ -47,74 +56,9 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
         ))}
       </section>
 
-      <StudioNotesPanel />
+      <StudioNotesPanel notes={studioNotes} />
 
-      <section className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card className="overflow-hidden p-0">
-          <div className="grid min-h-72 md:grid-cols-[1fr_1.1fr]">
-            <div className="flex flex-col justify-between p-6 sm:p-8">
-              <div>
-                <StatusPill tone="info">Studio XP</StatusPill>
-                <p className="mt-5 text-5xl font-semibold">
-                  Level {dashboard.studioLevel}
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {dashboard.xpToNextLevel} XP until the studio reaches level{" "}
-                  {dashboard.studioLevel + 1}.
-                </p>
-              </div>
-              <div className="mt-8">
-                <div className="mb-2 flex justify-between text-xs font-medium text-muted-foreground">
-                  <span>{dashboard.totalXp} total XP</span>
-                  <span>{dashboard.xpProgressPercent}%</span>
-                </div>
-                <div
-                  className="h-2 overflow-hidden rounded-full bg-muted"
-                  aria-label={`${dashboard.xpProgressPercent}% progress to next level`}
-                  role="progressbar"
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={dashboard.xpProgressPercent}
-                >
-                  <div
-                    className="h-full rounded-full bg-accent"
-                    style={{ width: `${dashboard.xpProgressPercent}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-            <Image
-              src="/placeholders/pixel-office-empty.svg"
-              alt=""
-              width={960}
-              height={540}
-              className="h-full min-h-64 w-full border-t border-border object-cover md:border-l md:border-t-0"
-            />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold">Focus and presence</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Ambient studio context, never a leaderboard.
-              </p>
-            </div>
-            <UsersRound className="size-5 text-accent" aria-hidden="true" />
-          </div>
-          <div className="mt-6">
-            <PresenceWorkspace />
-          </div>
-          <Link
-            href="/focus-room"
-            className="mt-6 flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm font-medium transition-colors hover:border-accent/60 hover:bg-muted"
-          >
-            Open Focus Room
-            <Clock3 className="size-4 text-accent" aria-hidden="true" />
-          </Link>
-        </Card>
-      </section>
+      <StudioXpSummary dashboard={dashboard} />
 
       <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <div>
@@ -199,25 +143,108 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
         </div>
       </section>
 
-      <Card>
+      <RecentActivityCard
+        activities={dashboard.activities}
+        expanded={showActivity}
+        onToggle={() => setShowActivity((current) => !current)}
+      />
+    </div>
+  );
+}
+
+function StudioXpSummary({ dashboard }: { dashboard: DashboardViewModel }) {
+  return (
+    <Card>
+      <div className="flex flex-wrap items-start justify-between gap-5">
         <div>
-          <h2 className="text-lg font-semibold">Recent studio activity</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Shared progress and implementation milestones.
+          <StatusPill tone="info">Studio XP</StatusPill>
+          <p className="mt-5 text-5xl font-semibold">
+            Level {dashboard.studioLevel}
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {dashboard.xpToNextLevel} XP until the studio reaches level{" "}
+            {dashboard.studioLevel + 1}.
           </p>
         </div>
-        <div className="mt-5 divide-y divide-border">
-          {dashboard.activities.length === 0 ? (
+        <Link
+          href="/studio-xp"
+          className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm font-medium transition-colors hover:border-accent/60 hover:bg-muted"
+        >
+          View Studio XP
+        </Link>
+      </div>
+      <div className="mt-8">
+        <div className="mb-2 flex justify-between text-xs font-medium text-muted-foreground">
+          <span>{dashboard.totalXp} total XP</span>
+          <span>{dashboard.xpProgressPercent}%</span>
+        </div>
+        <div
+          className="h-2 overflow-hidden rounded-full bg-muted"
+          aria-label={`${dashboard.xpProgressPercent}% progress to next level`}
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={dashboard.xpProgressPercent}
+        >
+          <div
+            className="h-full rounded-full bg-accent"
+            style={{ width: `${dashboard.xpProgressPercent}%` }}
+          />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function RecentActivityCard({
+  activities,
+  expanded,
+  onToggle,
+}: {
+  activities: DashboardActivity[];
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <Card className="p-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+        aria-expanded={expanded}
+      >
+        <span>
+          <span className="font-semibold">Recent studio activity</span>
+          <span className="mt-1 block text-sm text-muted-foreground">
+            Shared progress with who completed each item.
+          </span>
+        </span>
+        <span className="flex items-center gap-2 text-sm font-medium text-accent">
+          {expanded ? "Hide" : "Show"}
+          {expanded ? (
+            <ChevronDown className="size-4" aria-hidden="true" />
+          ) : (
+            <ChevronRight className="size-4" aria-hidden="true" />
+          )}
+        </span>
+      </button>
+      {expanded && (
+        <div className="divide-y divide-border border-t border-border px-6">
+          {activities.length === 0 ? (
             <p className="py-4 text-sm leading-6 text-muted-foreground">
               No Studio XP activity yet. Completed work will appear here.
             </p>
           ) : (
-            dashboard.activities.map((activity) => (
+            activities.map((activity) => (
               <div
                 key={activity.id}
                 className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
               >
-                <p className="text-sm leading-6">{activity.description}</p>
+                <div>
+                  <p className="text-sm font-medium leading-6">
+                    {activity.actorName} completed: {activity.description}
+                  </p>
+                </div>
                 <StatusPill tone={activity.tone}>
                   {activity.occurredAtLabel}
                 </StatusPill>
@@ -225,8 +252,8 @@ export function DashboardOverview({ dashboard }: DashboardOverviewProps) {
             ))
           )}
         </div>
-      </Card>
-    </div>
+      )}
+    </Card>
   );
 }
 

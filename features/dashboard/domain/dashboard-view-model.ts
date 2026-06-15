@@ -14,6 +14,7 @@ export interface DashboardMetric {
 export interface DashboardActivity {
   id: string;
   description: string;
+  actorName: string;
   occurredAtLabel: string;
   tone: DashboardTone;
 }

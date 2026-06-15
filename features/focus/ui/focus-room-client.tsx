@@ -36,7 +36,7 @@ import {
   type FocusRoomViewModel,
   type FocusSessionView,
 } from "@/features/focus/domain/focus-room";
-import { PresencePanel } from "@/features/presence/ui/presence-panel";
+import { PresenceWorkspace } from "@/features/presence/ui/presence-workspace";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { StatusPill } from "@/shared/ui/status-pill";
@@ -446,7 +446,7 @@ export function FocusRoomClient({ room }: { room: FocusRoomViewModel }) {
           <div className="mt-6 rounded-lg border border-border bg-muted/30 p-4">
             <p className="text-sm font-medium">Room presence</p>
             <div className="mt-3">
-              <PresencePanel />
+              <PresenceWorkspace />
             </div>
           </div>
         </Card>

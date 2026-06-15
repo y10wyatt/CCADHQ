@@ -3,6 +3,8 @@
 import {
   Archive,
   Check,
+  ChevronDown,
+  ChevronRight,
   Columns3,
   List,
   Pencil,
@@ -30,8 +32,10 @@ import type {
   TaskPriority,
   TaskStatus,
 } from "@/shared/database/database.types";
+import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
+import { MiniBarChart } from "@/shared/ui/mini-chart";
 import { StatusPill } from "@/shared/ui/status-pill";
 
 const fieldClass =
@@ -58,6 +62,7 @@ export function TasksWorkspace({
     "all",
   );
   const [assigneeFilter, setAssigneeFilter] = useState("all");
+  const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [dueFilter, setDueFilter] = useState<
     "all" | "overdue" | "due_soon" | "upcoming" | "none"
   >("all");
@@ -86,6 +91,8 @@ export function TasksWorkspace({
       statusFilter,
     ],
   );
+  const activeTasks = filteredTasks.filter((task) => task.status !== "done");
+  const completedTasks = filteredTasks.filter((task) => task.status === "done");
 
   function runAction(
     action: () => Promise<TaskActionResult>,
@@ -237,27 +244,30 @@ export function TasksWorkspace({
       )}
 
       {view === "kanban" ? (
-        <KanbanBoard
-          tasks={filteredTasks}
-          timezone={timezone}
-          nowMs={nowMs}
-          disabled={isPending}
-          onEdit={beginEdit}
-          onMove={(task, status) =>
-            runAction(
-              () => transitionTask(task.id, status),
-              transitionMessage(task, status),
-            )
-          }
-          onArchive={(task) => {
-            if (window.confirm(`Archive "${task.title}"?`)) {
-              runAction(() => archiveTask(task.id), "Task archived.");
+        <>
+          <KanbanOverview tasks={activeTasks} />
+          <KanbanBoard
+            tasks={activeTasks}
+            timezone={timezone}
+            nowMs={nowMs}
+            disabled={isPending}
+            onEdit={beginEdit}
+            onMove={(task, status) =>
+              runAction(
+                () => transitionTask(task.id, status),
+                transitionMessage(task, status),
+              )
             }
-          }}
-        />
+            onArchive={(task) => {
+              if (window.confirm(`Archive "${task.title}"?`)) {
+                runAction(() => archiveTask(task.id), "Task archived.");
+              }
+            }}
+          />
+        </>
       ) : (
         <TaskList
-          tasks={filteredTasks}
+          tasks={activeTasks}
           timezone={timezone}
           nowMs={nowMs}
           disabled={isPending}
@@ -275,7 +285,55 @@ export function TasksWorkspace({
           }}
         />
       )}
+
+      <CompletedTasksSection
+        tasks={completedTasks}
+        timezone={timezone}
+        nowMs={nowMs}
+        disabled={isPending}
+        expanded={showCompletedTasks}
+        onToggle={() => setShowCompletedTasks((current) => !current)}
+        onEdit={beginEdit}
+        onMove={(task, status) =>
+          runAction(
+            () => transitionTask(task.id, status),
+            transitionMessage(task, status),
+          )
+        }
+        onArchive={(task) => {
+          if (window.confirm(`Archive "${task.title}"?`)) {
+            runAction(() => archiveTask(task.id), "Task archived.");
+          }
+        }}
+      />
     </div>
+  );
+}
+
+function KanbanOverview({ tasks }: { tasks: TaskView[] }) {
+  const activeStatuses = taskStatuses.filter((status) => status.value !== "done");
+
+  return (
+    <Card>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">Kanban scan</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Quick count by workflow stage before reviewing individual cards.
+          </p>
+        </div>
+        <StatusPill tone="info">{tasks.length} active</StatusPill>
+      </div>
+      <div className="mt-5">
+        <MiniBarChart
+          data={activeStatuses.map((status) => ({
+            label: status.label,
+            value: tasks.filter((task) => task.status === status.value).length,
+            tone: status.tone,
+          }))}
+        />
+      </div>
+    </Card>
   );
 }
 
@@ -289,39 +347,106 @@ function KanbanBoard({
   onArchive,
 }: TaskCollectionProps) {
   return (
-    <div className="grid gap-4 xl:grid-cols-5">
-      {taskStatuses.map((status) => {
-        const columnTasks = tasks.filter((task) => task.status === status.value);
-        return (
-          <Card key={status.value} className="min-w-0 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="font-semibold">{status.label}</h2>
-              <StatusPill tone={status.tone}>{columnTasks.length}</StatusPill>
-            </div>
-            <div className="mt-4 grid gap-3">
-              {columnTasks.length === 0 ? (
-                <p className="rounded-lg border border-dashed border-border p-4 text-center text-xs leading-5 text-muted-foreground">
-                  No matching tasks
-                </p>
-              ) : (
-                columnTasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    timezone={timezone}
-                    nowMs={nowMs}
-                    disabled={disabled}
-                    onEdit={() => onEdit(task)}
-                    onMove={(status) => onMove(task, status)}
-                    onArchive={() => onArchive(task)}
-                  />
-                ))
-              )}
-            </div>
-          </Card>
-        );
-      })}
+    <div className="grid gap-4 xl:grid-cols-4">
+      {taskStatuses
+        .filter((status) => status.value !== "done")
+        .map((status) => {
+          const columnTasks = tasks.filter((task) => task.status === status.value);
+          return (
+            <Card key={status.value} className="min-w-0 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-semibold">{status.label}</h2>
+                <StatusPill tone={status.tone}>{columnTasks.length}</StatusPill>
+              </div>
+              <div className="mt-4 grid gap-3">
+                {columnTasks.length === 0 ? (
+                  <p className="rounded-lg border border-dashed border-border p-4 text-center text-xs leading-5 text-muted-foreground">
+                    No matching tasks
+                  </p>
+                ) : (
+                  columnTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      timezone={timezone}
+                      nowMs={nowMs}
+                      disabled={disabled}
+                      onEdit={() => onEdit(task)}
+                      onMove={(status) => onMove(task, status)}
+                      onArchive={() => onArchive(task)}
+                    />
+                  ))
+                )}
+              </div>
+            </Card>
+          );
+        })}
     </div>
+  );
+}
+
+function CompletedTasksSection({
+  tasks,
+  timezone,
+  nowMs,
+  disabled,
+  expanded,
+  onToggle,
+  onEdit,
+  onMove,
+  onArchive,
+}: TaskCollectionProps & {
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <Card className="p-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+        aria-expanded={expanded}
+      >
+        <span>
+          <span className="font-semibold">Completed tasks</span>
+          <span className="mt-1 block text-sm text-muted-foreground">
+            {tasks.length} matching {tasks.length === 1 ? "task" : "tasks"}
+          </span>
+        </span>
+        <span className="flex items-center gap-2 text-sm font-medium text-accent">
+          {expanded ? "Hide" : "Show"}
+          {expanded ? (
+            <ChevronDown className="size-4" aria-hidden="true" />
+          ) : (
+            <ChevronRight className="size-4" aria-hidden="true" />
+          )}
+        </span>
+      </button>
+      {expanded && (
+        <div className="border-t border-border p-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {tasks.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground sm:col-span-2 xl:col-span-3">
+                No completed tasks match these filters.
+              </p>
+            ) : (
+              tasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  timezone={timezone}
+                  nowMs={nowMs}
+                  disabled={disabled}
+                  onEdit={() => onEdit(task)}
+                  onMove={(status) => onMove(task, status)}
+                  onArchive={() => onArchive(task)}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -417,7 +542,14 @@ function TaskCard({
   onArchive: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-3">
+    <div
+      className={cn(
+        "rounded-lg border bg-muted/30 p-3",
+        task.priority === "urgent" || task.priority === "high"
+          ? "border-warning/50"
+          : "border-border",
+      )}
+    >
       <div className="flex items-start justify-between gap-3">
         <StatusPill
           tone={

@@ -1,4 +1,7 @@
-import type { FinanceEntryType } from "@/shared/database/database.types";
+import type {
+  FinanceEntryType,
+  FinanceRecurrence,
+} from "@/shared/database/database.types";
 
 export interface FinanceCategoryOption {
   id: string;
@@ -16,10 +19,22 @@ export interface FinanceEntryView {
   categoryName: string;
   description: string;
   note: string | null;
+  recurrence: FinanceRecurrence;
   creatorName: string;
   canManage: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export function formatRecurrence(recurrence: FinanceRecurrence) {
+  const labels: Record<FinanceRecurrence, string> = {
+    none: "One-time",
+    weekly: "Weekly",
+    monthly: "Monthly",
+    yearly: "Yearly",
+  };
+
+  return labels[recurrence];
 }
 
 export interface FinanceViewModel {

@@ -21,6 +21,7 @@ describe("buildDashboardViewModel", () => {
           id: "xp-1",
           description: "CCAD completed a task",
           points: 20,
+          actorName: "William",
           createdAt: "2026-06-03T20:00:00.000Z",
         },
       ],
@@ -83,6 +84,7 @@ describe("buildDashboardViewModel", () => {
       "Alice",
     ]);
     expect(dashboard.weeklyQuests).toHaveLength(1);
+    expect(dashboard.activities[0].actorName).toBe("William");
     expect(dashboard.activities[0].occurredAtLabel).toContain("+20 XP");
   });
 });

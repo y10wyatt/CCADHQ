@@ -1,15 +1,10 @@
-export type StudioNoteAuthor = "William" | "Alice" | "Team";
+import type {
+  StudioNoteAuthor,
+  StudioNoteCategory,
+  StudioNotePriority,
+} from "@/shared/database/database.types";
 
-export type StudioNoteCategory =
-  | "Reminder"
-  | "Content Idea"
-  | "Student Follow-up"
-  | "Admin"
-  | "Website"
-  | "Marketing"
-  | "Random";
-
-export type StudioNotePriority = "Normal" | "Important";
+export type { StudioNoteAuthor, StudioNoteCategory, StudioNotePriority };
 
 export interface StudioNote {
   id: string;
@@ -40,45 +35,6 @@ export const studioNoteCategories: StudioNoteCategory[] = [
 export const studioNotePriorities: StudioNotePriority[] = [
   "Normal",
   "Important",
-];
-
-export const initialStudioNotes: StudioNote[] = [
-  {
-    id: "studio-note-1",
-    text: "Remember to photograph student process work this weekend.",
-    author: "William",
-    category: "Marketing",
-    priority: "Important",
-    pinned: true,
-    createdAt: "2026-06-13",
-  },
-  {
-    id: "studio-note-2",
-    text: "Ask Alice if we should make a parent FAQ post about beginner students.",
-    author: "William",
-    category: "Content Idea",
-    priority: "Normal",
-    pinned: false,
-    createdAt: "2026-06-13",
-  },
-  {
-    id: "studio-note-3",
-    text: "Need to confirm which student works can be posted publicly.",
-    author: "Team",
-    category: "Admin",
-    priority: "Important",
-    pinned: true,
-    createdAt: "2026-06-12",
-  },
-  {
-    id: "studio-note-4",
-    text: "Add Marketing dashboard tab for account identities and content roadmap.",
-    author: "William",
-    category: "Website",
-    priority: "Important",
-    pinned: true,
-    createdAt: "2026-06-12",
-  },
 ];
 
 export function sortStudioNotes(notes: StudioNote[]) {

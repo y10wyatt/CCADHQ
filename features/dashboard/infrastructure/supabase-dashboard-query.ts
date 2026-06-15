@@ -49,7 +49,7 @@ export class SupabaseDashboardQuery implements DashboardQuery {
         .eq("organization_id", organizationId),
       supabase
         .from("xp_events")
-        .select("id, description, points, created_at")
+        .select("id, description, points, actor_member_id, created_at")
         .eq("organization_id", organizationId)
         .order("created_at", { ascending: false })
         .limit(5),
@@ -89,6 +89,13 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       throw new Error(`Unable to load Home dashboard: ${firstError.message}`);
     }
 
+    const memberNames = new Map(
+      (members.data ?? []).map((candidate) => [
+        candidate.id,
+        candidate.profile?.display_name ?? "Unnamed member",
+      ]),
+    );
+
     return buildDashboardViewModel({
       organizationName: this.member.organization.name,
       timezone: this.member.organization.timezone,
@@ -121,6 +128,9 @@ export class SupabaseDashboardQuery implements DashboardQuery {
         id: event.id,
         description: event.description,
         points: event.points,
+        actorName: event.actor_member_id
+          ? (memberNames.get(event.actor_member_id) ?? "Inactive member")
+          : null,
         createdAt: event.created_at,
       })),
     });
