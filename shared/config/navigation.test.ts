@@ -11,6 +11,7 @@ describe("navigationItems", () => {
       "Students",
       "Finance",
       "Marketing",
+      "Resources",
     ]);
   });
 

@@ -554,3 +554,19 @@ This phase intentionally keeps Marketing account identity and performance
 learning as structured planning data while making the idea pipeline durable.
 Class-log photos and marketing files are represented by lightweight URL/local
 preview hooks until a Supabase Storage feature boundary is added.
+
+## 29. Resources Implementation
+
+Phase 29 adds a lightweight internal link-library boundary:
+
+- `features/resources/domain/` owns resource view models, categories, and owners.
+- `features/resources/application/` owns organization-scoped resource loading and
+  validated server actions.
+- `features/resources/ui/` owns the searchable/filterable Resources workspace.
+- `/resources` is a primary navigation tab for frequently used links.
+- The `resources` table is organization-scoped, protected by RLS, and tracked by
+  change-history triggers.
+
+Resources intentionally store links and short context only. They do not manage
+files directly; Google Docs, Drive folders, and future storage assets remain the
+source systems.

@@ -526,6 +526,29 @@ All four tables use organization-member RLS policies, updated-at triggers, and
 change-history triggers. The migration seeds starter Studio Notes per existing
 organization when no notes already exist.
 
+### `resources`
+
+Internal quick-link records for meeting notes, folders, documents, and reference
+pages.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `title` | text | Required resource title |
+| `url` | text | Required external or internal link |
+| `category` | enum | `Meetings`, `Students`, `Marketing`, `Finance`, `Teaching`, `Admin`, `Tech`, or `Other` |
+| `description` | text | Optional context |
+| `owner` | enum | `William`, `Alice`, or `Team` |
+| `pinned` | boolean | Pinned resources sort first |
+| `archived_at` | timestamptz nullable | Soft archive |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Resources use organization-member RLS policies, an updated-at trigger, and a
+change-history trigger.
+
 ### `change_history`
 
 Append-only database history for every insert, update, and delete on durable

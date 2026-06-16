@@ -238,6 +238,14 @@ reduce visual movement.
 - Notes are casual internal messages; avoid task-manager language.
 - On mobile, stack notes vertically for easy reading.
 
+### Resources
+
+- Treat Resources as a studio reference shelf, not a generic bookmark manager.
+- Pinned links should feel immediately reachable without overwhelming the page.
+- Use concise cards with category and owner tags.
+- Search and category filters should stay simple and visible.
+- External links should clearly open in a new tab.
+
 ### Studio XP And Character XP
 
 - Always label shared progression as Studio XP, Studio Level, or CCAD progress.

@@ -15,6 +15,24 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-15 17:45 PDT - Add Resources link library
+
+- Goal: Add a Resources tab for quick access to meeting notes, Google Docs,
+  folders, and internal reference links.
+- Files changed: `app/(app)/resources/page.tsx`, `features/resources/**`,
+  `shared/config/navigation.ts`, `shared/ui/app-shell.tsx`,
+  `shared/database/database.types.ts`,
+  `supabase/migrations/20260615103000_resources.sql`,
+  `features/studio-notes/application/actions.ts`, `docs/build-log.md`,
+  `docs/dev-log.md`.
+- What works: Resources can be displayed, searched, filtered by category,
+  created, edited, archived, pinned, and opened in a new tab once the migration
+  is applied.
+- Known issues: Studio Notes and Resources writes require Supabase migrations to
+  be applied in production.
+- Next recommended step: Apply the pending Supabase migrations, then add the
+  first meeting-notes Google Doc link from the Resources page.
+
 ## 2026-06-15 02:10 PDT - Add Students, Marketing Ideas, and Studio Notes persistence
 
 - Goal: Turn the scoped CCADHQ operating-system pieces into practical

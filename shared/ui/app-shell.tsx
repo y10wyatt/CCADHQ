@@ -7,6 +7,7 @@ import {
   CircleDollarSign,
   ClipboardList,
   Home,
+  LibraryBig,
   LogOut,
   Megaphone,
   Timer,
@@ -33,6 +34,7 @@ const icons = {
   students: Users,
   finance: CircleDollarSign,
   marketing: Megaphone,
+  resources: LibraryBig,
 } satisfies Record<NavigationItem["icon"], typeof Home>;
 
 interface AppShellProps {
@@ -115,7 +117,7 @@ export function AppShell({
 
         <nav
           aria-label="Primary navigation"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t border-border bg-card/95 p-2 backdrop-blur lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-7 border-t border-border bg-card/95 p-2 backdrop-blur lg:hidden"
         >
           {navigationItems.map((item) => (
             <NavigationLink

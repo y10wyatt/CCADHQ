@@ -23,6 +23,32 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-15 - Add Resources link library
+
+### Scope
+
+- Added a Resources tab for frequently used Google Docs, folders, meeting notes,
+  and internal reference links.
+- Added Resources create, edit, archive, pin, search, and category filtering.
+- Added a Supabase migration for the `resources` table with organization-member
+  RLS and change-history triggers.
+- Improved missing-migration messaging for Studio Notes writes.
+
+### Decisions
+
+- Resources are a lightweight studio reference shelf, not a document manager.
+- Pinned resources sort first and links open in a new browser tab.
+- The page degrades to an empty state until the Supabase migration is applied.
+
+### Verification
+
+- Pending at implementation time.
+
+### Follow-ups
+
+- Apply the Resources migration and the earlier Students/Marketing/Studio Notes
+  migration in Supabase before relying on persistence in production.
+
 ## 2026-06-15 - Add Students, Marketing Ideas, and Studio Notes persistence
 
 ### Scope

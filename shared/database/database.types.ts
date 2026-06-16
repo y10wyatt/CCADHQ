@@ -67,6 +67,16 @@ export type StudioNoteCategory =
   | "Marketing"
   | "Random";
 export type StudioNotePriority = "Normal" | "Important";
+export type ResourceCategory =
+  | "Meetings"
+  | "Students"
+  | "Marketing"
+  | "Finance"
+  | "Teaching"
+  | "Admin"
+  | "Tech"
+  | "Other";
+export type ResourceOwner = "William" | "Alice" | "Team";
 export type FocusMode = "pomodoro" | "freeform";
 export type FocusKind = "focus" | "short_break" | "long_break";
 export type FocusState = "running" | "paused" | "completed" | "cancelled";
@@ -583,6 +593,38 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["studio_notes"]["Insert"]>;
+        Relationships: [];
+      };
+      resources: {
+        Row: {
+          id: string;
+          organization_id: string;
+          title: string;
+          url: string;
+          category: ResourceCategory;
+          description: string;
+          owner: ResourceOwner;
+          pinned: boolean;
+          archived_at: string | null;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          title: string;
+          url: string;
+          category?: ResourceCategory;
+          description?: string;
+          owner?: ResourceOwner;
+          pinned?: boolean;
+          archived_at?: string | null;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["resources"]["Insert"]>;
         Relationships: [];
       };
       focus_sessions: {

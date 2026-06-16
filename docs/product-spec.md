@@ -401,7 +401,31 @@ Required behavior:
 - Show an empty state when there are no active notes.
 - Keep the tone casual and internal; Studio Notes are not task assignments.
 
-### 6.13 Realtime Presence
+### 6.13 Resources
+
+Resources is a lightweight internal link library for frequently used studio
+documents, folders, and reference pages.
+
+Required fields:
+
+- Title
+- URL
+- Category
+- Optional description
+- Owner
+- Pinned state
+- Created date
+
+Required behavior:
+
+- Show pinned resources first.
+- Search by title, link, category, owner, and description.
+- Filter by category.
+- Create, edit, and archive resources.
+- Open resource links in a new browser tab.
+- Keep the surface compact and practical, like a studio reference shelf.
+
+### 6.14 Realtime Presence
 
 Realtime presence communicates availability and focus state, not productivity
 measurement.
@@ -417,7 +441,7 @@ Required statuses:
 Presence is ephemeral and must not become a historical attendance log. Details
 are defined in `realtime-presence.md`.
 
-### 6.14 Weekly Quests
+### 6.15 Weekly Quests
 
 Weekly quests create shared direction for the studio.
 
@@ -431,7 +455,7 @@ Required behavior:
   visualization.
 - Do not use quests to rank staff.
 
-### 6.15 Pixel Office
+### 6.16 Pixel Office
 
 Pixel office is a lightweight visual representation of active staff and their
 current status.

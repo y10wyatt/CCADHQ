@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { requireCurrentMember } from "@/features/auth/application/get-current-member";
+import { isMissingSchemaError } from "@/shared/database/is-missing-schema-error";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 const uuid = z.string().uuid();
@@ -82,11 +83,19 @@ export async function archiveStudioNote(
 }
 
 function finish(
-  error: { message: string } | null,
+  error: { code?: string; message: string } | null,
   message: string,
 ): StudioNoteActionResult {
   revalidatePath("/");
-  return error ? { ok: false, error: message } : { ok: true };
+  if (!error) return { ok: true };
+  if (isMissingSchemaError(error)) {
+    return {
+      ok: false,
+      error: "Studio Notes are not ready yet. Apply the Supabase migration first.",
+    };
+  }
+
+  return { ok: false, error: message };
 }
 
 function invalidInput(): StudioNoteActionResult {
