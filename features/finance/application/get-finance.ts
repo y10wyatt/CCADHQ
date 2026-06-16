@@ -83,7 +83,7 @@ function mapEntry(
       entry.category_name ?? categoryNames.get(entry.category_id) ?? "Inactive category",
     description: entry.description,
     note: entry.note,
-    recurrence: entry.recurrence,
+    recurrence: entry.recurrence ?? "none",
     creatorName: memberNames.get(entry.created_by_member_id) ?? "Inactive member",
     canManage:
       member.role === "admin" || member.id === entry.created_by_member_id,

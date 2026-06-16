@@ -6,6 +6,7 @@ import {
   type MarketingDashboardData,
 } from "@/features/marketing/domain/marketing";
 import type { Database, MarketingAccount } from "@/shared/database/database.types";
+import { isMissingSchemaError } from "@/shared/database/is-missing-schema-error";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 const accountToId: Record<MarketingAccount, MarketingAccountId> = {
@@ -27,6 +28,10 @@ export async function getMarketingDashboard(
     .order("updated_at", { ascending: false });
 
   if (error) {
+    if (isMissingSchemaError(error)) {
+      return marketingDashboardData;
+    }
+
     throw new Error(`Unable to load Marketing: ${error.message}`);
   }
 

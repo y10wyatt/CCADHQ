@@ -1,6 +1,7 @@
 import type { CurrentMember } from "@/features/auth/domain/current-member";
 import type { StudioNote } from "@/features/studio-notes/domain/studio-notes";
 import type { Database } from "@/shared/database/database.types";
+import { isMissingSchemaError } from "@/shared/database/is-missing-schema-error";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 export async function getStudioNotes(
@@ -16,6 +17,10 @@ export async function getStudioNotes(
     .order("created_at", { ascending: false });
 
   if (error) {
+    if (isMissingSchemaError(error)) {
+      return [];
+    }
+
     throw new Error(`Unable to load Studio Notes: ${error.message}`);
   }
 

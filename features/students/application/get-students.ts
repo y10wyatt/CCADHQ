@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { CurrentMember } from "@/features/auth/domain/current-member";
 import type { ClassLogView, StudentView } from "@/features/students/domain/students";
 import type { Database } from "@/shared/database/database.types";
+import { isMissingSchemaError } from "@/shared/database/is-missing-schema-error";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 export async function getStudents(member: CurrentMember): Promise<StudentView[]> {
@@ -16,6 +17,10 @@ export async function getStudents(member: CurrentMember): Promise<StudentView[]>
     .order("updated_at", { ascending: false });
 
   if (error) {
+    if (isMissingSchemaError(error)) {
+      return [];
+    }
+
     throw new Error(`Unable to load Students: ${error.message}`);
   }
 
@@ -45,12 +50,23 @@ export async function getStudentDetail(
   ]);
 
   if (studentResult.error) {
+    if (isMissingSchemaError(studentResult.error)) {
+      notFound();
+    }
+
     throw new Error(`Unable to load Student: ${studentResult.error.message}`);
   }
   if (!studentResult.data) {
     notFound();
   }
   if (logsResult.error) {
+    if (isMissingSchemaError(logsResult.error)) {
+      return {
+        student: mapStudent(studentResult.data),
+        classLogs: [],
+      };
+    }
+
     throw new Error(`Unable to load Class Logs: ${logsResult.error.message}`);
   }
 
