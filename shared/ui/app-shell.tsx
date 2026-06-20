@@ -10,7 +10,6 @@ import {
   LogOut,
   Megaphone,
   Settings,
-  UserCog,
   Users,
   UserRoundPlus,
 } from "lucide-react";
@@ -34,7 +33,6 @@ const icons = {
   students: Users,
   finance: CircleDollarSign,
   marketing: Megaphone,
-  team: UserCog,
   settings: Settings,
 } satisfies Record<NavigationItem["icon"], typeof Home>;
 
@@ -93,16 +91,6 @@ export function AppShell({
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <Brand compact />
             <div className="flex items-center gap-2">
-              {member.role === "admin" && (
-                <Link
-                  href="/studio-access"
-                  title="Studio Access"
-                  className="grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <UserCog className="size-4" aria-hidden="true" />
-                  <span className="sr-only">Studio Access</span>
-                </Link>
-              )}
               <p className="text-xs font-medium text-muted-foreground">
                 {member.displayName}
               </p>
@@ -118,7 +106,7 @@ export function AppShell({
 
         <nav
           aria-label="Primary navigation"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card/95 p-2 backdrop-blur sm:grid-cols-8 lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card/95 p-2 backdrop-blur sm:grid-cols-7 lg:hidden"
         >
           {navigationItems.map((item) => (
             <NavigationLink
@@ -160,15 +148,6 @@ function MemberSummary({ member }: { member: CurrentMember }) {
           </form>
         </div>
       </div>
-      {member.role === "admin" && (
-        <Link
-          href="/studio-access"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <UserCog className="size-4" aria-hidden="true" />
-          <span>Studio Access</span>
-        </Link>
-      )}
     </div>
   );
 }

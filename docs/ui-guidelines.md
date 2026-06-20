@@ -48,14 +48,15 @@ Primary navigation order:
 4. Marketing
 5. Finance
 6. Tasks
-7. Team
-8. Settings
+7. Settings
 
 Guidelines:
 
 - Keep navigation labels and destinations in one centralized definition.
 - Clearly show the current tab.
 - Keep Studio XP visible in the shell without creating another MVP tab.
+- Keep staff invitations and member access inside Settings instead of a
+  separate Team tab.
 - Show Character Level only as lightweight user-card context.
 - Keep Leads separate from Students; enrollment conversion is the boundary.
 - Keep sign-out and current-member controls outside primary navigation.
@@ -238,13 +239,12 @@ reduce visual movement.
 
 - Treat Marketing as an internal editorial planning board, not a generic social
   media dashboard.
-- Account identity, content lanes, weekly plan, and performance learning should
-  read as studio context.
+- Show only real content ideas from the database; do not use sample strategy,
+  calendar, performance, topic, or asset data.
 - Idea cards should expose account, owner, priority, deadline, CTA, and status
   without becoming visually noisy.
-- Charts and performance summaries should be restrained and explanatory.
-- Asset-upload areas can provide local preview behavior until durable storage is
-  implemented.
+- Add analytics, planning calendars, or asset management only after they have
+  real persisted data.
 
 ### Studio Notes
 
@@ -304,9 +304,9 @@ reduce visual movement.
 - Pixel Office may visualize who is present, who is focusing, office activity
   level, Studio Level, quest completion, and calm office states.
 
-### Studio Access
+### Staff Access
 
-- Keep Studio Access outside primary MVP navigation and visible only to admins.
+- Keep staff access controls inside Settings and visible only to admins.
 - Explain that creating an invitation does not send an email; the invited
   person must create their account from the login screen.
 - Keep password sign-in, invited account creation, and password recovery

@@ -100,6 +100,7 @@ function finish(
   message: string,
 ): StudioAccessActionResult {
   revalidatePath("/studio-access");
+  revalidatePath("/settings");
   return error ? { ok: false, error: message } : { ok: true };
 }
 

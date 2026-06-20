@@ -498,8 +498,8 @@ Phase 10 adds a small admin-only access-management boundary:
   organization-scoped loading, validation, and guarded RPC calls.
 - `features/studio-access/ui/` owns replaceable invitation, member, and history
   sections.
-- `/studio-access` is linked from the admin account area, never primary MVP
-  navigation.
+- Staff access controls are rendered inside Settings; legacy `/studio-access`
+  redirects to `/settings`.
 - Database RPCs own invitation, role, and activation writes; direct
   authenticated writes are revoked.
 - Member access changes serialize last-admin checks, reject self-deactivation,
@@ -535,12 +535,11 @@ Finance:
 - `features/students/application/` owns organization-scoped student loading and
   validated server actions for student and class-log writes.
 - `features/students/ui/` owns the card workspace and student detail workspace.
-- `features/marketing/domain/` owns account identity, lane, calendar,
-  performance, asset, and idea view models.
+- `features/marketing/domain/` owns content idea view models and workflow
+  statuses.
 - `features/marketing/application/` owns organization-scoped idea loading and
   validated server actions for content-idea writes.
-- `features/marketing/ui/` owns the planning dashboard and editable idea
-  pipeline.
+- `features/marketing/ui/` owns the editable idea pipeline.
 - `features/studio-notes/application/` owns organization-scoped note loading and
   validated server actions for note writes.
 - `features/studio-notes/ui/` owns the reusable Home note wall, note cards, and
@@ -550,10 +549,10 @@ Finance:
 - The database migration creates organization-scoped tables for students, class
   logs, marketing ideas, and studio notes with RLS and change-history triggers.
 
-This phase intentionally keeps Marketing account identity and performance
-learning as structured planning data while making the idea pipeline durable.
-Class-log photos and marketing files are represented by lightweight URL/local
-preview hooks until a Supabase Storage feature boundary is added.
+Marketing intentionally shows only real content ideas from the database. Future
+calendar, performance, or asset sections need persisted data before appearing in
+the app. Class-log photos remain represented by lightweight URL hooks until a
+Supabase Storage feature boundary is added.
 
 ## 29. Resources Implementation
 

@@ -73,8 +73,7 @@ Primary navigation contains:
 4. Marketing
 5. Finance
 6. Tasks
-7. Team
-8. Settings
+7. Settings
 
 Leads must remain separate from Students. A Lead becomes a Student only after
 enrollment conversion.
@@ -379,26 +378,19 @@ Required behavior:
 
 ### 6.11 Marketing
 
-Marketing is a lightweight internal content-planning workspace for CCAD, William,
-Alice, and Mascot accounts.
+Marketing is a lightweight internal content-planning workspace for real CCAD
+content ideas.
 
 Required content:
 
-- Account identity board
-- Content lane matrix
 - Idea pipeline
-- Weekly content calendar
-- Performance learning, winning topics, and asset needs
 
 Required behavior:
 
 - Create, edit, archive, and move content ideas through the pipeline.
 - Track account, owner, lane, audience, format, priority, deadline, CTA, status,
   and notes for each idea.
-- Keep account identity and planning reference data calm and editorial rather
-  than generic social-media software.
-- Treat performance and asset sections as structured planning context until a
-  deeper analytics/storage system is needed.
+- Do not show sample, placeholder, or fake marketing performance data.
 
 ### 6.12 Studio Notes
 
@@ -492,10 +484,9 @@ Constraints:
   Studio Level, quest completion, and calm office states.
 - It must not contain core actions that are unavailable elsewhere.
 
-### 6.12 Studio Access
+### 6.12 Staff Access
 
-Studio Access is a small admin-only operational screen outside the primary MVP
-navigation.
+Staff Access is the admin-only account-management area inside Settings.
 
 Required capabilities:
 
@@ -506,7 +497,7 @@ Required capabilities:
 - Require at least one active admin at all times.
 - Preserve access changes in append-only history and audit events.
 
-Studio Access is account administration, not a CRM or staff-performance tool.
+Staff Access is account administration, not a CRM or staff-performance tool.
 
 ## 7. Cross-Cutting Requirements
 
@@ -633,7 +624,8 @@ verified with two signed-in staff accounts.
 
 Implemented:
 
-- Admin-only Studio Access route linked outside primary navigation.
+- Staff Access controls live in Settings; legacy `/studio-access` redirects to
+  Settings.
 - Fourteen-day staff/admin invitations with refresh and revoke behavior.
 - Guarded role and activation changes with self-deactivation and last-admin
   protection.

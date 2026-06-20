@@ -1,6 +1,6 @@
 import type { CurrentMember } from "@/features/auth/domain/current-member";
 import {
-  marketingDashboardData,
+  marketingStatuses,
   type ContentIdea,
   type MarketingAccountId,
   type MarketingDashboardData,
@@ -29,14 +29,17 @@ export async function getMarketingDashboard(
 
   if (error) {
     if (isMissingSchemaError(error)) {
-      return marketingDashboardData;
+      return {
+        workflowStatuses: marketingStatuses,
+        ideas: [],
+      };
     }
 
     throw new Error(`Unable to load Marketing: ${error.message}`);
   }
 
   return {
-    ...marketingDashboardData,
+    workflowStatuses: marketingStatuses,
     ideas: (data ?? []).map(mapContentIdea),
   };
 }

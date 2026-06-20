@@ -15,6 +15,38 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-20 02:21 PDT - Remove fake Marketing data and Studio Access shortcut
+
+- Goal: Make Marketing show editable real records only, and remove the duplicate
+  Studio Access entry point after staff access moved into Settings.
+- Files changed: `app/(app)/marketing/page.tsx`,
+  `app/(app)/studio-access/page.tsx`, `features/marketing/**`,
+  `features/studio-access/application/actions.ts`, `shared/ui/app-shell.tsx`,
+  `README.md`, `docs/product-spec.md`, `docs/system-architecture.md`,
+  `docs/ui-guidelines.md`, `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Marketing now shows the editable content idea pipeline without
+  sample strategy, calendar, performance, topic, or asset data; `/studio-access`
+  redirects to Settings; Studio Access shortcuts are removed from the shell.
+- Known issues: Local browser rendering remains blocked until Supabase
+  `.env.local` values are configured.
+- Next recommended step: Add persisted tables before restoring Marketing
+  calendar, analytics, or asset-management views.
+
+## 2026-06-20 02:05 PDT - Combine Team with Settings
+
+- Goal: Move staff access management out of the primary Team tab and combine it
+  into Settings.
+- Files changed: `app/(app)/settings/page.tsx`, `app/(app)/team/page.tsx`,
+  `shared/config/navigation.ts`, `shared/config/navigation.test.ts`,
+  `shared/ui/app-shell.tsx`, `README.md`, `docs/product-spec.md`,
+  `docs/ui-guidelines.md`, `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Settings now shows organization details and staff access controls;
+  Team is removed from primary navigation; `/team` redirects to `/settings`.
+- Known issues: Local browser rendering remains blocked until Supabase
+  `.env.local` values are configured.
+- Next recommended step: Verify Settings with a signed-in admin after local
+  Supabase environment variables are added.
+
 ## 2026-06-20 01:36 PDT - Refresh Leads CRM documentation
 
 - Goal: Bring the public README and UI guidelines in line with the new Leads

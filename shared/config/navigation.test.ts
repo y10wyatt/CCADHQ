@@ -11,7 +11,6 @@ describe("navigationItems", () => {
       "Marketing",
       "Finance",
       "Tasks",
-      "Team",
       "Settings",
     ]);
   });

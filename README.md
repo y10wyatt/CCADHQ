@@ -41,8 +41,8 @@ The current primary navigation is:
 - **Marketing:** internal editorial planning and content idea pipeline
 - **Finance:** basic manual income and expense tracking
 - **Tasks:** Kanban-first shared task planning with alternate views
-- **Team:** staff invitations and account access management
-- **Settings:** organization context and operational settings
+- **Settings:** organization context, staff invitations, and account access
+  management
 
 Pixel Office is an optional Home view over normalized presence and is not a
 dependency of the core workflows.
@@ -110,9 +110,9 @@ The application routes are:
 - `/students` - Student records
 - `/students/[studentId]` - Student profile and class logs
 - `/marketing` - Marketing planning workspace
-- `/team` - Staff invitations and account access
-- `/settings` - Organization settings summary
-- `/studio-access` - Admin-only staff invitations and account access
+- `/team` - Legacy redirect to Settings
+- `/settings` - Organization settings, staff invitations, and account access
+- `/studio-access` - Legacy redirect to Settings
 - `/login` - Invite-only email/password sign-in and account setup
 - `/reset-password` - Password recovery completion
 - `/access-pending` - Authenticated user without active membership
@@ -124,11 +124,10 @@ emails without a valid pending invitation. William and Alice are allowlisted as
 admins. Existing accounts created through the earlier magic-link flow must use
 Forgot password once to establish a password.
 
-Admins can manage future staff from Studio Access outside the primary MVP
-navigation. Invitations permit the email address to create an account for 14
-days. Role and activation changes use guarded database functions, preserve
-append-only history, prevent self-deactivation, and retain at least one active
-admin.
+Admins manage future staff from Settings. Invitations permit the email address
+to create an account for 14 days. Role and activation changes use guarded
+database functions, preserve append-only history, prevent self-deactivation,
+and retain at least one active admin.
 
 For production authentication, configure Supabase Auth URL Configuration with:
 

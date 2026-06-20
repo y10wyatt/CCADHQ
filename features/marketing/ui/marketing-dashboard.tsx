@@ -12,23 +12,14 @@ import {
 } from "@/features/marketing/application/actions";
 import {
   accountLabels,
-  type AccountIdentity,
-  type AssetNeed,
   type ContentIdea,
-  type ContentLaneRow,
   type MarketingAccountId,
   type MarketingDashboardData,
   type MarketingStatus,
-  type PerformancePost,
-  type WeeklyScheduleRow,
-  type WinningTopic,
 } from "@/features/marketing/domain/marketing";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-import { DataTable } from "@/shared/ui/data-table";
-import { FileUploader } from "@/shared/ui/file-uploader";
-import { MiniBarChart, MiniLineChart } from "@/shared/ui/mini-chart";
 import { StatusPill } from "@/shared/ui/status-pill";
 
 const accountStyles: Record<MarketingAccountId, string> = {
@@ -36,12 +27,6 @@ const accountStyles: Record<MarketingAccountId, string> = {
   william: "border-[#5f6f52]/30 bg-[#eff4ea] text-[#405038]",
   alice: "border-[#bd6f53]/30 bg-[#fff1ea] text-[#9a4f39]",
   mascot: "border-[#7366a8]/30 bg-[#f0eefb] text-[#574a91]",
-};
-
-const roleStyles: Record<string, string> = {
-  Primary: "border-accent/30 bg-accent/10 text-accent",
-  Secondary: "border-border bg-muted text-muted-foreground",
-  No: "border-border bg-transparent text-muted-foreground",
 };
 
 const fieldClass =
@@ -54,124 +39,11 @@ export function MarketingDashboard({
 }) {
   return (
     <div className="grid gap-5">
-      <section className="grid gap-4 xl:grid-cols-4">
-        {data.accounts.map((account) => (
-          <AccountIdentityCard key={account.id} account={account} />
-        ))}
-      </section>
-
-      <ContentLaneMatrix rows={data.laneRows} />
-
       <IdeaPipelineBoard
         statuses={data.workflowStatuses}
         ideas={data.ideas}
       />
-
-      <WeeklyContentCalendar rows={data.weeklySchedule} />
-
-      <section className="grid gap-5 xl:grid-cols-[1.35fr_1fr]">
-        <PerformanceLearningPanel posts={data.performancePosts} />
-        <WinningTopicsPanel topics={data.winningTopics} />
-      </section>
-
-      <MarketingChartsPanel posts={data.performancePosts} />
-
-      <AssetsNeededPanel assets={data.assetNeeds} />
     </div>
-  );
-}
-
-export function AccountIdentityCard({
-  account,
-}: {
-  account: AccountIdentity;
-}) {
-  return (
-    <Card className="flex h-full flex-col gap-5">
-      <div>
-        <AccountTag account={account.id} />
-        <h2 className="mt-4 text-xl font-semibold tracking-tight">
-          {account.name}
-        </h2>
-        <p className="mt-2 text-sm font-medium text-foreground">
-          {account.purpose}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {account.audience}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          Content
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {account.content.map((item) => (
-            <span
-              key={item}
-              className="rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground"
-            >
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-auto grid gap-3 border-t border-border pt-4 text-sm">
-        <DefinitionRow label="Tone" value={account.tone} />
-        <DefinitionRow label="Avoid" value={account.avoid} />
-        <DefinitionRow label="CTA" value={account.cta} />
-      </div>
-    </Card>
-  );
-}
-
-export function ContentLaneMatrix({ rows }: { rows: ContentLaneRow[] }) {
-  const accounts: MarketingAccountId[] = ["ccad", "william", "alice", "mascot"];
-
-  return (
-    <Card>
-      <SectionHeading
-        title="Content lane matrix"
-        description="Shows who should own each lane, and where supporting angles belong."
-      />
-      <div className="mt-5 overflow-x-auto">
-        <table className="min-w-[780px] w-full border-separate border-spacing-0 text-left text-sm">
-          <thead>
-            <tr>
-              <th className="border-b border-border pb-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Lane
-              </th>
-              {accounts.map((account) => (
-                <th
-                  key={account}
-                  className="border-b border-border px-3 pb-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground"
-                >
-                  {accountLabels[account]}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.lane}>
-                <th className="border-b border-border/70 py-4 pr-4 font-semibold">
-                  {row.lane}
-                </th>
-                {accounts.map((account) => (
-                  <td
-                    key={account}
-                    className="border-b border-border/70 px-3 py-4"
-                  >
-                    <RoleBadge role={row.roles[account]} />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Card>
   );
 }
 
@@ -300,237 +172,6 @@ export function IdeaPipelineBoard({
         })}
       </div>
     </Card>
-  );
-}
-
-export function WeeklyContentCalendar({
-  rows,
-}: {
-  rows: WeeklyScheduleRow[];
-}) {
-  const accounts: MarketingAccountId[] = ["ccad", "william", "alice", "mascot"];
-
-  return (
-    <Card>
-      <SectionHeading
-        title="Weekly content calendar"
-        description="A simple publishing roadmap by day and identity."
-      />
-      <div className="mt-5 overflow-x-auto">
-        <table className="min-w-[760px] w-full border-separate border-spacing-0 text-left text-sm">
-          <thead>
-            <tr>
-              <th className="border-b border-border pb-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Day
-              </th>
-              {accounts.map((account) => (
-                <th
-                  key={account}
-                  className="border-b border-border px-3 pb-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground"
-                >
-                  {accountLabels[account]}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.day}>
-                <th className="border-b border-border/70 py-4 pr-4 font-semibold">
-                  {row.day}
-                </th>
-                {accounts.map((account) => (
-                  <td
-                    key={account}
-                    className="border-b border-border/70 px-3 py-4 align-top"
-                  >
-                    <div className="grid gap-2">
-                      {(row.posts[account] ?? []).map((post) => (
-                        <span
-                          key={post}
-                          className="rounded-md border border-border bg-background px-2.5 py-2 text-xs font-medium"
-                        >
-                          {post}
-                        </span>
-                      ))}
-                      {!row.posts[account]?.length && (
-                        <span className="text-xs text-muted-foreground">-</span>
-                      )}
-                    </div>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Card>
-  );
-}
-
-export function PerformanceLearningPanel({
-  posts,
-}: {
-  posts: PerformancePost[];
-}) {
-  return (
-    <Card>
-      <SectionHeading
-        title="Performance + learning"
-        description="Light review after publishing, focused on what to repeat."
-      />
-      <div className="mt-5 grid gap-4">
-        {posts.map((post) => (
-          <article
-            key={post.title}
-            className="rounded-lg border border-border bg-background/70 p-4"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h3 className="font-semibold">{post.title}</h3>
-                <AccountTag account={post.account} className="mt-2" />
-              </div>
-              <StatusPill tone="success">
-                {post.consultationsBooked} consultations
-              </StatusPill>
-            </div>
-            <dl className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
-              <Metric label="Views" value={post.views} />
-              <Metric label="Saves" value={post.saves} />
-              <Metric label="Comments" value={post.comments} />
-              <Metric label="Follows" value={post.followsGained} />
-              <Metric label="DMs" value={post.inquiries} />
-              <Metric label="Booked" value={post.consultationsBooked} />
-            </dl>
-            <p className="mt-4 border-t border-border pt-3 text-sm leading-6 text-muted-foreground">
-              {post.notes}
-            </p>
-          </article>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-function WinningTopicsPanel({ topics }: { topics: WinningTopic[] }) {
-  return (
-    <DataTable
-      title="Winning topics"
-      description="Patterns worth repeating across the next content cycle."
-      rows={topics}
-      getRowKey={(topic) => `${topic.topic}-${topic.account}`}
-      minWidth="640px"
-      emptyMessage="No winning topics logged yet."
-      columns={[
-        {
-          key: "topic",
-          header: "Topic",
-          render: (topic) => <span className="font-semibold">{topic.topic}</span>,
-        },
-        {
-          key: "account",
-          header: "Account",
-          render: (topic) => <AccountTag account={topic.account} />,
-        },
-        {
-          key: "result",
-          header: "Result",
-          render: (topic) => topic.result,
-        },
-        {
-          key: "repeat",
-          header: "What to repeat",
-          render: (topic) => (
-            <span className="text-muted-foreground">{topic.repeat}</span>
-          ),
-        },
-      ]}
-    />
-  );
-}
-
-export function AssetsNeededPanel({ assets }: { assets: AssetNeed[] }) {
-  return (
-    <Card>
-      <SectionHeading
-        title="Assets needed"
-        description="Reusable media and writing blocks that make publishing easier."
-      />
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {assets.map((asset) => (
-          <div
-            key={asset.name}
-            className="rounded-lg border border-border bg-background/70 p-4"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="text-sm font-semibold leading-5">{asset.name}</h3>
-              <StatusPill tone={assetTone(asset.status)}>{asset.status}</StatusPill>
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Owner: {asset.owner}
-            </p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-5">
-        <FileUploader
-          title="Stage reusable marketing assets"
-          description="Drop student work photos, process images, B-roll, post covers, or caption drafts here for local planning. This does not upload to Supabase yet."
-        />
-      </div>
-    </Card>
-  );
-}
-
-function MarketingChartsPanel({ posts }: { posts: PerformancePost[] }) {
-  const totals = posts.reduce(
-    (current, post) => ({
-      views: current.views + parseMetric(post.views),
-      saves: current.saves + parseMetric(post.saves),
-      comments: current.comments + parseMetric(post.comments),
-      follows: current.follows + parseMetric(post.followsGained),
-      inquiries: current.inquiries + parseMetric(post.inquiries),
-      booked: current.booked + parseMetric(post.consultationsBooked),
-    }),
-    { views: 0, saves: 0, comments: 0, follows: 0, inquiries: 0, booked: 0 },
-  );
-
-  return (
-    <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-      <Card>
-        <SectionHeading
-          title="Performance snapshot"
-          description="Simple aggregate view until live analytics are connected."
-        />
-        <div className="mt-5">
-          <MiniBarChart
-            data={[
-              { label: "Views", value: totals.views, tone: "info" },
-              { label: "Saves", value: totals.saves, tone: "success" },
-              { label: "Comments", value: totals.comments, tone: "warning" },
-              { label: "Follows", value: totals.follows, tone: "neutral" },
-              { label: "DMs", value: totals.inquiries, tone: "info" },
-              { label: "Booked", value: totals.booked, tone: "success" },
-            ]}
-            valueFormatter={(value) => value.toLocaleString()}
-          />
-        </div>
-      </Card>
-      <Card>
-        <SectionHeading
-          title="Post learning trend"
-          description="A lightweight trend line based on views per reviewed post."
-        />
-        <div className="mt-5">
-          <MiniLineChart
-            data={posts.map((post) => ({
-              label: accountLabels[post.account],
-              value: parseMetric(post.views),
-            }))}
-          />
-        </div>
-      </Card>
-    </section>
   );
 }
 
@@ -799,33 +440,11 @@ function AccountTag({
   );
 }
 
-function RoleBadge({ role }: { role: string }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold",
-        roleStyles[role] ?? "border-[#b9a76a]/30 bg-[#fbf6df] text-[#77652a]",
-      )}
-    >
-      {role}
-    </span>
-  );
-}
-
 function PriorityPill({ priority }: { priority: ContentIdea["priority"] }) {
   const tone =
     priority === "High" ? "warning" : priority === "Medium" ? "info" : "neutral";
 
   return <StatusPill tone={tone}>{priority}</StatusPill>;
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-border bg-card px-3 py-2">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-1 font-mono text-lg font-semibold">{value}</dd>
-    </div>
-  );
 }
 
 function DefinitionRow({ label, value }: { label: string; value: string }) {
@@ -837,22 +456,4 @@ function DefinitionRow({ label, value }: { label: string; value: string }) {
       <dd className="leading-6 text-foreground">{value}</dd>
     </div>
   );
-}
-
-function assetTone(status: AssetNeed["status"]) {
-  if (status === "Ready") {
-    return "success";
-  }
-
-  if (status === "Draft") {
-    return "info";
-  }
-
-  return "warning";
-}
-
-function parseMetric(value: string) {
-  const normalized = value.trim().toLowerCase();
-  const multiplier = normalized.endsWith("k") ? 1000 : 1;
-  return Number.parseFloat(normalized.replace("k", "")) * multiplier || 0;
 }

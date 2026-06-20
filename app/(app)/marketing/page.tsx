@@ -12,9 +12,9 @@ export default async function MarketingPage() {
     <>
       <PageHeader
         eyebrow="Marketing"
-        title="Content operations wall"
-        description="Account identities, content lanes, and publishing roadmap for Xiaohongshu and social media planning."
-        action={<StatusPill tone="info">4 account identities</StatusPill>}
+        title="Content ideas"
+        description="Create, edit, move, and archive real marketing content ideas."
+        action={<StatusPill tone="info">{marketing.ideas.length} ideas</StatusPill>}
       />
       <MarketingDashboard data={marketing} />
     </>

@@ -23,6 +23,57 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-20 - Remove fake Marketing data and Studio Access shortcut
+
+### Scope
+
+- Removed sample Marketing strategy, calendar, performance, topic, and asset
+  sections from the Marketing page.
+- Kept Marketing as an editable content idea pipeline backed by
+  `marketing_content_ideas`.
+- Removed Studio Access shortcuts from the app shell and redirected legacy
+  `/studio-access` to Settings.
+
+### Decisions
+
+- Marketing should show only real persisted records.
+- Staff access management lives in Settings with `/team` and `/studio-access`
+  preserved as legacy redirects.
+
+### Verification
+
+- `npm run typecheck`, `npm run test -- shared/config/navigation.test.ts`, and
+  `npm run build` passed.
+
+### Follow-ups
+
+- Add persisted Marketing calendar, analytics, or asset tables before restoring
+  those views.
+
+## 2026-06-20 - Combine Team with Settings
+
+### Scope
+
+- Removed Team from primary navigation.
+- Combined staff invitations and member access management into Settings.
+- Kept `/team` as a redirect to `/settings` for existing links.
+
+### Decisions
+
+- Settings now owns organization context and staff access management together.
+- Primary navigation is Dashboard, Leads, Students, Marketing, Finance, Tasks,
+  Settings.
+
+### Verification
+
+- `npm run typecheck`, `npm run test -- shared/config/navigation.test.ts`, and
+  `npm run build` passed.
+
+### Follow-ups
+
+- Verify the combined Settings access controls with a signed-in admin after
+  local Supabase env vars are configured.
+
 ## 2026-06-20 - Add admissions Leads CRM
 
 ### Scope
