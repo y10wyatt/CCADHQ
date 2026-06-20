@@ -40,12 +40,16 @@ semantic pattern or behavior justifies it.
 
 ## 3. Navigation
 
-MVP primary navigation order:
+Primary navigation order:
 
-1. Home
-2. Focus Room
-3. Tasks
-4. Finance
+1. Dashboard
+2. Leads
+3. Students
+4. Marketing
+5. Finance
+6. Tasks
+7. Team
+8. Settings
 
 Guidelines:
 
@@ -53,7 +57,8 @@ Guidelines:
 - Clearly show the current tab.
 - Keep Studio XP visible in the shell without creating another MVP tab.
 - Show Character Level only as lightweight user-card context.
-- Place account, settings, and sign-out actions outside primary navigation.
+- Keep Leads separate from Students; enrollment conversion is the boundary.
+- Keep sign-out and current-member controls outside primary navigation.
 - Do not add Pixel Office to primary navigation until it has a validated use.
 
 ## 4. Layout
@@ -216,6 +221,18 @@ reduce visual movement.
   alarmist styling.
 - Archive should feel like moving a student out of the active workspace, not
   deleting their history.
+
+### Leads
+
+- Treat Leads as a boutique admissions pipeline, not a generic sales CRM.
+- Use a Kanban board for status flow and keep cards compact enough for daily
+  admissions scanning.
+- Follow-up indicators should be clear: overdue and due-soon need attention,
+  scheduled should feel calm.
+- Conversion to Student must feel deliberate and preserve the admissions
+  history instead of hiding it.
+- Attribution reporting should read as source quality for CCAD admissions, not
+  loud sales performance.
 
 ### Marketing
 

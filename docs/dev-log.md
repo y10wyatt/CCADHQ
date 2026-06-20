@@ -15,6 +15,19 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-20 01:36 PDT - Refresh Leads CRM documentation
+
+- Goal: Bring the public README and UI guidelines in line with the new Leads
+  CRM navigation and product boundary.
+- Files changed: `README.md`, `docs/system-architecture.md`,
+  `docs/ui-guidelines.md`, `docs/dev-log.md`.
+- What works: README now documents Leads, Students, Marketing, Team, Settings,
+  lead conversion, and the narrowed admissions-CRM boundary; UI guidelines now
+  document the new primary navigation and Leads design rules.
+- Known issues: None.
+- Next recommended step: Keep README route lists updated whenever primary
+  navigation changes.
+
 ## 2026-06-20 01:28 PDT - Build Leads CRM module
 
 - Goal: Add a lightweight admissions CRM for CCAD leads, follow-ups,
@@ -705,21 +718,3 @@ first. Keep entries concise and factual.
 - Known issues: None.
 - Next recommended step: Review and approve the documentation foundation before
   beginning application implementation.
-# 2026-06-20 01:28 PDT - Build Leads CRM module
-
-- Goal: Add a lightweight admissions CRM for CCAD leads, follow-ups,
-  attribution, and lead-to-student conversion.
-- Files changed: `supabase/migrations/20260620090000_leads_crm.sql`,
-  `shared/database/database.types.ts`, `shared/config/navigation.ts`,
-  `shared/ui/app-shell.tsx`, `features/leads/**`, `features/dashboard/**`,
-  `features/students/**`, `app/(app)/leads/**`, `app/(app)/team/page.tsx`,
-  `app/(app)/settings/page.tsx`, `docs/database-schema.md`,
-  `docs/system-architecture.md`, `docs/product-spec.md`,
-  `docs/build-log.md`, `docs/dev-log.md`.
-- What works: Leads has a Supabase schema, typed domain rules, Kanban board,
-  filters, source attribution, detail timeline, follow-up metrics, Dashboard
-  integration, and conversion that creates and opens a linked Student profile.
-- Known issues: Local browser rendering could not complete because Supabase URL
-  and publishable key environment variables are missing in this workspace.
-- Next recommended step: Apply the migration to Supabase, set local `.env`
-  values, and smoke-test authenticated lead creation and conversion.

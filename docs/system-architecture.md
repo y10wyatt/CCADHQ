@@ -306,7 +306,7 @@ eligibility or calculate progression.
 
 The initial implementation follows the documented feature boundaries:
 
-- `app/(app)/` owns routes and page composition for the four MVP tabs.
+- `app/(app)/` owns authenticated workspace routes and page composition.
 - `features/dashboard/` contains the first domain contract, query interface,
   mock infrastructure adapter, and Home UI.
 - `shared/config/` owns centralized navigation.
