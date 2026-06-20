@@ -7,12 +7,12 @@ import {
   CircleDollarSign,
   ClipboardList,
   Home,
-  LibraryBig,
   LogOut,
   Megaphone,
-  Timer,
+  Settings,
   UserCog,
   Users,
+  UserRoundPlus,
 } from "lucide-react";
 
 import { signOut } from "@/features/auth/application/actions";
@@ -28,13 +28,14 @@ import { cn } from "@/shared/lib/cn";
 import { StatusPill } from "@/shared/ui/status-pill";
 
 const icons = {
-  home: Home,
-  focus: Timer,
+  dashboard: Home,
+  leads: UserRoundPlus,
   tasks: ClipboardList,
   students: Users,
   finance: CircleDollarSign,
   marketing: Megaphone,
-  resources: LibraryBig,
+  team: UserCog,
+  settings: Settings,
 } satisfies Record<NavigationItem["icon"], typeof Home>;
 
 interface AppShellProps {
@@ -117,7 +118,7 @@ export function AppShell({
 
         <nav
           aria-label="Primary navigation"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-7 border-t border-border bg-card/95 p-2 backdrop-blur lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card/95 p-2 backdrop-blur sm:grid-cols-8 lg:hidden"
         >
           {navigationItems.map((item) => (
             <NavigationLink

@@ -45,6 +45,23 @@ export type StudentProgram =
 export type StudentStatus = "Active" | "Trial" | "Paused" | "Completed";
 export type PermissionToPost = "Yes" | "No" | "Pending";
 export type ClassLogTeacher = "William" | "Alice" | "Gerald" | "Other";
+export type LeadStatus =
+  | "New Inquiry"
+  | "Contacted"
+  | "Consultation Booked"
+  | "Trial Class"
+  | "Proposal Sent"
+  | "Enrolled"
+  | "Lost";
+export type LeadSource =
+  | "Website"
+  | "Referral"
+  | "Xiaohongshu"
+  | "Instagram"
+  | "Workshop"
+  | "RISD Event"
+  | "Other";
+export type LeadAssignedStaff = "William" | "Alice" | "Gerald" | "Team" | "Other";
 export type MarketingAccount = "CCAD" | "William" | "Alice" | "Mascot";
 export type MarketingOwner = "William" | "Alice" | "Team" | "Other";
 export type MarketingPriority = "Low" | "Medium" | "High";
@@ -448,6 +465,7 @@ export interface Database {
           application_targets: string[];
           parent_notes: string;
           payment_notes: string;
+          original_lead_id: string | null;
           archived_at: string | null;
           created_by_member_id: string;
           created_at: string;
@@ -473,6 +491,7 @@ export interface Database {
           application_targets?: string[];
           parent_notes?: string;
           payment_notes?: string;
+          original_lead_id?: string | null;
           archived_at?: string | null;
           created_by_member_id: string;
           created_at?: string;
@@ -519,6 +538,92 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["class_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      leads: {
+        Row: {
+          id: string;
+          organization_id: string;
+          student_name: string;
+          grade: string;
+          school: string;
+          parent_name: string;
+          parent_email: string;
+          parent_phone: string;
+          program_interest: string;
+          target_schools: string[];
+          goals: string;
+          timeline: string;
+          source: LeadSource;
+          status: LeadStatus;
+          potential_revenue_minor: number;
+          assigned_staff: LeadAssignedStaff;
+          last_contacted_date: string | null;
+          next_follow_up_date: string | null;
+          notes: string;
+          converted_student_id: string | null;
+          converted_at: string | null;
+          archived_at: string | null;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          student_name: string;
+          grade?: string;
+          school?: string;
+          parent_name?: string;
+          parent_email?: string;
+          parent_phone?: string;
+          program_interest?: string;
+          target_schools?: string[];
+          goals?: string;
+          timeline?: string;
+          source?: LeadSource;
+          status?: LeadStatus;
+          potential_revenue_minor?: number;
+          assigned_staff?: LeadAssignedStaff;
+          last_contacted_date?: string | null;
+          next_follow_up_date?: string | null;
+          notes?: string;
+          converted_student_id?: string | null;
+          converted_at?: string | null;
+          archived_at?: string | null;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["leads"]["Insert"]>;
+        Relationships: [];
+      };
+      lead_activity_entries: {
+        Row: {
+          id: string;
+          organization_id: string;
+          lead_id: string;
+          activity_date: string;
+          title: string;
+          notes: string;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          lead_id: string;
+          activity_date?: string;
+          title: string;
+          notes?: string;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["lead_activity_entries"]["Insert"]
+        >;
         Relationships: [];
       };
       marketing_content_ideas: {

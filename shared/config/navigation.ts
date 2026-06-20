@@ -1,11 +1,12 @@
 export const navigationItems = [
-  { label: "Home", href: "/", icon: "home" },
-  { label: "Focus Room", href: "/focus-room", icon: "focus" },
-  { label: "Tasks", href: "/tasks", icon: "tasks" },
+  { label: "Dashboard", href: "/", icon: "dashboard" },
+  { label: "Leads", href: "/leads", icon: "leads" },
   { label: "Students", href: "/students", icon: "students" },
-  { label: "Finance", href: "/finance", icon: "finance" },
   { label: "Marketing", href: "/marketing", icon: "marketing" },
-  { label: "Resources", href: "/resources", icon: "resources" },
+  { label: "Finance", href: "/finance", icon: "finance" },
+  { label: "Tasks", href: "/tasks", icon: "tasks" },
+  { label: "Team", href: "/team", icon: "team" },
+  { label: "Settings", href: "/settings", icon: "settings" },
 ] as const;
 
 export type NavigationItem = (typeof navigationItems)[number];

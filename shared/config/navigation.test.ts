@@ -3,15 +3,16 @@ import { describe, expect, it } from "vitest";
 import { navigationItems } from "@/shared/config/navigation";
 
 describe("navigationItems", () => {
-  it("keeps the approved MVP tabs in their required order", () => {
+  it("keeps the approved admissions dashboard tabs in their required order", () => {
     expect(navigationItems.map((item) => item.label)).toEqual([
-      "Home",
-      "Focus Room",
-      "Tasks",
+      "Dashboard",
+      "Leads",
       "Students",
-      "Finance",
       "Marketing",
-      "Resources",
+      "Finance",
+      "Tasks",
+      "Team",
+      "Settings",
     ]);
   });
 

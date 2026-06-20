@@ -452,7 +452,56 @@ Internal student records for active and archived mentorship relationships.
 | `application_targets` | text[] | Target schools or programs |
 | `parent_notes` | text | Parent communication context |
 | `payment_notes` | text | Payment/package context |
+| `original_lead_id` | uuid nullable | Source admissions lead when converted from CRM |
 | `archived_at` | timestamptz nullable | Soft archive |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+### `leads`
+
+Admissions CRM records for prospective students before enrollment.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `student_name` | text | Required prospective student name |
+| `grade` | text | Student grade or school stage |
+| `school` | text | Current school |
+| `parent_name` | text | Parent or guardian name |
+| `parent_email` | text | Parent email |
+| `parent_phone` | text | Parent phone |
+| `program_interest` | text | Admissions program interest |
+| `target_schools` | text[] | Target schools or programs |
+| `goals` | text | Admissions goals |
+| `timeline` | text | Desired admissions timeline |
+| `source` | enum | Website, Referral, Xiaohongshu, Instagram, Workshop, RISD Event, or Other |
+| `status` | enum | New Inquiry, Contacted, Consultation Booked, Trial Class, Proposal Sent, Enrolled, or Lost |
+| `potential_revenue_minor` | integer | Expected revenue in minor units |
+| `assigned_staff` | enum | William, Alice, Gerald, Team, or Other |
+| `last_contacted_date` | date nullable | Last staff contact |
+| `next_follow_up_date` | date nullable | Follow-up reminder date |
+| `notes` | text | Internal admissions notes |
+| `converted_student_id` | uuid nullable | Student created from this lead |
+| `converted_at` | timestamptz nullable | Conversion timestamp |
+| `archived_at` | timestamptz nullable | Removed from active pipeline |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+### `lead_activity_entries`
+
+Append-friendly admissions timeline entries attached to a lead.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `lead_id` | uuid | References `leads.id` |
+| `activity_date` | date | Event date |
+| `title` | text | Required event title |
+| `notes` | text | Optional detail |
 | `created_by_member_id` | uuid | Creator attribution |
 | `created_at` | timestamptz | Creation time |
 | `updated_at` | timestamptz | Last update |
@@ -522,9 +571,10 @@ Casual internal notes shown on Home.
 | `created_at` | timestamptz | Creation time |
 | `updated_at` | timestamptz | Last update |
 
-All four tables use organization-member RLS policies, updated-at triggers, and
-change-history triggers. The migration seeds starter Studio Notes per existing
-organization when no notes already exist.
+Students, leads, lead activity, class logs, marketing ideas, and studio notes
+use organization-member RLS policies, updated-at triggers, and change-history
+triggers. The migration seeds starter Studio Notes per existing organization
+when no notes already exist.
 
 ### `resources`
 

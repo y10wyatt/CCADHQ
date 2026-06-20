@@ -98,6 +98,7 @@ function mapStudent(
     applicationTargets: student.application_targets,
     parentNotes: student.parent_notes,
     paymentNotes: student.payment_notes,
+    originalLeadId: student.original_lead_id,
   };
 }
 

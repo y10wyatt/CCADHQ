@@ -16,6 +16,7 @@ describe("buildDashboardViewModel", () => {
         { entryType: "income", amountMinor: 120000 },
         { entryType: "expense", amountMinor: 25000 },
       ],
+      leads: [],
       recentXpEvents: [
         {
           id: "xp-1",

@@ -47,6 +47,7 @@ export interface StudentView {
   applicationTargets: string[];
   parentNotes: string;
   paymentNotes: string;
+  originalLeadId: string | null;
 }
 
 export interface ClassLogView {

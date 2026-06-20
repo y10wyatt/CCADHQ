@@ -26,7 +26,7 @@ secondary, non-punitive, and non-ranking.
 
 - Student or parent access
 - Learning management
-- Customer relationship management
+- Generic enterprise customer relationship management
 - Payment collection or bank integrations
 - AI-generated content or assistants
 - Chat, direct messages, or video calls
@@ -65,19 +65,19 @@ product routes.
 
 ## 5. Navigation
 
-Primary navigation contains exactly four MVP tabs:
+Primary navigation contains:
 
-1. Home
-2. Focus Room
-3. Tasks
-4. Finance
+1. Dashboard
+2. Leads
+3. Students
+4. Marketing
+5. Finance
+6. Tasks
+7. Team
+8. Settings
 
-Studio XP is visible across the product but does not require its own MVP tab.
-Character Level may appear on user cards and presence cards without becoming a
-primary navigation destination. Weekly Quests may appear on Home as shared
-direction. Realtime presence appears where useful, primarily on Home and in
-Focus Room. Pixel office is a later alternative visualization, not a primary
-tab.
+Leads must remain separate from Students. A Lead becomes a Student only after
+enrollment conversion.
 
 ## 6. Functional Requirements
 
@@ -331,6 +331,27 @@ Required behavior:
 - Keep archived students out of the default active workspace.
 - Avoid turning student records into public portfolio pages; this is internal
   studio context.
+
+### 6.9a Leads CRM
+
+Leads is the internal admissions pipeline for prospective students from first
+inquiry through enrollment.
+
+Required behavior:
+
+- Show a Kanban board with New Inquiry, Contacted, Consultation Booked, Trial
+  Class, Proposal Sent, Enrolled, and Lost columns.
+- Support search, filtering, sorting, and drag-and-drop status movement.
+- Track student, parent, admissions, marketing source, pipeline value, assigned
+  staff, created date, last contacted date, next follow-up date, notes, and an
+  activity timeline.
+- Show follow-up health on Home: due today and overdue.
+- Color follow-up state as overdue, due soon, or scheduled.
+- When a lead is moved to Enrolled, ask for conversion confirmation, create a
+  Student record, preserve lead history, link the source lead and new student,
+  remove the lead from the active pipeline, and open the Student profile.
+- Report marketing attribution by source with lead count, enrollments,
+  conversion percentage, and enrolled revenue.
 
 ### 6.10 Class Logs
 

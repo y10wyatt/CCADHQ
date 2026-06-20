@@ -570,3 +570,25 @@ Phase 29 adds a lightweight internal link-library boundary:
 Resources intentionally store links and short context only. They do not manage
 files directly; Google Docs, Drive folders, and future storage assets remain the
 source systems.
+
+## 30. Leads CRM Implementation
+
+The Leads CRM is a CCAD admissions pipeline, not a generic sales CRM:
+
+- `features/leads/domain/` owns pipeline stages, lead sources, follow-up state,
+  dashboard metrics, and marketing-attribution calculations.
+- `features/leads/application/` owns organization-scoped lead loading, timeline
+  loading, validated server actions, and lead-to-student conversion.
+- `features/leads/ui/` owns the Kanban board, lead cards, filters, conversion
+  modal, attribution table, and lead detail timeline.
+- `/leads` is a primary navigation tab separate from `/students`; conversion is
+  the boundary between prospective student and enrolled student.
+- Conversion creates a student record, preserves and archives the lead, links
+  `students.original_lead_id`, links `leads.converted_student_id`, and opens the
+  student profile from the client action result.
+- The Home dashboard composes Leads Overview metrics and source attribution
+  from the leads feature rules; it does not own lead persistence or conversion
+  behavior.
+- The database migration creates `leads` and `lead_activity_entries`, extends
+  `students` with `original_lead_id`, and protects all lead records with
+  organization-member RLS and change-history triggers.

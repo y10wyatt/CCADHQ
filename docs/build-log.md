@@ -23,6 +23,39 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-20 - Add admissions Leads CRM
+
+### Scope
+
+- Added a CCAD-specific Leads module for prospective student admissions.
+- Added a Kanban admissions pipeline, follow-up tracking, lead detail timeline,
+  Dashboard metrics, and marketing attribution.
+- Added lead-to-student conversion that preserves lead history and links both
+  records.
+
+### Decisions
+
+- Leads are separate from Students; enrollment conversion is the boundary.
+- Conversion archives the lead from the active pipeline while preserving it as
+  admissions history.
+- Dashboard owns only the summary display; lead metric and attribution rules
+  live in `features/leads/domain`.
+- Navigation now follows the admissions operating model: Dashboard, Leads,
+  Students, Marketing, Finance, Tasks, Team, Settings.
+
+### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build`
+  passed.
+- Browser route check reached `/leads` but could not render authenticated app
+  content because local Supabase URL/key environment variables are missing.
+
+### Follow-ups
+
+- Apply `20260620090000_leads_crm.sql` to Supabase.
+- Smoke-test authenticated lead creation, status dragging, manual timeline
+  entry creation, and conversion to Student after local env values are present.
+
 ## 2026-06-15 - Add Resources link library
 
 ### Scope

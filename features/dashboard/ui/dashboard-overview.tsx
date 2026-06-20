@@ -9,6 +9,7 @@ import type {
   DashboardActivity,
   DashboardViewModel,
 } from "@/features/dashboard/domain/dashboard-view-model";
+import { formatMoney } from "@/features/leads/domain/leads";
 import type { StudioNote } from "@/features/studio-notes/domain/studio-notes";
 import { StudioNotesPanel } from "@/features/studio-notes/ui/studio-notes-panel";
 import { WeeklyQuestsPanel } from "@/features/weekly-quests/ui/weekly-quests-panel";
@@ -55,6 +56,8 @@ export function DashboardOverview({ dashboard, studioNotes }: DashboardOverviewP
           </Link>
         ))}
       </section>
+
+      <LeadsOverview dashboard={dashboard} />
 
       <StudioNotesPanel notes={studioNotes} />
 
@@ -149,6 +152,94 @@ export function DashboardOverview({ dashboard, studioNotes }: DashboardOverviewP
         onToggle={() => setShowActivity((current) => !current)}
       />
     </div>
+  );
+}
+
+function LeadsOverview({ dashboard }: { dashboard: DashboardViewModel }) {
+  const leads = dashboard.leadsOverview;
+  const leadMetrics = [
+    {
+      label: "Active Leads",
+      value: leads.activeLeads.toString(),
+      detail: `${leads.newLeadsThisMonth} new this month`,
+      tone: "info" as const,
+    },
+    {
+      label: "Consultations",
+      value: leads.consultationsScheduled.toString(),
+      detail: "Currently booked",
+      tone: "neutral" as const,
+    },
+    {
+      label: "Enrolled",
+      value: leads.enrolledThisMonth.toString(),
+      detail: `${leads.conversionRate}% conversion`,
+      tone: "success" as const,
+    },
+    {
+      label: "Pipeline",
+      value: formatMoney(leads.pipelineRevenueMinor, leads.currencyCode),
+      detail: `${leads.followUpsDueToday} follow-ups due today`,
+      tone: leads.overdueFollowUps > 0 ? ("warning" as const) : ("info" as const),
+    },
+  ];
+
+  return (
+    <Card>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">Leads Overview</h2>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            Admissions demand, conversion, and follow-up health.
+          </p>
+        </div>
+        <Link
+          href="/leads"
+          className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm font-medium transition-colors hover:border-accent/60 hover:bg-muted"
+        >
+          Open Leads
+        </Link>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-4">
+        {leadMetrics.map((metric) => (
+          <div key={metric.label} className="rounded-lg border border-border bg-background/70 p-4">
+            <StatusPill tone={metric.tone}>{metric.label}</StatusPill>
+            <p className="mt-4 font-mono text-2xl font-semibold tracking-tight">
+              {metric.value}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              {metric.detail}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full min-w-[620px] text-left text-sm">
+          <thead className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            <tr className="border-b border-border">
+              <th className="py-3 pr-4">Source</th>
+              <th className="py-3 pr-4">Leads</th>
+              <th className="py-3 pr-4">Enrollments</th>
+              <th className="py-3 pr-4">Conversion</th>
+              <th className="py-3">Revenue</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {dashboard.leadSourceReports.map((report) => (
+              <tr key={report.source}>
+                <td className="py-3 pr-4 font-medium">{report.source}</td>
+                <td className="py-3 pr-4">{report.leads}</td>
+                <td className="py-3 pr-4">{report.enrollments}</td>
+                <td className="py-3 pr-4">{report.conversionRate}%</td>
+                <td className="py-3">
+                  {formatMoney(report.revenueMinor, leads.currencyCode)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
   );
 }
 

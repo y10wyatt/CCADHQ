@@ -1,5 +1,10 @@
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
 import type { CharacterSummary } from "@/features/character-xp/domain/character-xp";
+import {
+  buildLeadOverviewMetrics,
+  buildLeadSourceReports,
+  type LeadView,
+} from "@/features/leads/domain/leads";
 import type { WeeklyQuestView } from "@/features/weekly-quests/domain/weekly-quests";
 import { getStudioProgress } from "@/features/dashboard/domain/studio-progress";
 
@@ -15,6 +20,7 @@ export interface DashboardSnapshot {
     entryType: "income" | "expense";
     amountMinor: number;
   }>;
+  leads: LeadView[];
   recentXpEvents: Array<{
     id: string;
     description: string;
@@ -82,6 +88,11 @@ export function buildDashboardViewModel(
         tone: netMinor > 0 ? "success" : netMinor < 0 ? "warning" : "neutral",
       },
     ],
+    leadsOverview: {
+      ...buildLeadOverviewMetrics({ leads: snapshot.leads, now: snapshot.now }),
+      currencyCode: snapshot.currencyCode,
+    },
+    leadSourceReports: buildLeadSourceReports(snapshot.leads),
     characters: snapshot.characters,
     weeklyQuests: snapshot.weeklyQuests,
     activities: snapshot.recentXpEvents.map((event) => ({

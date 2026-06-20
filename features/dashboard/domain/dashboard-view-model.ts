@@ -1,4 +1,8 @@
 import type { CharacterSummary } from "@/features/character-xp/domain/character-xp";
+import type {
+  LeadOverviewMetrics,
+  LeadSourceReport,
+} from "@/features/leads/domain/leads";
 import type { WeeklyQuestView } from "@/features/weekly-quests/domain/weekly-quests";
 
 export type DashboardTone = "neutral" | "info" | "success" | "warning";
@@ -27,6 +31,10 @@ export interface DashboardViewModel {
   xpToNextLevel: number;
   xpProgressPercent: number;
   metrics: DashboardMetric[];
+  leadsOverview: LeadOverviewMetrics & {
+    currencyCode: string;
+  };
+  leadSourceReports: LeadSourceReport[];
   characters: CharacterSummary[];
   weeklyQuests: WeeklyQuestView[];
   activities: DashboardActivity[];

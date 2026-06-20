@@ -3,6 +3,8 @@ import { buildCharacterSummaries } from "@/features/character-xp/domain/characte
 import { buildDashboardViewModel } from "@/features/dashboard/application/build-dashboard-view-model";
 import type { DashboardQuery } from "@/features/dashboard/application/dashboard-query";
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
+import type { LeadView } from "@/features/leads/domain/leads";
+import type { Database } from "@/shared/database/database.types";
 import { getWeeklyQuests } from "@/features/weekly-quests/application/get-weekly-quests";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
@@ -26,6 +28,7 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       xpTotal,
       recentXp,
       financeEntries,
+      leads,
       members,
       characterXpEvents,
       weeklyQuests,
@@ -61,6 +64,10 @@ export class SupabaseDashboardQuery implements DashboardQuery {
         .lt("entry_date", monthRange.end)
         .is("archived_at", null),
       supabase
+        .from("leads")
+        .select("*")
+        .eq("organization_id", organizationId),
+      supabase
         .from("organization_members")
         .select(
           "id, profile:profiles!organization_members_user_id_fkey(display_name, avatar_url)",
@@ -81,6 +88,7 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       xpTotal.error,
       recentXp.error,
       financeEntries.error,
+      leads.error,
       members.error,
       characterXpEvents.error,
     ].find(Boolean);
@@ -111,6 +119,7 @@ export class SupabaseDashboardQuery implements DashboardQuery {
         entryType: entry.entry_type,
         amountMinor: entry.amount_minor,
       })),
+      leads: (leads.data ?? []).map(mapLead),
       characters: buildCharacterSummaries({
         members: (members.data ?? []).map((candidate) => ({
           id: candidate.id,
@@ -135,6 +144,32 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       })),
     });
   }
+}
+
+function mapLead(lead: Database["public"]["Tables"]["leads"]["Row"]): LeadView {
+  return {
+    id: lead.id,
+    studentName: lead.student_name,
+    grade: lead.grade,
+    school: lead.school,
+    parentName: lead.parent_name,
+    parentEmail: lead.parent_email,
+    parentPhone: lead.parent_phone,
+    programInterest: lead.program_interest,
+    targetSchools: lead.target_schools,
+    goals: lead.goals,
+    timeline: lead.timeline,
+    source: lead.source,
+    status: lead.status,
+    potentialRevenueMinor: lead.potential_revenue_minor,
+    assignedStaff: lead.assigned_staff,
+    createdAt: lead.created_at,
+    lastContactedDate: lead.last_contacted_date,
+    nextFollowUpDate: lead.next_follow_up_date,
+    notes: lead.notes,
+    convertedStudentId: lead.converted_student_id,
+    convertedAt: lead.converted_at,
+  };
 }
 
 export function getOrganizationMonthRange(now: Date, timezone: string) {
