@@ -15,6 +15,21 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-21 10:27 PDT - Keep Dashboard loading during migration gaps
+
+- Goal: Stop production Dashboard from showing the workspace error when newer
+  optional tables are not present yet.
+- Files changed:
+  `features/dashboard/infrastructure/supabase-dashboard-query.ts`,
+  `features/weekly-quests/application/get-weekly-quests.ts`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Missing Leads, Character XP events, or Weekly Quests schema now
+  produces empty Dashboard sections instead of crashing the workspace.
+- Known issues: Persisted data for those sections still requires the pending
+  Supabase migrations to be applied in production.
+- Next recommended step: Apply production Supabase migrations, then verify the
+  Dashboard with a signed-in account.
+
 ## 2026-06-20 02:21 PDT - Remove fake Marketing data and Studio Access shortcut
 
 - Goal: Make Marketing show editable real records only, and remove the duplicate

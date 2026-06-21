@@ -5,6 +5,7 @@ import {
   type WeeklyQuestView,
 } from "@/features/weekly-quests/domain/weekly-quests";
 import type { Database } from "@/shared/database/database.types";
+import { isMissingSchemaError } from "@/shared/database/is-missing-schema-error";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 export async function getWeeklyQuests(
@@ -31,6 +32,10 @@ export async function getWeeklyQuests(
 
   const firstError = [quests.error, members.error].find(Boolean);
   if (firstError) {
+    if (isMissingSchemaError(firstError)) {
+      return [];
+    }
+
     throw new Error(`Unable to load Weekly Quests: ${firstError.message}`);
   }
 

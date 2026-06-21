@@ -6,6 +6,7 @@ import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-v
 import type { LeadView } from "@/features/leads/domain/leads";
 import type { Database } from "@/shared/database/database.types";
 import { getWeeklyQuests } from "@/features/weekly-quests/application/get-weekly-quests";
+import { isMissingSchemaError } from "@/shared/database/is-missing-schema-error";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 export class SupabaseDashboardQuery implements DashboardQuery {
@@ -88,13 +89,24 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       xpTotal.error,
       recentXp.error,
       financeEntries.error,
-      leads.error,
       members.error,
-      characterXpEvents.error,
     ].find(Boolean);
 
     if (firstError) {
       throw new Error(`Unable to load Home dashboard: ${firstError.message}`);
+    }
+
+    const leadsData = isMissingSchemaError(leads.error) ? [] : leads.data;
+    const characterXpEventsData = isMissingSchemaError(characterXpEvents.error)
+      ? []
+      : characterXpEvents.data;
+
+    const optionalError = [leads.error, characterXpEvents.error].find(
+      (error) => error && !isMissingSchemaError(error),
+    );
+
+    if (optionalError) {
+      throw new Error(`Unable to load Home dashboard: ${optionalError.message}`);
     }
 
     const memberNames = new Map(
@@ -119,14 +131,14 @@ export class SupabaseDashboardQuery implements DashboardQuery {
         entryType: entry.entry_type,
         amountMinor: entry.amount_minor,
       })),
-      leads: (leads.data ?? []).map(mapLead),
+      leads: (leadsData ?? []).map(mapLead),
       characters: buildCharacterSummaries({
         members: (members.data ?? []).map((candidate) => ({
           id: candidate.id,
           name: candidate.profile?.display_name ?? "Unnamed member",
           avatarUrl: candidate.profile?.avatar_url ?? null,
         })),
-        events: (characterXpEvents.data ?? []).map((event) => ({
+        events: (characterXpEventsData ?? []).map((event) => ({
           memberId: event.member_id,
           eventType: event.event_type,
           points: event.points,

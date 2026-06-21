@@ -23,6 +23,30 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-21 - Keep Dashboard loading during migration gaps
+
+### Scope
+
+- Added missing-schema fallbacks for Dashboard leads, Character XP events, and
+  Weekly Quests.
+- Dashboard now renders those newer sections empty instead of failing the whole
+  workspace when production migrations lag behind the deployment.
+
+### Decisions
+
+- Core Dashboard data should still load when optional newer feature tables are
+  absent.
+- Non-schema database errors still fail loudly.
+
+### Verification
+
+- `npm run typecheck`, `npm run lint`, and `npm run build` passed.
+
+### Follow-ups
+
+- Apply pending Supabase migrations in production so Leads, Character XP, and
+  Weekly Quests show persisted data.
+
 ## 2026-06-20 - Remove fake Marketing data and Studio Access shortcut
 
 ### Scope
