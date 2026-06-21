@@ -23,6 +23,26 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-21 - Fix Studio Notes timestamp rendering
+
+### Scope
+
+- Fixed Home Studio Notes date formatting for saved ISO timestamps.
+- Studio Notes now accepts either `YYYY-MM-DD` or full timestamp values and
+  falls back to `date unavailable` for malformed dates.
+
+### Decisions
+
+- Note display should tolerate legacy date shapes without crashing Home.
+
+### Verification
+
+- `npm run typecheck`, `npm run lint`, and `npm run build` passed.
+
+### Follow-ups
+
+- Normalize Studio Notes date display around one stored timestamp shape.
+
 ## 2026-06-21 - Add Home fallback render
 
 ### Scope

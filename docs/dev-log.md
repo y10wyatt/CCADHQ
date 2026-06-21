@@ -15,6 +15,17 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-21 16:05 PDT - Fix Studio Notes timestamp rendering
+
+- Goal: Fix Home crash caused by Studio Notes formatting a saved timestamp as a
+  date-only value.
+- Files changed: `features/studio-notes/ui/studio-notes-panel.tsx`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Studio Notes dates now accept date-only strings and full ISO
+  timestamps without throwing `RangeError: Invalid time value`.
+- Known issues: None.
+- Next recommended step: Deploy and verify Home with existing production notes.
+
 ## 2026-06-21 15:54 PDT - Add Home fallback render
 
 - Goal: Stop the Home route from showing the workspace error while production

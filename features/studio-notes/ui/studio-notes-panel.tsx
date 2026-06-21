@@ -386,9 +386,16 @@ function noteRotation(index: number) {
   return rotations[index % rotations.length];
 }
 
-function formatNoteDate(date: string) {
+function formatNoteDate(value: string) {
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const date = new Date(dateOnly ? `${value}T00:00:00` : value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "date unavailable";
+  }
+
   return new Intl.DateTimeFormat("en", {
     month: "short",
     day: "numeric",
-  }).format(new Date(`${date}T00:00:00`));
+  }).format(date);
 }
