@@ -15,6 +15,20 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-21 15:49 PDT - Harden Dashboard date settings
+
+- Goal: Cover the remaining production `RangeError: Invalid time value` path on
+  the Dashboard.
+- Files changed: `features/dashboard/application/build-dashboard-view-model.ts`,
+  `features/dashboard/application/build-dashboard-view-model.test.ts`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Dashboard summary dates now tolerate invalid current-date input
+  and malformed organization timezone values by falling back to stable date
+  output.
+- Known issues: Production organization settings should still be inspected once
+  the workspace loads.
+- Next recommended step: Deploy and verify the signed-in Dashboard.
+
 ## 2026-06-21 12:31 PDT - Guard invalid Dashboard dates
 
 - Goal: Fix the production workspace crash caused by an invalid saved date.

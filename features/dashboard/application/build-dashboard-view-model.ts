@@ -40,24 +40,40 @@ export function buildDashboardViewModel(
     style: "currency",
     currency: snapshot.currencyCode,
   });
-  const date = new Intl.DateTimeFormat("en-CA", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    timeZone: snapshot.timezone,
-  });
-  const activityDate = new Intl.DateTimeFormat("en-CA", {
-    month: "short",
-    day: "numeric",
-    timeZone: snapshot.timezone,
-  });
+  const safeNow = getSafeDate(snapshot.now);
+  const date = createDateFormatter(
+    {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      timeZone: snapshot.timezone,
+    },
+    {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      timeZone: "America/Vancouver",
+    },
+  );
+  const activityDate = createDateFormatter(
+    {
+      month: "short",
+      day: "numeric",
+      timeZone: snapshot.timezone,
+    },
+    {
+      month: "short",
+      day: "numeric",
+      timeZone: "America/Vancouver",
+    },
+  );
   const incomeMinor = sumFinance(snapshot.financeEntries, "income");
   const expenseMinor = sumFinance(snapshot.financeEntries, "expense");
   const netMinor = incomeMinor - expenseMinor;
 
   return {
-    dateLabel: date.format(snapshot.now),
-    greeting: `${getGreeting(snapshot.now, snapshot.timezone)}, ${getShortOrganizationName(snapshot.organizationName)}`,
+    dateLabel: date.format(safeNow),
+    greeting: `${getGreeting(safeNow, snapshot.timezone)}, ${getShortOrganizationName(snapshot.organizationName)}`,
     studioLevel: progress.level,
     totalXp: progress.totalXp,
     xpToNextLevel: progress.xpToNextLevel,
@@ -81,7 +97,7 @@ export function buildDashboardViewModel(
         tone: "info",
       },
       {
-        label: `${getMonthName(snapshot.now, snapshot.timezone)} net`,
+        label: `${getMonthName(safeNow, snapshot.timezone)} net`,
         value: currency.format(netMinor / 100),
         detail: `Income ${currency.format(incomeMinor / 100)} | Expenses ${currency.format(expenseMinor / 100)}`,
         href: "/finance",
@@ -89,7 +105,7 @@ export function buildDashboardViewModel(
       },
     ],
     leadsOverview: {
-      ...buildLeadOverviewMetrics({ leads: snapshot.leads, now: snapshot.now }),
+      ...buildLeadOverviewMetrics({ leads: snapshot.leads, now: safeNow }),
       currencyCode: snapshot.currencyCode,
     },
     leadSourceReports: buildLeadSourceReports(snapshot.leads),
@@ -116,11 +132,18 @@ function sumFinance(
 
 function getGreeting(now: Date, timezone: string) {
   const hour = Number(
-    new Intl.DateTimeFormat("en-CA", {
-      hour: "numeric",
-      hourCycle: "h23",
-      timeZone: timezone,
-    }).format(now),
+    createDateFormatter(
+      {
+        hour: "numeric",
+        hourCycle: "h23",
+        timeZone: timezone,
+      },
+      {
+        hour: "numeric",
+        hourCycle: "h23",
+        timeZone: "America/Vancouver",
+      },
+    ).format(now),
   );
 
   if (hour < 12) return "Good morning";
@@ -129,10 +152,16 @@ function getGreeting(now: Date, timezone: string) {
 }
 
 function getMonthName(now: Date, timezone: string) {
-  return new Intl.DateTimeFormat("en-CA", {
-    month: "long",
-    timeZone: timezone,
-  }).format(now);
+  return createDateFormatter(
+    {
+      month: "long",
+      timeZone: timezone,
+    },
+    {
+      month: "long",
+      timeZone: "America/Vancouver",
+    },
+  ).format(now);
 }
 
 function getShortOrganizationName(organizationName: string) {
@@ -149,4 +178,19 @@ function formatActivityDate(formatter: Intl.DateTimeFormat, value: string) {
   }
 
   return formatter.format(date);
+}
+
+function getSafeDate(value: Date) {
+  return Number.isNaN(value.getTime()) ? new Date() : value;
+}
+
+function createDateFormatter(
+  options: Intl.DateTimeFormatOptions,
+  fallbackOptions: Intl.DateTimeFormatOptions,
+) {
+  try {
+    return new Intl.DateTimeFormat("en-CA", options);
+  } catch {
+    return new Intl.DateTimeFormat("en-CA", fallbackOptions);
+  }
 }

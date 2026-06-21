@@ -23,6 +23,27 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-21 - Harden Dashboard date settings
+
+### Scope
+
+- Added safe Dashboard summary formatting when the current date or organization
+  timezone is invalid.
+- Added test coverage for invalid Dashboard clock/timezone inputs.
+
+### Decisions
+
+- Dashboard should fall back to Vancouver date formatting rather than crashing
+  the workspace if organization date settings are malformed.
+
+### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm run test -- features/dashboard/application/build-dashboard-view-model.test.ts`, and `npm run build` passed.
+
+### Follow-ups
+
+- Inspect production organization settings after the workspace is reachable.
+
 ## 2026-06-21 - Guard invalid Dashboard dates
 
 ### Scope

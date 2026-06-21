@@ -117,4 +117,24 @@ describe("buildDashboardViewModel", () => {
       "+10 XP | date unavailable",
     );
   });
+
+  it("keeps summary rendering stable when date settings are invalid", () => {
+    const dashboard = buildDashboardViewModel({
+      organizationName: "Cloud Centre of Art & Design",
+      timezone: "Invalid/Timezone",
+      currencyCode: "CAD",
+      now: new Date("not-a-date"),
+      outstandingTaskCount: 0,
+      priorityTaskCount: 0,
+      totalXp: 0,
+      financeEntries: [],
+      leads: [],
+      recentXpEvents: [],
+      characters: [],
+      weeklyQuests: [],
+    });
+
+    expect(dashboard.greeting).toContain("CCAD");
+    expect(dashboard.metrics[2].label).toContain("net");
+  });
 });
