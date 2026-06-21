@@ -23,6 +23,29 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-21 - Add Home fallback render
+
+### Scope
+
+- Wrapped Home dashboard and Studio Notes loading with settled results.
+- Home now renders an empty safe fallback instead of the workspace error when a
+  child data section throws.
+
+### Decisions
+
+- Dashboard shell availability is more important than blocking all Home content
+  on one bad section.
+- Rejected sections are logged server-side for follow-up.
+
+### Verification
+
+- `npm run typecheck`, `npm run lint`, and `npm run build` passed.
+
+### Follow-ups
+
+- Use production logs after fallback deploy to identify the exact rejected Home
+  section.
+
 ## 2026-06-21 - Harden Dashboard date settings
 
 ### Scope

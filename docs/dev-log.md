@@ -15,6 +15,19 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-21 15:54 PDT - Add Home fallback render
+
+- Goal: Stop the Home route from showing the workspace error while production
+  data investigation continues.
+- Files changed: `app/(app)/page.tsx`, `docs/build-log.md`,
+  `docs/dev-log.md`.
+- What works: Home now renders a safe empty Dashboard and empty Studio Notes
+  when either loader rejects, and logs the rejected loader server-side.
+- Known issues: The exact production data field behind the rejected Dashboard
+  still needs follow-up after the page becomes reachable.
+- Next recommended step: Deploy, verify Home loads, then inspect production
+  logs for the fallback message.
+
 ## 2026-06-21 15:49 PDT - Harden Dashboard date settings
 
 - Goal: Cover the remaining production `RangeError: Invalid time value` path on
