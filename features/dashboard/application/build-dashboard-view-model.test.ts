@@ -88,4 +88,33 @@ describe("buildDashboardViewModel", () => {
     expect(dashboard.activities[0].actorName).toBe("William");
     expect(dashboard.activities[0].occurredAtLabel).toContain("+20 XP");
   });
+
+  it("keeps activity rendering stable when a saved date is invalid", () => {
+    const dashboard = buildDashboardViewModel({
+      organizationName: "Cloud Centre of Art & Design",
+      timezone: "America/Vancouver",
+      currencyCode: "CAD",
+      now: new Date("2026-06-03T22:00:00.000Z"),
+      outstandingTaskCount: 0,
+      priorityTaskCount: 0,
+      totalXp: 0,
+      financeEntries: [],
+      leads: [],
+      recentXpEvents: [
+        {
+          id: "xp-invalid-date",
+          description: "Legacy activity",
+          points: 10,
+          actorName: null,
+          createdAt: "",
+        },
+      ],
+      characters: [],
+      weeklyQuests: [],
+    });
+
+    expect(dashboard.activities[0].occurredAtLabel).toBe(
+      "+10 XP | date unavailable",
+    );
+  });
 });

@@ -99,7 +99,7 @@ export function buildDashboardViewModel(
       id: event.id,
       description: event.description,
       actorName: event.actorName ?? "CCAD",
-      occurredAtLabel: `${event.points > 0 ? "+" : ""}${event.points} XP | ${activityDate.format(new Date(event.createdAt))}`,
+      occurredAtLabel: `${event.points > 0 ? "+" : ""}${event.points} XP | ${formatActivityDate(activityDate, event.createdAt)}`,
       tone: event.points > 0 ? "success" : "warning",
     })),
   };
@@ -139,4 +139,14 @@ function getShortOrganizationName(organizationName: string) {
   return organizationName === "Cloud Centre of Art & Design"
     ? "CCAD"
     : organizationName;
+}
+
+function formatActivityDate(formatter: Intl.DateTimeFormat, value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "date unavailable";
+  }
+
+  return formatter.format(date);
 }

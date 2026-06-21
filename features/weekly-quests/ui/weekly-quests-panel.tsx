@@ -429,8 +429,14 @@ function extractNumber(label: string | undefined) {
 }
 
 function formatDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "date unavailable";
+  }
+
   return new Intl.DateTimeFormat("en-CA", {
     month: "short",
     day: "numeric",
-  }).format(new Date(value));
+  }).format(date);
 }

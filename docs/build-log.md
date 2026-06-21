@@ -23,6 +23,27 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-21 - Guard invalid Dashboard dates
+
+### Scope
+
+- Added defensive date formatting for Dashboard activity timestamps and Weekly
+  Quest due dates.
+- Added test coverage for invalid saved activity dates.
+
+### Decisions
+
+- Invalid historical dates should render as `date unavailable` instead of
+  crashing the workspace.
+
+### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm run test -- features/dashboard/application/build-dashboard-view-model.test.ts`, and `npm run build` passed.
+
+### Follow-ups
+
+- Review stored XP and quest date values after production is stable.
+
 ## 2026-06-21 - Keep Dashboard loading during migration gaps
 
 ### Scope

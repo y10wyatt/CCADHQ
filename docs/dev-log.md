@@ -15,6 +15,20 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-21 12:31 PDT - Guard invalid Dashboard dates
+
+- Goal: Fix the production workspace crash caused by an invalid saved date.
+- Files changed: `features/dashboard/application/build-dashboard-view-model.ts`,
+  `features/dashboard/application/build-dashboard-view-model.test.ts`,
+  `features/weekly-quests/ui/weekly-quests-panel.tsx`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Dashboard activity dates and Weekly Quest due dates now fall back
+  to `date unavailable` instead of throwing `RangeError: Invalid time value`.
+- Known issues: Stored date data should still be reviewed once the workspace is
+  stable.
+- Next recommended step: Deploy this hotfix and verify the Dashboard with the
+  signed-in production account.
+
 ## 2026-06-21 10:27 PDT - Keep Dashboard loading during migration gaps
 
 - Goal: Stop production Dashboard from showing the workspace error when newer
