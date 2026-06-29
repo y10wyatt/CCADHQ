@@ -23,6 +23,67 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-06-28 - Progressive Student record form
+
+### Scope
+
+- Reorganized Student create/edit into replaceable Basic, Learning Plan, Class
+  Package, Communication and Consent, and Additional Notes sections.
+- Added inline validation, helper text, unsaved-change protection, accessible
+  feedback, and larger interaction targets.
+
+### Decisions
+
+- Basic information opens first; secondary sections use progressive disclosure.
+- Class sessions remain the source of truth for next/last class dates, so the
+  Student profile form no longer exposes duplicate date editors.
+- Existing action contracts and stored date values remain unchanged.
+
+### Verification
+
+- `npm run typecheck` passed.
+- `npm run lint` passed.
+- Student domain tests passed: 6 tests.
+- `npm run build` passed.
+
+### Follow-ups
+
+- Visually verify against a configured Supabase environment.
+- Decide whether payment/package notes require admin-only access.
+
+## 2026-06-22 - Student class session workflow
+
+### Scope
+
+- Added a persisted class-session lifecycle for Student detail.
+- Added student/teacher action items and remaining class-credit tracking.
+- Replaced the old profile-first Student detail layout with a teacher workflow:
+  upcoming class, prepare, teaching attendance, complete summary, and timeline.
+
+### Decisions
+
+- New Student teaching work uses `class_sessions`; `class_logs` remain visible
+  only as legacy notes.
+- Attendance credit behavior lives in domain helpers and is covered by tests.
+- `deducts_credit` on each session prevents duplicate class-credit subtraction
+  when attendance is edited.
+- Parent report generation is data-ready through parent-facing summary,
+  homework, student progress, and progress tags, but the full report builder is
+  deferred.
+
+### Verification
+
+- `npm test` passed.
+- `npm run typecheck` passed.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+### Follow-ups
+
+- Apply the Supabase migration before using the workflow in production.
+- Configure local Supabase env vars before browser-verifying the workflow.
+- Add the full Parent Report Builder once enough completed session data exists.
+
 ## 2026-06-21 - Fix Studio Notes timestamp rendering
 
 ### Scope

@@ -530,11 +530,14 @@ Phase 10 adds a small admin-only access-management boundary:
 Phase 28 adds the first scoped CCAD operating-system surfaces beyond Tasks and
 Finance:
 
-- `features/students/domain/` owns student and class-log view models, enums, and
-  display lists.
+- `features/students/domain/` owns student, class-session, action-item, and
+  legacy class-log view models, enums, display lists, and testable attendance
+  credit rules.
 - `features/students/application/` owns organization-scoped student loading and
-  validated server actions for student and class-log writes.
-- `features/students/ui/` owns the card workspace and student detail workspace.
+  validated server actions for student, class-session, attendance, summary,
+  action-item, and legacy class-log writes.
+- `features/students/ui/` owns the card workspace and teacher command-center
+  student detail workspace.
 - `features/marketing/domain/` owns content idea view models and workflow
   statuses.
 - `features/marketing/application/` owns organization-scoped idea loading and
@@ -546,13 +549,16 @@ Finance:
   note form behavior.
 - The Dashboard composes Studio Notes as a Home section but does not own note
   persistence rules.
-- The database migration creates organization-scoped tables for students, class
-  logs, marketing ideas, and studio notes with RLS and change-history triggers.
+- The database migrations create organization-scoped tables for students, class
+  sessions, student action items, class logs, marketing ideas, and studio notes
+  with RLS and change-history triggers.
 
 Marketing intentionally shows only real content ideas from the database. Future
 calendar, performance, or asset sections need persisted data before appearing in
 the app. Class-log photos remain represented by lightweight URL hooks until a
-Supabase Storage feature boundary is added.
+Supabase Storage feature boundary is added. Class sessions are now the source of
+truth for new Student teaching workflow records; class logs remain visible as
+legacy notes.
 
 ## 29. Resources Implementation
 

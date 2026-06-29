@@ -452,8 +452,69 @@ Internal student records for active and archived mentorship relationships.
 | `application_targets` | text[] | Target schools or programs |
 | `parent_notes` | text | Parent communication context |
 | `payment_notes` | text | Payment/package context |
+| `remaining_class_credits` | integer | Current remaining paid class count |
 | `original_lead_id` | uuid nullable | Source admissions lead when converted from CRM |
 | `archived_at` | timestamptz nullable | Soft archive |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+### `class_sessions`
+
+Lifecycle record for a scheduled student class. This is the source of truth for
+pre-class planning, in-class attendance, after-class summaries, and parent
+report source data.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `student_id` | uuid | References `students.id` |
+| `enrollment_id` | uuid nullable | Future enrollment/package link |
+| `series_id` | uuid nullable | Future recurring session group link |
+| `scheduled_start` | timestamptz | Planned start |
+| `scheduled_end` | timestamptz | Planned end |
+| `status` | enum | `planned`, `in_progress`, `completed`, `reported`, `excused_absence`, `unexcused_absence`, `cancelled`, or `rescheduled` |
+| `attendance_status` | enum | `pending`, `attended`, `excused_absence`, `unexcused_absence`, `cancelled`, or `rescheduled` |
+| `deducts_credit` | boolean | Whether this session has already deducted one class credit |
+| `lesson_goal` | text | Preparation goal |
+| `plan_notes` | text | Planned activities |
+| `materials_needed` | text | Materials or assets needed |
+| `teacher_private_notes` | text | Private preparation notes |
+| `actual_summary` | text | After-class summary |
+| `student_progress` | text | Progress notes |
+| `homework_assigned` | text | Homework assigned |
+| `no_homework` | boolean | Explicit no-homework marker |
+| `parent_facing_summary` | text | Parent report source text |
+| `internal_teacher_notes` | text | Private after-class notes |
+| `next_class_recommendation` | text | Prep source for the next class |
+| `progress_tags` | text[] | Report/search tags |
+| `parent_report_sent_at` | timestamptz nullable | Parent report completion marker |
+| `created_by_member_id` | uuid | Creator attribution |
+| `created_at` | timestamptz | Creation time |
+| `updated_at` | timestamptz | Last update |
+
+Attendance credit behavior is handled in application domain logic. `attended`
+and `unexcused_absence` deduct one credit; excused absence, cancellation, and
+reschedule do not. `deducts_credit` prevents duplicate deduction when
+attendance is edited.
+
+### `student_action_items`
+
+Open, completed, or dismissed follow-up items generated from student class
+sessions.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid | Primary key |
+| `organization_id` | uuid | Organization scope |
+| `student_id` | uuid | References `students.id` |
+| `class_session_id` | uuid nullable | Source class session |
+| `assigned_to` | enum | `teacher` or `student` |
+| `title` | text | Required action item |
+| `description` | text | Optional detail |
+| `due_date` | date nullable | Optional due date |
+| `status` | enum | `open`, `completed`, or `dismissed` |
 | `created_by_member_id` | uuid | Creator attribution |
 | `created_at` | timestamptz | Creation time |
 | `updated_at` | timestamptz | Last update |
@@ -508,7 +569,8 @@ Append-friendly admissions timeline entries attached to a lead.
 
 ### `class_logs`
 
-Session notes attached to a student.
+Legacy session notes attached to a student. New class workflow records use
+`class_sessions`.
 
 | Column | Type | Notes |
 | --- | --- | --- |
