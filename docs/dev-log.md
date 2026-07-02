@@ -15,6 +15,44 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-06-28 15:33 PDT - Improve Student record form
+
+- Goal: Make Student create/edit easier to scan, safer to complete, and more
+  accessible without changing its database contract.
+- Files changed: `features/students/ui/students-workspace.tsx`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: The form now uses collapsible semantic sections, explicit required
+  state, inline validation, safer class-credit limits, contextual helper text,
+  unsaved-change confirmation, distinct success/error feedback, and 44px
+  controls. Class dates remain preserved in data but are no longer manually
+  edited because class sessions own those values. Typecheck, lint, focused
+  tests, and the production build pass.
+- Known issues: Local browser verification still requires configured Supabase
+  environment variables. Payment/package notes retain existing member access.
+- Next recommended step: Apply the pending Student class-session migration,
+  visually verify create/edit with production-like data, and decide whether
+  payment/package notes require admin-only access.
+
+## 2026-06-22 19:01 PDT - Add Student class session workflow
+
+- Goal: Redesign Student detail around upcoming class preparation, attendance,
+  summaries, action items, and class-credit-safe session lifecycle.
+- Files changed: `app/(app)/students/[studentId]/page.tsx`,
+  `features/students/**`, `shared/database/database.types.ts`,
+  `supabase/migrations/20260623090000_student_class_sessions.sql`,
+  `docs/product-spec.md`, `docs/database-schema.md`,
+  `docs/system-architecture.md`, `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Student detail now centers on an Upcoming Class card, supports
+  planning sessions, preparation mode, teaching attendance mode, completed
+  summaries, student/teacher action items, chronological session history, and
+  tested credit deduction transitions.
+- Known issues: The Supabase migration must be applied before production can use
+  the new tables and `remaining_class_credits` column. Local browser
+  verification could not render because required Supabase environment variables
+  are not configured in this shell.
+- Next recommended step: Configure local Supabase env vars, apply the migration,
+  then create a sample class session and verify the workflow with real data.
+
 ## 2026-06-21 16:05 PDT - Fix Studio Notes timestamp rendering
 
 - Goal: Fix Home crash caused by Studio Notes formatting a saved timestamp as a

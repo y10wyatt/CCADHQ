@@ -305,7 +305,9 @@ artificial financial activity.
 ### 6.9 Students
 
 Students is the operational record for current mentorship relationships and
-portfolio coaching context.
+portfolio coaching context. Student detail is centered on the next class
+session so teachers can prepare before class, confirm attendance during class,
+complete summaries after class, and carry recommendations into the next class.
 
 Required fields:
 
@@ -319,6 +321,7 @@ Required fields:
 - Optional next and last class dates
 - Follow-up-needed flag
 - Permission-to-post state
+- Remaining class credits
 - Notes, strengths, support needs, application targets, parent notes, and
   payment notes
 
@@ -326,7 +329,15 @@ Required behavior:
 
 - Show students as scannable cards with status, program, focus, and next action.
 - Create, edit, and archive students.
-- Open a student detail page for deeper context.
+- Open a student detail page with an Upcoming Class card at the top.
+- Support class-session statuses: planned, in progress, completed, reported,
+  excused absence, unexcused absence, cancelled, and rescheduled.
+- Support preparation notes, teaching-mode attendance, after-class summaries,
+  parent-facing summary text, progress tags, and next-class recommendations.
+- Split action items into student-owned and teacher-owned items.
+- Deduct one class credit for attended and unexcused absence statuses only.
+  Editing attendance must not deduct the same class session twice.
+- Show class sessions in chronological Classes / Reports history.
 - Keep archived students out of the default active workspace.
 - Avoid turning student records into public portfolio pages; this is internal
   studio context.

@@ -45,6 +45,24 @@ export type StudentProgram =
 export type StudentStatus = "Active" | "Trial" | "Paused" | "Completed";
 export type PermissionToPost = "Yes" | "No" | "Pending";
 export type ClassLogTeacher = "William" | "Alice" | "Gerald" | "Other";
+export type ClassSessionStatus =
+  | "planned"
+  | "in_progress"
+  | "completed"
+  | "reported"
+  | "excused_absence"
+  | "unexcused_absence"
+  | "cancelled"
+  | "rescheduled";
+export type AttendanceStatus =
+  | "pending"
+  | "attended"
+  | "excused_absence"
+  | "unexcused_absence"
+  | "cancelled"
+  | "rescheduled";
+export type ActionItemAssignedTo = "teacher" | "student";
+export type ActionItemStatus = "open" | "completed" | "dismissed";
 export type LeadStatus =
   | "New Inquiry"
   | "Contacted"
@@ -465,6 +483,7 @@ export interface Database {
           application_targets: string[];
           parent_notes: string;
           payment_notes: string;
+          remaining_class_credits: number;
           original_lead_id: string | null;
           archived_at: string | null;
           created_by_member_id: string;
@@ -491,6 +510,7 @@ export interface Database {
           application_targets?: string[];
           parent_notes?: string;
           payment_notes?: string;
+          remaining_class_credits?: number;
           original_lead_id?: string | null;
           archived_at?: string | null;
           created_by_member_id: string;
@@ -538,6 +558,102 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["class_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      class_sessions: {
+        Row: {
+          id: string;
+          organization_id: string;
+          student_id: string;
+          enrollment_id: string | null;
+          series_id: string | null;
+          scheduled_start: string;
+          scheduled_end: string;
+          status: ClassSessionStatus;
+          attendance_status: AttendanceStatus;
+          deducts_credit: boolean;
+          lesson_goal: string;
+          plan_notes: string;
+          materials_needed: string;
+          teacher_private_notes: string;
+          actual_summary: string;
+          student_progress: string;
+          homework_assigned: string;
+          no_homework: boolean;
+          parent_facing_summary: string;
+          internal_teacher_notes: string;
+          next_class_recommendation: string;
+          progress_tags: string[];
+          parent_report_sent_at: string | null;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          student_id: string;
+          enrollment_id?: string | null;
+          series_id?: string | null;
+          scheduled_start: string;
+          scheduled_end: string;
+          status?: ClassSessionStatus;
+          attendance_status?: AttendanceStatus;
+          deducts_credit?: boolean;
+          lesson_goal?: string;
+          plan_notes?: string;
+          materials_needed?: string;
+          teacher_private_notes?: string;
+          actual_summary?: string;
+          student_progress?: string;
+          homework_assigned?: string;
+          no_homework?: boolean;
+          parent_facing_summary?: string;
+          internal_teacher_notes?: string;
+          next_class_recommendation?: string;
+          progress_tags?: string[];
+          parent_report_sent_at?: string | null;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["class_sessions"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      student_action_items: {
+        Row: {
+          id: string;
+          organization_id: string;
+          student_id: string;
+          class_session_id: string | null;
+          assigned_to: ActionItemAssignedTo;
+          title: string;
+          description: string;
+          due_date: string | null;
+          status: ActionItemStatus;
+          created_by_member_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          student_id: string;
+          class_session_id?: string | null;
+          assigned_to: ActionItemAssignedTo;
+          title: string;
+          description?: string;
+          due_date?: string | null;
+          status?: ActionItemStatus;
+          created_by_member_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["student_action_items"]["Insert"]
+        >;
         Relationships: [];
       };
       leads: {

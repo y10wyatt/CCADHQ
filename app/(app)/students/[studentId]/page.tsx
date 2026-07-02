@@ -20,7 +20,7 @@ export default async function StudentDetailPage({
       <PageHeader
         eyebrow="Student detail"
         title={detail.student.name}
-        description="Portfolio direction, parent context, class logs, and next actions."
+        description="Prepare class, track attendance, complete summaries, and carry action items forward."
         action={<StatusPill tone={detail.student.followUpNeeded ? "warning" : "neutral"}>{detail.student.status}</StatusPill>}
       />
       <Link
@@ -29,10 +29,7 @@ export default async function StudentDetailPage({
       >
         Back to Students
       </Link>
-      <StudentDetailWorkspace
-        student={detail.student}
-        classLogs={detail.classLogs}
-      />
+      <StudentDetailWorkspace detail={detail} />
     </>
   );
 }
