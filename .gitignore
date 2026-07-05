@@ -18,6 +18,7 @@
 # local tooling
 /.tools/
 /.npm-cache/
+/supabase/.temp/
 
 # operating system
 .DS_Store

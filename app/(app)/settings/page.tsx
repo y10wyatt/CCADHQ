@@ -19,14 +19,53 @@ export default async function SettingsPage() {
         action={<StatusPill tone="neutral">{member.role}</StatusPill>}
       />
       <section className="grid gap-5">
-        <Card>
-          <h2 className="text-lg font-semibold">Organization</h2>
-          <dl className="mt-5 grid gap-4 text-sm">
-            <Info label="Name" value={member.organization.name} />
-            <Info label="Timezone" value={member.organization.timezone} />
-            <Info label="Currency" value={member.organization.currencyCode} />
-          </dl>
-        </Card>
+        <div className="grid gap-5 lg:grid-cols-2">
+          <Card>
+            <h2 className="text-lg font-semibold">Organization</h2>
+            <dl className="mt-5 grid gap-4 text-sm">
+              <Info label="Name" value={member.organization.name} />
+              <Info label="Timezone" value={member.organization.timezone} />
+              <Info label="Currency" value={member.organization.currencyCode} />
+            </dl>
+          </Card>
+          <Card>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">Your permissions</h2>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  What this account can manage inside CCAD HQ.
+                </p>
+              </div>
+              <StatusPill tone={member.role === "admin" ? "success" : "info"}>
+                {member.role}
+              </StatusPill>
+            </div>
+            <p className="mt-5 text-sm leading-6">
+              {member.role === "admin"
+                ? "You can manage studio records, settings, invitations, and staff access."
+                : "You can manage studio records. An admin manages invitations and staff access."}
+            </p>
+            {access && (
+              <dl className="mt-5 grid grid-cols-2 gap-4 text-sm">
+                <Info
+                  label="Active staff"
+                  value={String(
+                    access.members.filter((candidate) => candidate.isActive)
+                      .length,
+                  )}
+                />
+                <Info
+                  label="Pending invites"
+                  value={String(
+                    access.invitations.filter(
+                      (invitation) => invitation.displayStatus === "pending",
+                    ).length,
+                  )}
+                />
+              </dl>
+            )}
+          </Card>
+        </div>
 
         {access ? (
           <div className="grid gap-4">

@@ -37,6 +37,9 @@ export function WeeklyQuestsPanel({
   const [message, setMessage] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editingQuest, setEditingQuest] = useState<WeeklyQuestView | null>(null);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const activeQuests = quests.filter((quest) => quest.status !== "completed");
+  const completedQuests = quests.filter((quest) => quest.status === "completed");
 
   function runAction(
     action: () => Promise<WeeklyQuestActionResult>,
@@ -110,12 +113,12 @@ export function WeeklyQuestsPanel({
       )}
 
       <div className="grid gap-4">
-        {quests.length === 0 ? (
+        {activeQuests.length === 0 ? (
           <p className="rounded-lg border border-dashed border-border p-5 text-sm leading-6 text-muted-foreground">
             No active weekly quests yet.
           </p>
         ) : (
-          quests.map((quest) => (
+          activeQuests.map((quest) => (
             <WeeklyQuestCard
               key={quest.id}
               quest={quest}
@@ -139,6 +142,43 @@ export function WeeklyQuestsPanel({
           ))
         )}
       </div>
+
+      {completedQuests.length > 0 && (
+        <div className="rounded-lg border border-border">
+          <button
+            type="button"
+            onClick={() => setShowCompleted((current) => !current)}
+            className="flex min-h-11 w-full items-center justify-between gap-4 px-4 py-3 text-left text-sm font-medium"
+            aria-expanded={showCompleted}
+          >
+            <span>Completed quest history</span>
+            <span className="text-muted-foreground">
+              {completedQuests.length} · {showCompleted ? "Hide" : "Show"}
+            </span>
+          </button>
+          {showCompleted && (
+            <div className="grid gap-4 border-t border-border p-4">
+              {completedQuests.map((quest) => (
+                <WeeklyQuestCard
+                  key={quest.id}
+                  quest={quest}
+                  disabled={isPending}
+                  onEdit={() => beginEdit(quest)}
+                  onComplete={() => undefined}
+                  onArchive={() => {
+                    if (window.confirm(`Archive "${quest.title}"?`)) {
+                      runAction(
+                        () => archiveWeeklyQuest(quest.id),
+                        "Weekly quest archived.",
+                      );
+                    }
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

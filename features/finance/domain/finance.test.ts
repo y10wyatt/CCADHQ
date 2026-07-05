@@ -4,6 +4,7 @@ import {
   formatCurrency,
   getDateKey,
   getMonthKey,
+  getPreviousMonthKey,
   parseAmountToMinor,
   summarizeFinance,
   type FinanceEntryView,
@@ -56,6 +57,11 @@ describe("finance domain", () => {
     expect(
       getDateKey(new Date("2026-07-01T02:00:00.000Z"), "America/Vancouver"),
     ).toBe("2026-06-30");
+  });
+
+  it("finds the previous month across a year boundary", () => {
+    expect(getPreviousMonthKey("2026-07")).toBe("2026-06");
+    expect(getPreviousMonthKey("2026-01")).toBe("2025-12");
   });
 
   it("formats currency consistently", () => {

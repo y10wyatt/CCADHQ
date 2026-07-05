@@ -113,6 +113,9 @@ export function buildLeadOverviewMetrics({
   const enrolledThisMonth = leads.filter(
     (lead) => lead.convertedAt?.startsWith(monthPrefix) ?? false,
   ).length;
+  const totalEnrollments = leads.filter(
+    (lead) => lead.status === "Enrolled" || Boolean(lead.convertedStudentId),
+  ).length;
 
   return {
     activeLeads,
@@ -123,7 +126,7 @@ export function buildLeadOverviewMetrics({
     ).length,
     enrolledThisMonth,
     conversionRate:
-      leads.length === 0 ? 0 : Math.round((enrolledThisMonth / leads.length) * 100),
+      leads.length === 0 ? 0 : Math.round((totalEnrollments / leads.length) * 100),
     pipelineRevenueMinor: leads
       .filter(isActiveLead)
       .reduce((total, lead) => total + lead.potentialRevenueMinor, 0),

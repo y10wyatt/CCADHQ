@@ -12,6 +12,7 @@ describe("buildDashboardViewModel", () => {
       outstandingTaskCount: 4,
       priorityTaskCount: 2,
       totalXp: 640,
+      studentPlan: [],
       financeEntries: [
         { entryType: "income", amountMinor: 120000 },
         { entryType: "expense", amountMinor: 25000 },
@@ -76,9 +77,9 @@ describe("buildDashboardViewModel", () => {
 
     expect(dashboard.greeting).toBe("Good afternoon, CCAD");
     expect(dashboard.metrics.map((metric) => metric.value)).toEqual([
+      "$950.00",
       "4",
       "640",
-      "$950.00",
     ]);
     expect(dashboard.characters.map((character) => character.name)).toEqual([
       "William",
@@ -98,6 +99,7 @@ describe("buildDashboardViewModel", () => {
       outstandingTaskCount: 0,
       priorityTaskCount: 0,
       totalXp: 0,
+      studentPlan: [],
       financeEntries: [],
       leads: [],
       recentXpEvents: [
@@ -127,6 +129,7 @@ describe("buildDashboardViewModel", () => {
       outstandingTaskCount: 0,
       priorityTaskCount: 0,
       totalXp: 0,
+      studentPlan: [],
       financeEntries: [],
       leads: [],
       recentXpEvents: [],
@@ -135,6 +138,6 @@ describe("buildDashboardViewModel", () => {
     });
 
     expect(dashboard.greeting).toContain("CCAD");
-    expect(dashboard.metrics[2].label).toContain("net");
+    expect(dashboard.metrics[0].label).toContain("net");
   });
 });

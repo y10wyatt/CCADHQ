@@ -15,6 +15,31 @@ first. Keep entries concise and factual.
 - Next recommended step:
 ```
 
+## 2026-07-05 11:41 PDT - Improve owner dashboard and loading path
+
+- Goal: Make the desktop dashboard more useful for William and Alice while
+  reducing unnecessary database transfer on initial load.
+- Files changed: `features/dashboard/**`, `features/weekly-quests/**`,
+  `features/students/**`, `features/leads/**`, `app/(app)/**`,
+  `shared/database/database.types.ts`,
+  `supabase/migrations/20260705183726_dashboard_xp_total.sql`,
+  `docs/build-log.md`, `docs/dev-log.md`.
+- What works: Home now shows a five-item Student Plan, Dashboard only requests
+  active quests, completed quest and student history is collapsed, recent
+  activity and lead-source details start collapsed, past planned classes are
+  no longer presented as upcoming, missing class summaries receive a direct
+  action, and lead conversion uses one consistent cohort. Dashboard data is
+  consolidated into one timed database request and streams behind a stable
+  page header. Finance adds missing-income, last-updated, and previous-month
+  context. Settings explains the current account permissions. Studio XP totals
+  are calculated by PostgreSQL instead of downloading every XP row after the
+  new migration is applied.
+- Known issues: The new XP-total migration must be applied before deploying this
+  code. Live authenticated browser timing is still unavailable because the
+  in-app browser did not expose a connected tab.
+- Next recommended step: Apply the migration, deploy a preview, and compare the
+  logged Dashboard response time before adding server pagination.
+
 ## 2026-06-28 15:33 PDT - Improve Student record form
 
 - Goal: Make Student create/edit easier to scan, safer to complete, and more

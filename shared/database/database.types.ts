@@ -959,6 +959,18 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      get_studio_xp_total: {
+        Args: { target_organization_id: string };
+        Returns: number;
+      };
+      get_dashboard_overview: {
+        Args: {
+          target_organization_id: string;
+          month_start: string;
+          month_end: string;
+        };
+        Returns: Json;
+      };
       start_focus_session: {
         Args: {
           target_organization_id: string;

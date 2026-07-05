@@ -109,6 +109,13 @@ export function getDateKey(now: Date, timezone: string) {
   return `${value("year")}-${value("month")}-${value("day")}`;
 }
 
+export function getPreviousMonthKey(month: string) {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const previousMonth = monthNumber === 1 ? 12 : monthNumber - 1;
+  const previousYear = monthNumber === 1 ? year - 1 : year;
+  return `${previousYear}-${String(previousMonth).padStart(2, "0")}`;
+}
+
 export function formatMonthLabel(month: string, timezone: string) {
   return new Intl.DateTimeFormat("en-CA", {
     month: "long",

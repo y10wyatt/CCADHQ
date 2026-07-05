@@ -7,6 +7,7 @@ import {
 } from "@/features/leads/domain/leads";
 import type { WeeklyQuestView } from "@/features/weekly-quests/domain/weekly-quests";
 import { getStudioProgress } from "@/features/dashboard/domain/studio-progress";
+import type { DashboardStudentPlanItem } from "@/features/dashboard/domain/student-plan";
 
 export interface DashboardSnapshot {
   organizationName: string;
@@ -16,6 +17,7 @@ export interface DashboardSnapshot {
   outstandingTaskCount: number;
   priorityTaskCount: number;
   totalXp: number;
+  studentPlan: DashboardStudentPlanItem[];
   financeEntries: Array<{
     entryType: "income" | "expense";
     amountMinor: number;
@@ -80,6 +82,13 @@ export function buildDashboardViewModel(
     xpProgressPercent: progress.progressPercent,
     metrics: [
       {
+        label: `${getMonthName(safeNow, snapshot.timezone)} net`,
+        value: currency.format(netMinor / 100),
+        detail: `Income ${currency.format(incomeMinor / 100)} | Expenses ${currency.format(expenseMinor / 100)}`,
+        href: "/finance",
+        tone: netMinor > 0 ? "success" : netMinor < 0 ? "warning" : "neutral",
+      },
+      {
         label: "Outstanding tasks",
         value: snapshot.outstandingTaskCount.toString(),
         detail:
@@ -96,14 +105,8 @@ export function buildDashboardViewModel(
         href: "/studio-xp",
         tone: "info",
       },
-      {
-        label: `${getMonthName(safeNow, snapshot.timezone)} net`,
-        value: currency.format(netMinor / 100),
-        detail: `Income ${currency.format(incomeMinor / 100)} | Expenses ${currency.format(expenseMinor / 100)}`,
-        href: "/finance",
-        tone: netMinor > 0 ? "success" : netMinor < 0 ? "warning" : "neutral",
-      },
     ],
+    studentPlan: snapshot.studentPlan,
     leadsOverview: {
       ...buildLeadOverviewMetrics({ leads: snapshot.leads, now: safeNow }),
       currencyCode: snapshot.currencyCode,

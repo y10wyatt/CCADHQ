@@ -23,6 +23,46 @@ record of every completed development task.
 - Remaining work or open questions
 ```
 
+## 2026-07-05 - Owner dashboard and query optimization
+
+### Scope
+
+- Added a prioritized, five-item Student Plan to Home.
+- Added direct preparation and class-summary actions to Student Plan.
+- Moved completed quests and students into collapsed history.
+- Collapsed secondary Dashboard activity and lead-source details by default.
+- Corrected stale class-session and lead-conversion behavior.
+- Consolidated Dashboard data into one timed PostgreSQL request and added a
+  streamed loading boundary.
+- Added Finance missing-income, last-updated, and previous-month context.
+- Added a Settings permission summary.
+- Added a security-invoker PostgreSQL function that returns one Studio XP total
+  instead of transferring all XP rows to Next.js.
+
+### Decisions
+
+- Preserve the existing visual language and introduce modular panels so later
+  UI redesigns do not require rewriting data rules.
+- Rank unresolved classes and overdue teacher actions ahead of routine planning.
+- Keep completion history reachable without letting it compete with active work.
+- Use database aggregation for growing event history.
+- Keep access rules in PostgreSQL through security-invoker functions so existing
+  row-level security remains active.
+
+### Verification
+
+- `npm run typecheck` passed.
+- `npm run lint` passed after warning cleanup.
+- `npm test` passed: 71 tests.
+- `npm run build` passed.
+
+### Follow-ups
+
+- Apply `20260705183726_dashboard_xp_total.sql` before deploying the code.
+- Capture authenticated production timings after a preview deployment.
+- Add server pagination before the record lists grow substantially.
+- Add a reliable posted timestamp before collapsing older Marketing work.
+
 ## 2026-06-28 - Progressive Student record form
 
 ### Scope

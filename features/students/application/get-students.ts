@@ -20,6 +20,7 @@ export async function getStudents(member: CurrentMember): Promise<StudentView[]>
     .eq("organization_id", member.organization.id)
     .is("archived_at", null)
     .order("follow_up_needed", { ascending: false })
+    .order("next_class_date", { ascending: true, nullsFirst: false })
     .order("updated_at", { ascending: false });
 
   if (error) {
@@ -244,12 +245,7 @@ function buildStudentSessionContext({
       (session) =>
         Date.parse(session.scheduledStart) >= now &&
         (session.status === "planned" || session.status === "in_progress"),
-    ) ??
-    sessions.find(
-      (session) =>
-        session.status === "planned" || session.status === "in_progress",
-    ) ??
-    null;
+    ) ?? null;
   const previousCompletedSession =
     [...sessions]
       .reverse()

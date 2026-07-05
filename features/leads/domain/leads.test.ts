@@ -74,6 +74,31 @@ describe("lead domain", () => {
     });
   });
 
+  it("calculates conversion from one all-time lead cohort", () => {
+    const metrics = buildLeadOverviewMetrics({
+      now: new Date("2026-06-20T12:00:00.000Z"),
+      leads: [
+        lead({
+          id: "old-enrollment",
+          status: "Enrolled",
+          convertedStudentId: "student-1",
+          convertedAt: "2026-05-15T12:00:00.000Z",
+        }),
+        lead({
+          id: "june-enrollment",
+          status: "Enrolled",
+          convertedStudentId: "student-2",
+          convertedAt: "2026-06-15T12:00:00.000Z",
+        }),
+        lead({ id: "active-lead", status: "New Inquiry" }),
+        lead({ id: "lost-lead", status: "Lost" }),
+      ],
+    });
+
+    expect(metrics.enrolledThisMonth).toBe(1);
+    expect(metrics.conversionRate).toBe(50);
+  });
+
   it("classifies follow-up dates", () => {
     expect(getFollowUpState("2026-06-19", "2026-06-20")).toBe("overdue");
     expect(getFollowUpState("2026-06-20", "2026-06-20")).toBe("due-today");

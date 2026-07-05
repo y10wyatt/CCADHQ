@@ -3,11 +3,64 @@ import { buildCharacterSummaries } from "@/features/character-xp/domain/characte
 import { buildDashboardViewModel } from "@/features/dashboard/application/build-dashboard-view-model";
 import type { DashboardQuery } from "@/features/dashboard/application/dashboard-query";
 import type { DashboardViewModel } from "@/features/dashboard/domain/dashboard-view-model";
+import { buildDashboardStudentPlan } from "@/features/dashboard/domain/student-plan";
 import type { LeadView } from "@/features/leads/domain/leads";
 import type { Database } from "@/shared/database/database.types";
-import { getWeeklyQuests } from "@/features/weekly-quests/application/get-weekly-quests";
-import { isMissingSchemaError } from "@/shared/database/is-missing-schema-error";
+import {
+  buildWeeklyQuestViews,
+  type WeeklyQuestSnapshot,
+} from "@/features/weekly-quests/domain/weekly-quests";
 import { createServerSupabaseClient } from "@/shared/database/supabase/server";
+
+interface DashboardOverviewPayload {
+  outstanding_task_count: number;
+  priority_task_count: number;
+  total_xp: number;
+  recent_xp: Array<{
+    id: string;
+    description: string;
+    points: number;
+    actor_member_id: string | null;
+    created_at: string;
+  }>;
+  finance_entries: Array<{
+    entry_type: "income" | "expense";
+    amount_minor: number;
+  }>;
+  leads: Database["public"]["Tables"]["leads"]["Row"][];
+  members: Array<{
+    id: string;
+    display_name: string;
+    avatar_url: string | null;
+  }>;
+  character_xp_events: Array<{
+    member_id: string;
+    event_type: Database["public"]["Tables"]["character_xp_events"]["Row"]["event_type"];
+    points: number;
+  }>;
+  weekly_quests: Database["public"]["Tables"]["weekly_quests"]["Row"][];
+  students: Array<{
+    id: string;
+    name: string;
+    status: Database["public"]["Tables"]["students"]["Row"]["status"];
+    follow_up_needed: boolean;
+    remaining_class_credits: number;
+  }>;
+  class_sessions: Array<{
+    id: string;
+    student_id: string;
+    scheduled_start: string;
+    status: Database["public"]["Tables"]["class_sessions"]["Row"]["status"];
+    lesson_goal: string;
+  }>;
+  student_action_items: Array<{
+    id: string;
+    student_id: string;
+    title: string;
+    due_date: string | null;
+    assigned_to: Database["public"]["Tables"]["student_action_items"]["Row"]["assigned_to"];
+  }>;
+}
 
 export class SupabaseDashboardQuery implements DashboardQuery {
   constructor(
@@ -23,97 +76,34 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       this.member.organization.timezone,
     );
 
-    const [
-      outstandingTasks,
-      priorityTasks,
-      xpTotal,
-      recentXp,
-      financeEntries,
-      leads,
-      members,
-      characterXpEvents,
-      weeklyQuests,
-    ] = await Promise.all([
-      supabase
-        .from("tasks")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", organizationId)
-        .neq("status", "done")
-        .is("archived_at", null),
-      supabase
-        .from("tasks")
-        .select("id", { count: "exact", head: true })
-        .eq("organization_id", organizationId)
-        .neq("status", "done")
-        .in("priority", ["high", "urgent"])
-        .is("archived_at", null),
-      supabase
-        .from("xp_events")
-        .select("points")
-        .eq("organization_id", organizationId),
-      supabase
-        .from("xp_events")
-        .select("id, description, points, actor_member_id, created_at")
-        .eq("organization_id", organizationId)
-        .order("created_at", { ascending: false })
-        .limit(5),
-      supabase
-        .from("finance_entries")
-        .select("entry_type, amount_minor")
-        .eq("organization_id", organizationId)
-        .gte("entry_date", monthRange.start)
-        .lt("entry_date", monthRange.end)
-        .is("archived_at", null),
-      supabase
-        .from("leads")
-        .select("*")
-        .eq("organization_id", organizationId),
-      supabase
-        .from("organization_members")
-        .select(
-          "id, profile:profiles!organization_members_user_id_fkey(display_name, avatar_url)",
-        )
-        .eq("organization_id", organizationId)
-        .eq("is_active", true)
-        .order("joined_at"),
-      supabase
-        .from("character_xp_events")
-        .select("member_id, event_type, points")
-        .eq("organization_id", organizationId),
-      getWeeklyQuests(this.member),
-    ]);
+    const startedAt = performance.now();
+    const { data, error } = await supabase.rpc("get_dashboard_overview", {
+      target_organization_id: organizationId,
+      month_start: monthRange.start,
+      month_end: monthRange.end,
+    });
 
-    const firstError = [
-      outstandingTasks.error,
-      priorityTasks.error,
-      xpTotal.error,
-      recentXp.error,
-      financeEntries.error,
-      members.error,
-    ].find(Boolean);
-
-    if (firstError) {
-      throw new Error(`Unable to load Home dashboard: ${firstError.message}`);
+    if (error || !data) {
+      throw new Error(
+        `Unable to load Home dashboard: ${error?.message ?? "No data returned"}`,
+      );
     }
 
-    const leadsData = isMissingSchemaError(leads.error) ? [] : leads.data;
-    const characterXpEventsData = isMissingSchemaError(characterXpEvents.error)
-      ? []
-      : characterXpEvents.data;
-
-    const optionalError = [leads.error, characterXpEvents.error].find(
-      (error) => error && !isMissingSchemaError(error),
-    );
-
-    if (optionalError) {
-      throw new Error(`Unable to load Home dashboard: ${optionalError.message}`);
-    }
+    const overview = data as unknown as DashboardOverviewPayload;
+    console.info("Dashboard overview loaded", {
+      durationMs: Math.round(performance.now() - startedAt),
+    });
 
     const memberNames = new Map(
-      (members.data ?? []).map((candidate) => [
+      overview.members.map((candidate) => [
         candidate.id,
-        candidate.profile?.display_name ?? "Unnamed member",
+        candidate.display_name ?? "Unnamed member",
       ]),
+    );
+    const weeklyQuests = buildWeeklyQuestViews(
+      overview.weekly_quests.map((quest) =>
+        mapWeeklyQuest(quest, memberNames),
+      ),
     );
 
     return buildDashboardViewModel({
@@ -121,31 +111,53 @@ export class SupabaseDashboardQuery implements DashboardQuery {
       timezone: this.member.organization.timezone,
       currencyCode: this.member.organization.currencyCode,
       now: this.now,
-      outstandingTaskCount: outstandingTasks.count ?? 0,
-      priorityTaskCount: priorityTasks.count ?? 0,
-      totalXp: (xpTotal.data ?? []).reduce(
-        (total, event) => total + event.points,
-        0,
-      ),
-      financeEntries: (financeEntries.data ?? []).map((entry) => ({
+      outstandingTaskCount: Number(overview.outstanding_task_count),
+      priorityTaskCount: Number(overview.priority_task_count),
+      totalXp: Number(overview.total_xp),
+      studentPlan: buildDashboardStudentPlan({
+        now: this.now,
+        timezone: this.member.organization.timezone,
+        students: overview.students.map((student) => ({
+          id: student.id,
+          name: student.name,
+          status: student.status,
+          followUpNeeded: student.follow_up_needed,
+          remainingClassCredits: student.remaining_class_credits ?? 0,
+        })),
+        sessions: overview.class_sessions.map((session) => ({
+          id: session.id,
+          studentId: session.student_id,
+          scheduledStart: session.scheduled_start,
+          status: session.status,
+          lessonGoal: session.lesson_goal,
+        })),
+        actionItems: overview.student_action_items.map((item) => ({
+          id: item.id,
+          studentId: item.student_id,
+          title: item.title,
+          dueDate: item.due_date,
+          assignedTo: item.assigned_to,
+        })),
+      }),
+      financeEntries: overview.finance_entries.map((entry) => ({
         entryType: entry.entry_type,
         amountMinor: entry.amount_minor,
       })),
-      leads: (leadsData ?? []).map(mapLead),
+      leads: overview.leads.map(mapLead),
       characters: buildCharacterSummaries({
-        members: (members.data ?? []).map((candidate) => ({
+        members: overview.members.map((candidate) => ({
           id: candidate.id,
-          name: candidate.profile?.display_name ?? "Unnamed member",
-          avatarUrl: candidate.profile?.avatar_url ?? null,
+          name: candidate.display_name ?? "Unnamed member",
+          avatarUrl: candidate.avatar_url ?? null,
         })),
-        events: (characterXpEventsData ?? []).map((event) => ({
+        events: overview.character_xp_events.map((event) => ({
           memberId: event.member_id,
           eventType: event.event_type,
           points: event.points,
         })),
       }),
       weeklyQuests,
-      recentXpEvents: (recentXp.data ?? []).map((event) => ({
+      recentXpEvents: overview.recent_xp.map((event) => ({
         id: event.id,
         description: event.description,
         points: event.points,
@@ -181,6 +193,30 @@ function mapLead(lead: Database["public"]["Tables"]["leads"]["Row"]): LeadView {
     notes: lead.notes,
     convertedStudentId: lead.converted_student_id,
     convertedAt: lead.converted_at,
+  };
+}
+
+function mapWeeklyQuest(
+  quest: Database["public"]["Tables"]["weekly_quests"]["Row"],
+  memberNames: Map<string, string>,
+): WeeklyQuestSnapshot {
+  return {
+    id: quest.id,
+    title: quest.title,
+    description: quest.description,
+    status: quest.status,
+    studioStatKey: quest.studio_stat_key,
+    xpValue: quest.xp_value,
+    characterXpValue: quest.character_xp_value,
+    progressCurrent: quest.progress_current,
+    progressTarget: quest.progress_target,
+    dueAt: quest.due_at,
+    completedAt: quest.completed_at,
+    completedByName: quest.completed_by_member_id
+      ? (memberNames.get(quest.completed_by_member_id) ?? "Inactive member")
+      : null,
+    createdByName:
+      memberNames.get(quest.created_by_member_id) ?? "Inactive member",
   };
 }
 
