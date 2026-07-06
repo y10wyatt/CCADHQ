@@ -83,16 +83,13 @@ export async function getStudioXp(
 
 export async function getStudioXpSummary(member: CurrentMember) {
   const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase
-    .from("xp_events")
-    .select("points")
-    .eq("organization_id", member.organization.id);
+  const { data, error } = await supabase.rpc("get_studio_xp_total", {
+    target_organization_id: member.organization.id,
+  });
 
   if (error) {
     throw new Error(`Unable to load Studio XP summary: ${error.message}`);
   }
 
-  return getStudioProgress(
-    (data ?? []).reduce((total, event) => total + event.points, 0),
-  );
+  return getStudioProgress(Number(data ?? 0));
 }

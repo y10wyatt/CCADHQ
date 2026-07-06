@@ -33,6 +33,13 @@ export function StudentsWorkspace({ students }: { students: StudentView[] }) {
     text: string;
     tone: "success" | "error";
   } | null>(null);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const currentStudents = students.filter(
+    (student) => student.status !== "Completed",
+  );
+  const completedStudents = students.filter(
+    (student) => student.status === "Completed",
+  );
 
   function runAction(
     action: () => Promise<StudentActionResult>,
@@ -108,16 +115,16 @@ export function StudentsWorkspace({ students }: { students: StudentView[] }) {
         )}
       </Card>
 
-      {students.length === 0 ? (
+      {currentStudents.length === 0 ? (
         <Card>
           <p className="text-sm text-muted-foreground">
-            No students yet. Add the first student record to start tracking class
+            No current students. Add a student record to start tracking class
             progress and follow-ups.
           </p>
         </Card>
       ) : (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {students.map((student) => (
+          {currentStudents.map((student) => (
             <StudentCard
               key={student.id}
               student={student}
@@ -131,6 +138,43 @@ export function StudentsWorkspace({ students }: { students: StudentView[] }) {
               }
             />
           ))}
+        </section>
+      )}
+
+      {completedStudents.length > 0 && (
+        <section className="rounded-xl border border-border bg-card">
+          <button
+            type="button"
+            onClick={() => setShowCompleted((current) => !current)}
+            className="flex min-h-11 w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+            aria-expanded={showCompleted}
+          >
+            <span>Completed students</span>
+            <span className="text-muted-foreground">
+              {completedStudents.length} · {showCompleted ? "Hide" : "Show"}
+            </span>
+          </button>
+          {showCompleted && (
+            <div className="grid gap-4 border-t border-border p-5 md:grid-cols-2 xl:grid-cols-3">
+              {completedStudents.map((student) => (
+                <StudentCard
+                  key={student.id}
+                  student={student}
+                  disabled={isPending}
+                  onEdit={() => {
+                    setEditingStudent(student);
+                    setFormOpen(true);
+                  }}
+                  onArchive={() =>
+                    runAction(
+                      () => archiveStudent(student.id),
+                      "Student archived.",
+                    )
+                  }
+                />
+              ))}
+            </div>
+          )}
         </section>
       )}
     </div>

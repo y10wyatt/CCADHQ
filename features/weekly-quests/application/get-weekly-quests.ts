@@ -10,15 +10,22 @@ import { createServerSupabaseClient } from "@/shared/database/supabase/server";
 
 export async function getWeeklyQuests(
   member: CurrentMember,
+  options: { includeCompleted?: boolean } = {},
 ): Promise<WeeklyQuestView[]> {
   const supabase = await createServerSupabaseClient();
   const organizationId = member.organization.id;
+  let questQuery = supabase
+    .from("weekly_quests")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .neq("status", "archived");
+
+  if (options.includeCompleted === false) {
+    questQuery = questQuery.eq("status", "active");
+  }
+
   const [quests, members] = await Promise.all([
-    supabase
-      .from("weekly_quests")
-      .select("*")
-      .eq("organization_id", organizationId)
-      .neq("status", "archived")
+    questQuery
       .order("status", { ascending: true })
       .order("due_at", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false }),

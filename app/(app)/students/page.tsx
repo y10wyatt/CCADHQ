@@ -7,6 +7,9 @@ import { StatusPill } from "@/shared/ui/status-pill";
 export default async function StudentsPage() {
   const member = await requireCurrentMember();
   const students = await getStudents(member);
+  const currentStudentCount = students.filter(
+    (student) => student.status !== "Completed",
+  ).length;
 
   return (
     <>
@@ -14,7 +17,7 @@ export default async function StudentsPage() {
         eyebrow="Students"
         title="Student studio records"
         description="Track current goals, follow-ups, posting permission, and class progress."
-        action={<StatusPill tone="info">{students.length} active records</StatusPill>}
+        action={<StatusPill tone="info">{currentStudentCount} current records</StatusPill>}
       />
       <StudentsWorkspace students={students} />
     </>

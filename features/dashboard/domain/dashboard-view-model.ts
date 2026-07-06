@@ -4,6 +4,7 @@ import type {
   LeadSourceReport,
 } from "@/features/leads/domain/leads";
 import type { WeeklyQuestView } from "@/features/weekly-quests/domain/weekly-quests";
+import type { DashboardStudentPlanItem } from "@/features/dashboard/domain/student-plan";
 
 export type DashboardTone = "neutral" | "info" | "success" | "warning";
 
@@ -31,6 +32,7 @@ export interface DashboardViewModel {
   xpToNextLevel: number;
   xpProgressPercent: number;
   metrics: DashboardMetric[];
+  studentPlan: DashboardStudentPlanItem[];
   leadsOverview: LeadOverviewMetrics & {
     currencyCode: string;
   };

@@ -9,6 +9,7 @@ import type {
   DashboardActivity,
   DashboardViewModel,
 } from "@/features/dashboard/domain/dashboard-view-model";
+import { StudentPlanPanel } from "@/features/dashboard/ui/student-plan-panel";
 import { formatMoney } from "@/features/leads/domain/leads";
 import type { StudioNote } from "@/features/studio-notes/domain/studio-notes";
 import { StudioNotesPanel } from "@/features/studio-notes/ui/studio-notes-panel";
@@ -23,7 +24,7 @@ interface DashboardOverviewProps {
 }
 
 export function DashboardOverview({ dashboard, studioNotes }: DashboardOverviewProps) {
-  const [showActivity, setShowActivity] = useState(true);
+  const [showActivity, setShowActivity] = useState(false);
 
   return (
     <div className="grid gap-5">
@@ -56,6 +57,8 @@ export function DashboardOverview({ dashboard, studioNotes }: DashboardOverviewP
           </Link>
         ))}
       </section>
+
+      <StudentPlanPanel items={dashboard.studentPlan} />
 
       <LeadsOverview dashboard={dashboard} />
 
@@ -213,8 +216,12 @@ function LeadsOverview({ dashboard }: { dashboard: DashboardViewModel }) {
           </div>
         ))}
       </div>
-      <div className="mt-5 overflow-x-auto">
-        <table className="w-full min-w-[620px] text-left text-sm">
+      <details className="mt-5">
+        <summary className="min-h-11 cursor-pointer rounded-lg py-3 text-sm font-medium text-accent">
+          View lead source details
+        </summary>
+        <div className="overflow-x-auto pt-2">
+          <table className="w-full min-w-[620px] text-left text-sm">
           <thead className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
             <tr className="border-b border-border">
               <th className="py-3 pr-4">Source</th>
@@ -237,8 +244,9 @@ function LeadsOverview({ dashboard }: { dashboard: DashboardViewModel }) {
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
+          </table>
+        </div>
+      </details>
     </Card>
   );
 }

@@ -22,6 +22,7 @@ import {
   formatEntryDate,
   formatMonthLabel,
   formatRecurrence,
+  getPreviousMonthKey,
   parseAmountToMinor,
   summarizeFinance,
   type FinanceEntryView,
@@ -78,6 +79,17 @@ export function FinanceWorkspace({ finance }: { finance: FinanceViewModel }) {
   );
   const summary = summarizeFinance(monthEntries);
   const monthLabel = formatMonthLabel(monthFilter, finance.timezone);
+  const previousMonth = getPreviousMonthKey(monthFilter);
+  const previousSummary = summarizeFinance(
+    finance.entries.filter((entry) =>
+      entry.entryDate.startsWith(previousMonth),
+    ),
+  );
+  const latestUpdate = monthEntries.reduce<string | null>(
+    (latest, entry) =>
+      latest === null || entry.updatedAt > latest ? entry.updatedAt : latest,
+    null,
+  );
 
   function runAction(
     action: () => Promise<FinanceActionResult>,
@@ -144,6 +156,22 @@ export function FinanceWorkspace({ finance }: { finance: FinanceViewModel }) {
           }
         />
       </section>
+
+      {summary.expenseMinor > 0 && summary.incomeMinor === 0 && (
+        <p
+          role="status"
+          className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm leading-6 text-foreground"
+        >
+          {monthLabel} has expenses but no recorded income. Check whether income
+          entries are missing before relying on the net total.
+        </p>
+      )}
+
+      <p className="text-xs text-muted-foreground">
+        {latestUpdate
+          ? `Selected month last updated ${formatUpdatedAt(latestUpdate, finance.timezone)}.`
+          : `No entries recorded for ${monthLabel}.`}
+      </p>
 
       <Card>
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -230,6 +258,8 @@ export function FinanceWorkspace({ finance }: { finance: FinanceViewModel }) {
         expenseMinor={summary.expenseMinor}
         currencyCode={finance.currencyCode}
         monthLabel={monthLabel}
+        previousMonthLabel={formatMonthLabel(previousMonth, finance.timezone)}
+        previousNetMinor={previousSummary.netMinor}
       />
 
       <LedgerTable
@@ -248,6 +278,16 @@ export function FinanceWorkspace({ finance }: { finance: FinanceViewModel }) {
       />
     </div>
   );
+}
+
+function formatUpdatedAt(value: string, timezone: string) {
+  return new Intl.DateTimeFormat("en-CA", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: timezone,
+  }).format(new Date(value));
 }
 
 function SummaryCard({
@@ -277,12 +317,19 @@ function MonthlyComparison({
   expenseMinor,
   currencyCode,
   monthLabel,
+  previousMonthLabel,
+  previousNetMinor,
 }: {
   incomeMinor: number;
   expenseMinor: number;
   currencyCode: string;
   monthLabel: string;
+  previousMonthLabel: string;
+  previousNetMinor: number;
 }) {
+  const netMinor = incomeMinor - expenseMinor;
+  const netDifferenceMinor = netMinor - previousNetMinor;
+
   return (
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -290,6 +337,11 @@ function MonthlyComparison({
           <h2 className="text-lg font-semibold">Income and expenses</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             A lightweight comparison for {monthLabel}.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Net is {formatCurrency(Math.abs(netDifferenceMinor), currencyCode)}{" "}
+            {netDifferenceMinor >= 0 ? "higher" : "lower"} than{" "}
+            {previousMonthLabel}.
           </p>
         </div>
         <StatusPill tone="neutral">Internal visibility</StatusPill>
